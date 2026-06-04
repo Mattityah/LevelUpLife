@@ -415,7 +415,9 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
               <button onclick="calNav(1)" style="width:24px;height:24px;border-radius:50%;background:var(--white);border:1px solid var(--border2);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center">›</button>
             </div>
           </div>
-          <div style="background:var(--white);border:1px solid var(--border);border-radius:14px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
+          <div style="background:var(--white);border:1px solid var(--border);border-radius:14px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.04);overflow:hidden;position:relative">
+            <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#ef4444,#f97316);border-radius:14px 14px 0 0"></div>
+            <div style="height:3px;margin-bottom:9px"></div>
             <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px">
               <div style="text-align:center;font-size:9px;color:var(--muted2);padding:2px 0">L</div>
               <div style="text-align:center;font-size:9px;color:var(--muted2);padding:2px 0">M</div>
@@ -428,12 +430,18 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
             <div id="home-cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px"></div>
           </div>
           <!-- Detalle día -->
-          <div id="home-cal-detail" style="display:none;margin-top:10px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
-              <div style="font-family:'Instrument Serif',serif;font-size:13px;color:var(--text)" id="home-cal-day-title"></div>
-              <span style="font-size:11px;color:var(--violet)" id="home-cal-day-xp"></span>
+          <div id="home-cal-detail" style="display:none;margin-top:12px;background:var(--white);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+              <div style="font-family:'Instrument Serif',serif;font-size:15px;color:var(--text);text-transform:capitalize" id="home-cal-day-title"></div>
+              <span style="font-size:11px;color:var(--violet);font-weight:500;background:var(--vi-bg);padding:3px 9px;border-radius:20px" id="home-cal-day-xp"></span>
             </div>
-            <div id="home-cal-day-list"></div>
+            <div id="home-cal-day-list" style="max-height:280px;overflow-y:auto"></div>
+            <!-- Mini nota inline -->
+            <div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px">
+              <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.1px;color:var(--muted2);font-weight:500;margin-bottom:6px">Nota del día</div>
+              <textarea id="home-cal-note" placeholder="Anotá algo..." style="width:100%;min-height:60px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:9px;padding:9px 11px;font-size:12px;font-family:'Geist',sans-serif;font-weight:300;outline:none;resize:none;transition:all .15s;line-height:1.55" onfocus="this.style.borderColor='var(--violet)';this.style.boxShadow='0 0 0 3px rgba(124,58,237,0.07)'" onblur="this.style.borderColor='var(--border2)';this.style.boxShadow='none'"></textarea>
+              <button onclick="saveNoteFromHome()" style="margin-top:6px;width:100%;padding:8px;background:var(--text);color:#fff;border:none;border-radius:8px;font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .18s" id="home-note-save-btn">Guardar nota</button>
+            </div>
           </div>
         </div>
 
@@ -1274,21 +1282,44 @@ function calShowDayHome(d){
   ge('home-cal-day-title').textContent=`${dayNames[dateObj.getDay()]} ${d} de ${monthNames[month]}`;
   const totalXP=acts.reduce((s,a)=>s+a.pts,0);
   ge('home-cal-day-xp').textContent=totalXP>0?`${totalXP} XP`:'';
+  // Tareas del día
   let html='';
-  if(note) html+=`<div style="background:var(--vi-bg);border:0.5px solid rgba(124,58,237,0.2);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:12px;color:var(--vi-tc);font-weight:300;line-height:1.5">${esc(note)}</div>`;
   if(acts.length){
-    html+=acts.map(a=>{
+    html=acts.map(a=>{
       const m=CATS[a.cat]||{color:'#888',bg:'#eee',tc:'#555'};
-      return`<div style="display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:5px">
+      return`<div style="display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;margin-bottom:5px">
         <div style="width:7px;height:7px;border-radius:50%;background:${m.color};flex-shrink:0"></div>
         <span style="flex:1;font-size:12px;color:var(--text);font-weight:300">${esc(a.title)}</span>
+        <span style="font-size:10px;color:var(--muted2)">${new Date(a.time).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})}</span>
         <span style="font-size:11px;font-weight:500;padding:2px 7px;border-radius:20px;background:${m.bg};color:${m.tc}">+${a.pts}</span>
       </div>`;
     }).join('');
+  } else {
+    html=`<div style="font-size:12px;color:var(--muted2);padding:4px 0">Sin tareas completadas</div>`;
   }
-  if(!html) html=`<div style="font-size:12px;color:var(--muted2);padding:8px 0;text-align:center">Sin actividad ni notas</div>`;
   ge('home-cal-day-list').innerHTML=html;
+  // Nota en textarea
+  const noteEl=ge('home-cal-note');
+  if(noteEl){noteEl.value=note;noteEl.dataset.day=d;}
+  // Feedback btn reset
+  const saveBtn=ge('home-note-save-btn');
+  if(saveBtn){saveBtn.textContent='Guardar nota';saveBtn.style.background='var(--text)';}
   ge('home-cal-detail').style.display='block';
+  ge('home-cal-detail').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function saveNoteFromHome(){
+  const noteEl=ge('home-cal-note');if(!noteEl)return;
+  const d=parseInt(noteEl.dataset.day);if(!d)return;
+  const key=calNoteKey(d);
+  const val=noteEl.value.trim();
+  if(!state.notes)state.notes={};
+  if(val)state.notes[key]=val;else delete state.notes[key];
+  save();
+  renderCalendario();// refresh indicators
+  const btn=ge('home-note-save-btn');
+  if(btn){btn.textContent='✓ Guardado';btn.style.background='var(--teal)';
+    setTimeout(()=>{btn.textContent='Guardar nota';btn.style.background='var(--text)';},1200);}
 }
 
 function calShowDay(d){
