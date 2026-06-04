@@ -373,9 +373,9 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
           <div class="notif">🔔</div>
         </div>
         <div class="char-row">
-          <div class="avatar">✦</div>
+          <div class="avatar" id="hero-avatar">✦</div>
           <div style="flex:1">
-            <div class="char-name">Mi personaje</div>
+            <div class="char-name" id="char-name-display">Mi personaje</div>
             <div class="char-badge"><span id="char-lvl">Nivel 1 · Aprendiz</span></div>
           </div>
           <div class="streak-pill"><span class="streak-n" id="streak-n">0</span><span class="streak-l">días</span></div>
@@ -562,12 +562,76 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
       </div>
     </div>
 
+    <!-- EDITAR PERSONAJE -->
+    <div class="pane" id="pane-editar">
+      <div style="padding:28px 20px 30px">
+        <!-- Header con volver -->
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px">
+          <button onclick="sw('perfil')" style="width:34px;height:34px;border-radius:50%;background:var(--white);border:1px solid var(--border2);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,0.06)">←</button>
+          <div style="font-family:'Instrument Serif',serif;font-size:20px;font-weight:400;color:var(--text)">Editar personaje</div>
+        </div>
+
+        <!-- Avatar selector -->
+        <div style="text-align:center;margin-bottom:28px">
+          <!-- Avatar con opción de foto -->
+          <div style="position:relative;width:80px;margin:0 auto 14px">
+            <div id="edit-av-preview" style="width:80px;height:80px;border-radius:26px;background:linear-gradient(135deg,#7c3aed,#ec4899);display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 10px 28px rgba(124,58,237,0.22),inset 0 1px 0 rgba(255,255,255,0.25);overflow:hidden;cursor:pointer" onclick="ge('photo-input').click()">✦</div>
+            <label style="position:absolute;bottom:-6px;right:-6px;width:26px;height:26px;border-radius:50%;background:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:13px" title="Subir foto">
+              📷<input id="photo-input" type="file" accept="image/*" onchange="uploadPhoto(event)" style="display:none">
+            </label>
+          </div>
+          <div style="font-size:10px;color:var(--muted2);margin-bottom:14px">Tocá el avatar para cambiar la foto</div>
+          <!-- Botón quitar foto si hay una -->
+          <div id="remove-photo-wrap" style="display:none;margin-bottom:10px">
+            <button onclick="removePhoto()" style="font-size:11px;color:var(--rose);background:var(--ro-bg);border:1px solid rgba(190,24,93,0.2);border-radius:20px;padding:4px 12px;cursor:pointer">× Quitar foto</button>
+          </div>
+          <div style="font-size:11px;color:var(--muted2);margin-bottom:12px">O elegí un emoji</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center">
+            <button onclick="selectEmoji('✦')" class="emoji-btn" id="eb-✦" style="width:42px;height:42px;border-radius:12px;border:1.5px solid var(--border);background:var(--white);font-size:20px;cursor:pointer;transition:all .15s">✦</button><button onclick="selectEmoji('⚡')" class="emoji-btn" id="eb-⚡" style="width:42px;height:42px;border-radius:12px;border:1.5px solid var(--border);background:var(--white);font-size:20px;cursor:pointer;transition:all .15s">⚡</button><button onclick="selectEmoji('🔥')" class="emoji-btn" id="eb-🔥" style="width:42px;height:42px;border-radius:12px;border:1.5px solid var(--border);background:var(--white);font-size:20px;cursor:pointer;transition:all .15s">🔥</button><button onclick="selectEmoji('🌙')" class="emoji-btn" id="eb-🌙" style="width:42px;height:42px;border-radius:12px;border:1.5px solid var(--border);background:var(--white);font-size:20px;cursor:pointer;transition:all .15s">🌙</button><button onclick="selectEmoji('⭐')" class="emoji-btn" id="eb-⭐" style="width:42px;height:42px;border-radius:12px;border:1.5px solid var(--border);background:var(--white);font-size:20px;cursor:pointer;transition:all .15s">⭐</button><button onclick="selectEmoji('🎯')" class="emoji-btn" id="eb-🎯" style="width:42px;height:42px;border-radius:12px;border:1.5px solid var(--border);background:var(--white);font-size:20px;cursor:pointer;transition:all .15s">🎯</button><button onclick="selectEmoji('🧠')" class="emoji-btn" id="eb-🧠" style="width:42px;height:42px;border-radius:12px;border:1.5px solid var(--border);background:var(--white);font-size:20px;cursor:pointer;transition:all .15s">🧠</button><button onclick="selectEmoji('💎')" class="emoji-btn" id="eb-💎" style="width:42px;height:42px;border-radius:12px;border:1.5px solid var(--border);background:var(--white);font-size:20px;cursor:pointer;transition:all .15s">💎</button><button onclick="selectEmoji('🌊')" class="emoji-btn" id="eb-🌊" style="width:42px;height:42px;border-radius:12px;border:1.5px solid var(--border);background:var(--white);font-size:20px;cursor:pointer;transition:all .15s">🌊</button><button onclick="selectEmoji('🦋')" class="emoji-btn" id="eb-🦋" style="width:42px;height:42px;border-radius:12px;border:1.5px solid var(--border);background:var(--white);font-size:20px;cursor:pointer;transition:all .15s">🦋</button><button onclick="selectEmoji('🌿')" class="emoji-btn" id="eb-🌿" style="width:42px;height:42px;border-radius:12px;border:1.5px solid var(--border);background:var(--white);font-size:20px;cursor:pointer;transition:all .15s">🌿</button><button onclick="selectEmoji('🎮')" class="emoji-btn" id="eb-🎮" style="width:42px;height:42px;border-radius:12px;border:1.5px solid var(--border);background:var(--white);font-size:20px;cursor:pointer;transition:all .15s">🎮</button><button onclick="selectEmoji('🚀')" class="emoji-btn" id="eb-🚀" style="width:42px;height:42px;border-radius:12px;border:1.5px solid var(--border);background:var(--white);font-size:20px;cursor:pointer;transition:all .15s">🚀</button><button onclick="selectEmoji('🎸')" class="emoji-btn" id="eb-🎸" style="width:42px;height:42px;border-radius:12px;border:1.5px solid var(--border);background:var(--white);font-size:20px;cursor:pointer;transition:all .15s">🎸</button><button onclick="selectEmoji('🏆')" class="emoji-btn" id="eb-🏆" style="width:42px;height:42px;border-radius:12px;border:1.5px solid var(--border);background:var(--white);font-size:20px;cursor:pointer;transition:all .15s">🏆</button><button onclick="selectEmoji('🦅')" class="emoji-btn" id="eb-🦅" style="width:42px;height:42px;border-radius:12px;border:1.5px solid var(--border);background:var(--white);font-size:20px;cursor:pointer;transition:all .15s">🦅</button><button onclick="selectEmoji('🌸')" class="emoji-btn" id="eb-🌸" style="width:42px;height:42px;border-radius:12px;border:1.5px solid var(--border);background:var(--white);font-size:20px;cursor:pointer;transition:all .15s">🌸</button><button onclick="selectEmoji('🐉')" class="emoji-btn" id="eb-🐉" style="width:42px;height:42px;border-radius:12px;border:1.5px solid var(--border);background:var(--white);font-size:20px;cursor:pointer;transition:all .15s">🐉</button>
+          </div>
+        </div>
+
+        <!-- Nombre -->
+        <div style="margin-bottom:18px">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Nombre del personaje</div>
+          <input id="edit-name" type="text" placeholder="Tu nombre de personaje..." maxlength="30"
+            style="width:100%;background:var(--white);border:1px solid var(--border2);color:var(--text);border-radius:11px;padding:12px 14px;font-size:15px;font-family:'Instrument Serif',serif;outline:none;transition:all .15s"
+            onfocus="this.style.borderColor='var(--violet)';this.style.boxShadow='0 0 0 3px rgba(124,58,237,0.07)'"
+            onblur="this.style.borderColor='var(--border2)';this.style.boxShadow='none'">
+        </div>
+
+        <!-- Bio -->
+        <div style="margin-bottom:18px">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Bio <span style="color:var(--muted2);text-transform:none;letter-spacing:0;font-size:10px">(opcional)</span></div>
+          <textarea id="edit-bio" placeholder="¿Qué estás construyendo?" maxlength="120"
+            style="width:100%;min-height:80px;background:var(--white);border:1px solid var(--border2);color:var(--text);border-radius:11px;padding:12px 14px;font-size:13px;font-family:'Geist',sans-serif;font-weight:300;outline:none;resize:none;transition:all .15s;line-height:1.55"
+            onfocus="this.style.borderColor='var(--violet)';this.style.boxShadow='0 0 0 3px rgba(124,58,237,0.07)'"
+            onblur="this.style.borderColor='var(--border2)';this.style.boxShadow='none'"></textarea>
+          <div style="text-align:right;font-size:10px;color:var(--muted2);margin-top:4px"><span id="bio-count">0</span>/120</div>
+        </div>
+
+        <!-- Color del avatar -->
+        <div style="margin-bottom:28px">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:10px">Color del avatar</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button onclick="selectGrad('violet','linear-gradient(135deg,#7c3aed,#ec4899)')" id="gb-violet" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#ec4899);border:2.5px solid transparent;cursor:pointer;transition:all .15s;box-shadow:0 3px 8px rgba(0,0,0,0.15)"></button><button onclick="selectGrad('blue','linear-gradient(135deg,#2563eb,#7c3aed)')" id="gb-blue" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);border:2.5px solid transparent;cursor:pointer;transition:all .15s;box-shadow:0 3px 8px rgba(0,0,0,0.15)"></button><button onclick="selectGrad('teal','linear-gradient(135deg,#0f766e,#06b6d4)')" id="gb-teal" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#0f766e,#06b6d4);border:2.5px solid transparent;cursor:pointer;transition:all .15s;box-shadow:0 3px 8px rgba(0,0,0,0.15)"></button><button onclick="selectGrad('amber','linear-gradient(135deg,#b45309,#f59e0b)')" id="gb-amber" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#b45309,#f59e0b);border:2.5px solid transparent;cursor:pointer;transition:all .15s;box-shadow:0 3px 8px rgba(0,0,0,0.15)"></button><button onclick="selectGrad('rose','linear-gradient(135deg,#be185d,#f43f5e)')" id="gb-rose" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#be185d,#f43f5e);border:2.5px solid transparent;cursor:pointer;transition:all .15s;box-shadow:0 3px 8px rgba(0,0,0,0.15)"></button><button onclick="selectGrad('green','linear-gradient(135deg,#15803d,#4ade80)')" id="gb-green" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#15803d,#4ade80);border:2.5px solid transparent;cursor:pointer;transition:all .15s;box-shadow:0 3px 8px rgba(0,0,0,0.15)"></button><button onclick="selectGrad('indigo','linear-gradient(135deg,#4338ca,#818cf8)')" id="gb-indigo" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#4338ca,#818cf8);border:2.5px solid transparent;cursor:pointer;transition:all .15s;box-shadow:0 3px 8px rgba(0,0,0,0.15)"></button><button onclick="selectGrad('dark','linear-gradient(135deg,#1a1814,#3a3530)')" id="gb-dark" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#1a1814,#3a3530);border:2.5px solid transparent;cursor:pointer;transition:all .15s;box-shadow:0 3px 8px rgba(0,0,0,0.15)"></button>
+          </div>
+        </div>
+
+        <!-- Guardar -->
+        <button onclick="saveProfile()" style="width:100%;padding:14px;background:var(--text);color:#fff;border:none;border-radius:12px;font-size:14px;font-family:'Geist',sans-serif;font-weight:400;cursor:pointer;transition:all .18s;letter-spacing:.1px" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+          Guardar cambios
+        </button>
+      </div>
+    </div>
+
     <!-- PERFIL -->
     <div class="pane" id="pane-perfil">
       <div class="prof-hero">
-        <div class="prof-av">✦</div>
-        <div class="prof-name">Mi personaje</div>
+        <div class="prof-av" id="prof-av">✦</div>
+        <div class="prof-name" id="prof-name">Mi personaje</div>
         <div class="prof-sub" id="prof-sub">Aprendiz · Nivel 1</div>
+        <div id="prof-bio" style="font-size:12px;color:var(--muted);margin-top:6px;font-weight:300;max-width:260px;margin-left:auto;margin-right:auto;line-height:1.5;position:relative;z-index:1"></div>
         <div class="prof-stats">
           <div style="text-align:center"><div class="ps-n" id="pf-streak">0</div><div class="ps-l">racha</div></div>
           <div style="text-align:center"><div class="ps-n" id="pf-done">0</div><div class="ps-l">tareas</div></div>
@@ -580,7 +644,7 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
         <div class="set-item" onclick="sw('calendario')"><div class="set-ico" style="background:#f0f9ff">📅</div><span class="set-txt">Calendario & notas</span><span class="set-arr">›</span></div>
         <div class="set-item" onclick="sw('progreso')"><div class="set-ico" style="background:var(--vi-bg)">📈</div><span class="set-txt">Mi progreso</span><span class="set-arr">›</span></div>
         <div style="height:1px;background:var(--border);margin:4px 0"></div>
-        <div class="set-item"><div class="set-ico" style="background:var(--bg3)">👤</div><span class="set-txt">Editar personaje</span><span class="set-arr">›</span></div>
+        <div class="set-item" onclick="openEditProfile()"><div class="set-ico" style="background:var(--bg3)">👤</div><span class="set-txt">Editar personaje</span><span class="set-arr">›</span></div>
         <div class="set-item"><div class="set-ico" style="background:#fff7ed">🔔</div><span class="set-txt">Notificaciones</span><span class="set-arr">›</span></div>
         <div class="set-item"><div class="set-ico" style="background:var(--te-bg)">⭐</div><span class="set-txt">Plan Pro</span><span class="set-arr">›</span></div>
         <div class="set-item" onclick="exportData()"><div class="set-ico" style="background:var(--bg3)">📤</div><span class="set-txt">Exportar datos</span><span class="set-arr">›</span></div>
@@ -806,8 +870,8 @@ function render(){
   ge('tasks-sub')&&(ge('tasks-sub').textContent=`${state.tasks.filter(t=>!t.done).length} pendientes hoy`);
   renderTasks();
   if(curTab==='progreso')renderProgreso();
-  // Always refresh home calendar
   renderCalendario();
+  applyProfile();
 }
 
 let taskView='pending'; // 'pending' | 'history'
@@ -1282,11 +1346,163 @@ function resetHard(){
   alert('✓ Progreso reseteado. Empezás de cero.');
 }
 
+/* ── EDITAR PERSONAJE ── */
+function uploadPhoto(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    // Comprimir con canvas
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');
+      const MAX=300;
+      let w=img.width,h=img.height;
+      if(w>h){if(w>MAX){h=h*(MAX/w);w=MAX;}}
+      else{if(h>MAX){w=w*(MAX/h);h=MAX;}}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      const compressed=canvas.toDataURL('image/jpeg',0.7);
+      if(!state.profile)state.profile={};
+      state.profile.photo=compressed;
+      save();
+      applyProfilePhoto();
+      ge('remove-photo-wrap').style.display='block';
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value='';
+}
+
+function removePhoto(){
+  if(!state.profile)return;
+  delete state.profile.photo;
+  save();
+  applyProfilePhoto();
+  ge('remove-photo-wrap').style.display='none';
+}
+
+function applyProfilePhoto(){
+  const p=state.profile||{};
+  const photo=p.photo;
+  const emoji=p.emoji||'✦';
+  const grad=p.grad||'linear-gradient(135deg,#7c3aed,#ec4899)';
+  // Edit preview
+  const prev=ge('edit-av-preview');
+  if(prev){
+    if(photo){
+      prev.style.backgroundImage=`url(${photo})`;
+      prev.style.backgroundSize='cover';
+      prev.style.backgroundPosition='center';
+      prev.style.background='';
+      prev.textContent='';
+    } else {
+      prev.style.backgroundImage='';
+      prev.style.background=grad;
+      prev.textContent=emoji;
+    }
+  }
+  // Apply everywhere
+  applyProfile();
+}
+
+function openEditProfile(){
+  const p=state.profile||{};
+  ge('edit-name').value=p.name||'';
+  ge('edit-bio').value=p.bio||'';
+  ge('bio-count').textContent=(p.bio||'').length;
+  ge('edit-av-preview').textContent=p.emoji||'✦';
+  ge('edit-av-preview').style.background=p.grad||'linear-gradient(135deg,#7c3aed,#ec4899)';
+  // Mark selected emoji
+  document.querySelectorAll('.emoji-btn').forEach(b=>b.style.background='var(--white)');
+  document.querySelectorAll('.emoji-btn').forEach(b=>b.style.borderColor='var(--border)');
+  const selEb=document.getElementById('eb-'+(p.emoji||'✦'));
+  if(selEb){selEb.style.background='var(--vi-bg)';selEb.style.borderColor='var(--violet)';}
+  // Mark selected grad
+  document.querySelectorAll('[id^="gb-"]').forEach(b=>b.style.borderColor='transparent');
+  const selGb=document.getElementById('gb-'+(p.gradKey||'violet'));
+  if(selGb)selGb.style.borderColor='var(--text)';
+  // Bio counter
+  ge('edit-bio').oninput=()=>ge('bio-count').textContent=ge('edit-bio').value.length;
+  // Show/hide remove photo button
+  const removeWrap=ge('remove-photo-wrap');
+  if(removeWrap)removeWrap.style.display=(state.profile&&state.profile.photo)?'block':'none';
+  // Apply current photo to preview
+  applyProfilePhoto();
+  sw('editar');
+}
+
+function selectEmoji(e){
+  document.querySelectorAll('.emoji-btn').forEach(b=>{b.style.background='var(--white)';b.style.borderColor='var(--border)';});
+  const btn=document.getElementById('eb-'+e);
+  if(btn){btn.style.background='var(--vi-bg)';btn.style.borderColor='var(--violet)';}
+  ge('edit-av-preview').textContent=e;
+  if(!state.profile)state.profile={};
+  state.profile.emoji=e;
+}
+
+function selectGrad(key,grad){
+  document.querySelectorAll('[id^="gb-"]').forEach(b=>b.style.borderColor='transparent');
+  const btn=document.getElementById('gb-'+key);
+  if(btn)btn.style.borderColor='var(--text)';
+  ge('edit-av-preview').style.background=grad;
+  if(!state.profile)state.profile={};
+  state.profile.grad=grad;
+  state.profile.gradKey=key;
+}
+
+function saveProfile(){
+  if(!state.profile)state.profile={};
+  state.profile.name=ge('edit-name').value.trim()||'Mi personaje';
+  state.profile.bio=ge('edit-bio').value.trim();
+  state.profile.emoji=ge('edit-av-preview').textContent||'✦';
+  state.profile.grad=ge('edit-av-preview').style.background||'linear-gradient(135deg,#7c3aed,#ec4899)';
+  save();
+  applyProfile();
+  // Feedback visual
+  const btn=event.target;
+  btn.textContent='✓ Guardado';btn.style.background='var(--teal)';
+  setTimeout(()=>{btn.textContent='Guardar cambios';btn.style.background='var(--text)';sw('perfil');},1000);
+}
+
+function applyProfile(){
+  const p=state.profile||{};
+  const name=p.name||'Mi personaje';
+  const emoji=p.emoji||'✦';
+  const grad=p.grad||'linear-gradient(135deg,#7c3aed,#ec4899)';
+  const photo=p.photo;
+
+  function styleAv(el){
+    if(!el)return;
+    if(photo){
+      el.style.backgroundImage=`url(${photo})`;
+      el.style.backgroundSize='cover';
+      el.style.backgroundPosition='center';
+      el.style.background='';
+      el.textContent='';
+    } else {
+      el.style.backgroundImage='';
+      el.style.background=grad;
+      el.textContent=emoji;
+    }
+  }
+
+  styleAv(ge('hero-avatar'));
+  styleAv(ge('prof-av'));
+  ge('char-name-display')&&(ge('char-name-display').textContent=name);
+  ge('prof-name')&&(ge('prof-name').textContent=name);
+  const bioEl=ge('prof-bio');
+  if(bioEl)bioEl.textContent=p.bio||'';
+  document.querySelectorAll('.my-post-av').forEach(el=>styleAv(el));
+}
+
 function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);const d=new Date();a.download=`levelup_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}.json`;a.click();}
 function importData(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{const imp=JSON.parse(ev.target.result);if(!imp.tasks)throw new Error();if(!confirm(`Importar ${imp.tasks.length} tareas?`))return;state=imp;save();render();alert('✓ Importado.');}catch{alert('Archivo inválido.');}e.target.value='';};r.readAsText(file);}
 
 spawnRecurrentTasks();
 render();
+applyProfile();
+applyProfilePhoto();
 window.addEventListener('resize',()=>{if(curTab==='red')drawNeural();});
 </script>
 </body>
