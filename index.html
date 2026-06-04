@@ -32,7 +32,7 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
   background:rgba(255,255,255,0.92);
   border:0.5px solid rgba(0,0,0,0.09);
   border-radius:28px;
-  padding:8px 4px 10px;
+  padding:6px 4px 8px;
   box-shadow:0 4px 20px rgba(0,0,0,0.08),0 1px 4px rgba(0,0,0,0.04);
   backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
 }
@@ -50,22 +50,22 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 .nav-btn-center{
   display:flex;flex-direction:column;align-items:center;gap:4px;
   cursor:pointer;border:none;background:none;
-  position:relative;top:-14px;
+  position:relative;top:-10px;
   flex-shrink:0;
   transition:all .18s;
 }
 .nav-btn-center .nav-center-bubble{
-  width:58px;height:58px;border-radius:50%;
-  background:linear-gradient(135deg,#7c3aed,#a855f7);
+  width:50px;height:50px;border-radius:50%;
+  background:linear-gradient(145deg,#8b5cf6,#6d28d9);
   display:flex;align-items:center;justify-content:center;
-  font-size:26px;
-  box-shadow:0 6px 20px rgba(124,58,237,0.35),0 2px 8px rgba(0,0,0,0.1),inset 0 1px 0 rgba(255,255,255,0.2);
-  transition:all .18s;
+  font-size:22px;
+  box-shadow:0 4px 14px rgba(109,40,217,0.38),0 1px 4px rgba(0,0,0,0.08),inset 0 1px 0 rgba(255,255,255,0.18);
+  transition:all .2s;
 }
 .nav-btn-center:hover .nav-center-bubble,
 .nav-btn-center.active .nav-center-bubble{
-  box-shadow:0 8px 28px rgba(124,58,237,0.5),0 2px 8px rgba(0,0,0,0.12),inset 0 1px 0 rgba(255,255,255,0.25);
-  transform:scale(1.06);
+  box-shadow:0 6px 20px rgba(109,40,217,0.5),0 2px 6px rgba(0,0,0,0.1),inset 0 1px 0 rgba(255,255,255,0.22);
+  transform:scale(1.05);
 }
 .nav-btn-center .nav-lbl{font-size:8.5px;color:var(--muted2);letter-spacing:.2px;transition:color .18s;}
 .nav-btn-center.active .nav-lbl{color:var(--violet);}
@@ -317,15 +317,12 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
     </div>
     <div class="nav-section-label" id="sb-nav-label" style="display:none">Navegación</div>
 
-    <!-- Mobile: 3 | CENTER | 3 layout -->
+    <!-- Mobile: 2 | CENTER | 2 layout -->
     <button class="nav-btn active" data-pane="inicio" onclick="sw('inicio')">
       <span class="nav-ico">🏠</span><span class="nav-lbl">Inicio</span>
     </button>
     <button class="nav-btn" data-pane="tareas" onclick="sw('tareas')">
       <span class="nav-ico">📋</span><span class="nav-lbl">Tareas</span>
-    </button>
-    <button class="nav-btn" data-pane="progreso" onclick="sw('progreso')">
-      <span class="nav-ico">📈</span><span class="nav-lbl">Progreso</span>
     </button>
     <!-- CENTRO: Red Neuronal -->
     <button class="nav-btn-center" data-pane="red" onclick="sw('red')">
@@ -334,9 +331,6 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
     </button>
     <button class="nav-btn" data-pane="comunidad" onclick="sw('comunidad')">
       <span class="nav-ico">👥</span><span class="nav-lbl">Comunidad</span>
-    </button>
-    <button class="nav-btn" data-pane="calendario" onclick="sw('calendario')">
-      <span class="nav-ico">📅</span><span class="nav-lbl">Calendario</span>
     </button>
     <button class="nav-btn" data-pane="perfil" onclick="sw('perfil')">
       <span class="nav-ico">👤</span><span class="nav-lbl">Perfil</span>
@@ -389,13 +383,45 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
         <div class="xp-row"><span id="xp-lbl">0 / 100 XP</span><strong id="xp-pct">0%</strong></div>
         <div class="xp-track"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
       </div>
-      <div style="padding:22px 20px 20px">
+      <div style="padding:22px 20px 0">
         <div class="sec-label" style="margin-bottom:11px">Stats</div>
         <div class="stats-grid">
           <div class="stat-card sc-m"><span class="stat-ico">🧠</span><span class="stat-val" style="color:#6d28d9" id="sv-m">0</span><span class="stat-name" style="color:#a78bfa">Mente</span><div class="stat-bar"><div class="stat-bar-f" id="sb-m" style="width:0%;background:linear-gradient(90deg,#7c3aed,#a78bfa)"></div></div></div>
           <div class="stat-card sc-c"><span class="stat-ico">💪</span><span class="stat-val" style="color:#0f766e" id="sv-c">0</span><span class="stat-name" style="color:#5eead4">Cuerpo</span><div class="stat-bar"><div class="stat-bar-f" id="sb-c" style="width:0%;background:linear-gradient(90deg,#0f766e,#34d399)"></div></div></div>
           <div class="stat-card sc-s"><span class="stat-ico">⚡</span><span class="stat-val" style="color:#b45309" id="sv-s">0</span><span class="stat-name" style="color:#fbbf24">Skills</span><div class="stat-bar"><div class="stat-bar-f" id="sb-s" style="width:0%;background:linear-gradient(90deg,#b45309,#fbbf24)"></div></div></div>
           <div class="stat-card sc-r"><span class="stat-ico">🤝</span><span class="stat-val" style="color:#be185d" id="sv-r">0</span><span class="stat-name" style="color:#f9a8d4">Relaciones</span><div class="stat-bar"><div class="stat-bar-f" id="sb-r" style="width:0%;background:linear-gradient(90deg,#be185d,#f472b6)"></div></div></div>
+        </div>
+      </div>
+
+      <!-- CALENDARIO EN INICIO -->
+      <div style="padding:20px 20px 30px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="sec-label" style="margin-bottom:0">Calendario</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button onclick="calNav(-1)" style="width:26px;height:26px;border-radius:50%;background:var(--white);border:1px solid var(--border2);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center">‹</button>
+            <span style="font-size:11px;color:var(--text);font-weight:400;min-width:90px;text-align:center" id="home-cal-label"></span>
+            <button onclick="calNav(1)" style="width:26px;height:26px;border-radius:50%;background:var(--white);border:1px solid var(--border2);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center">›</button>
+          </div>
+        </div>
+        <div style="background:var(--white);border:1px solid var(--border);border-radius:16px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:6px">
+            <div style="text-align:center;font-size:9px;color:var(--muted2);padding:3px 0">L</div>
+            <div style="text-align:center;font-size:9px;color:var(--muted2);padding:3px 0">M</div>
+            <div style="text-align:center;font-size:9px;color:var(--muted2);padding:3px 0">X</div>
+            <div style="text-align:center;font-size:9px;color:var(--muted2);padding:3px 0">J</div>
+            <div style="text-align:center;font-size:9px;color:var(--muted2);padding:3px 0">V</div>
+            <div style="text-align:center;font-size:9px;color:var(--muted2);padding:3px 0">S</div>
+            <div style="text-align:center;font-size:9px;color:var(--muted2);padding:3px 0">D</div>
+          </div>
+          <div id="home-cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px"></div>
+        </div>
+        <!-- Detalle del día seleccionado -->
+        <div id="home-cal-detail" style="display:none;margin-top:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <div style="font-family:'Instrument Serif',serif;font-size:14px;color:var(--text)" id="home-cal-day-title"></div>
+            <span style="font-size:11px;color:var(--violet)" id="home-cal-day-xp"></span>
+          </div>
+          <div id="home-cal-day-list"></div>
         </div>
       </div>
     </div>
@@ -433,6 +459,15 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
             </select>
             <input class="inp inp-pts" type="number" id="task-pts" value="10" min="1" max="100">
             <button class="btn-add" onclick="addTask()">+ Agregar</button>
+          </div>
+          <div class="input-row" style="margin-top:8px;gap:7px">
+            <select class="inp inp-sel" id="task-recur" style="flex:1;font-size:12px">
+              <option value="none">Sin recurrencia</option>
+              <option value="daily">🔁 Todos los días</option>
+              <option value="weekly">📅 Semanal</option>
+              <option value="monthly">🗓 Mensual</option>
+            </select>
+            <input class="inp" type="date" id="task-due" style="flex:1;font-size:12px" title="Fecha límite">
             <button class="btn-sm" onclick="exportData()" title="Exportar">↓</button>
             <label class="btn-sm" style="cursor:pointer" title="Importar">↑<input type="file" accept=".json" onchange="importData(event)" style="display:none"></label>
           </div>
@@ -542,7 +577,10 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
       <div style="height:20px"></div>
       <div class="set-list">
         <div class="sec-label" style="margin-bottom:10px">Configuración</div>
-        <div class="set-item"><div class="set-ico" style="background:var(--vi-bg)">👤</div><span class="set-txt">Editar personaje</span><span class="set-arr">›</span></div>
+        <div class="set-item" onclick="sw('calendario')"><div class="set-ico" style="background:#f0f9ff">📅</div><span class="set-txt">Calendario & notas</span><span class="set-arr">›</span></div>
+        <div class="set-item" onclick="sw('progreso')"><div class="set-ico" style="background:var(--vi-bg)">📈</div><span class="set-txt">Mi progreso</span><span class="set-arr">›</span></div>
+        <div style="height:1px;background:var(--border);margin:4px 0"></div>
+        <div class="set-item"><div class="set-ico" style="background:var(--bg3)">👤</div><span class="set-txt">Editar personaje</span><span class="set-arr">›</span></div>
         <div class="set-item"><div class="set-ico" style="background:#fff7ed">🔔</div><span class="set-txt">Notificaciones</span><span class="set-arr">›</span></div>
         <div class="set-item"><div class="set-ico" style="background:var(--te-bg)">⭐</div><span class="set-txt">Plan Pro</span><span class="set-arr">›</span></div>
         <div class="set-item" onclick="exportData()"><div class="set-ico" style="background:var(--bg3)">📤</div><span class="set-txt">Exportar datos</span><span class="set-arr">›</span></div>
@@ -618,21 +656,66 @@ function addTask(){
   const inp=ge('task-input'),cat=ge('task-cat').value;
   const pts=parseInt(ge('task-pts').value)||10,title=inp.value.trim();
   if(!title){inp.focus();return;}
-  state.tasks.push({id:state.nextId++,title,cat,pts,done:false,completions:0,createdAt:Date.now()});
-  inp.value='';save();render();
+  const recur=ge('task-recur')?ge('task-recur').value:'none';
+  const due=ge('task-due')?ge('task-due').value:'';
+  state.tasks.push({id:state.nextId++,title,cat,pts,done:false,completions:0,createdAt:Date.now(),recur,due});
+  inp.value='';
+  if(ge('task-due'))ge('task-due').value='';
+  if(ge('task-recur'))ge('task-recur').value='none';
+  save();render();
+  // Spawn recurrent tasks for today if needed
+  spawnRecurrentTasks();
+}
+
+function spawnRecurrentTasks(){
+  const today=new Date().toDateString();
+  const lastSpawn=state.lastSpawn||'';
+  if(lastSpawn===today)return;
+  state.lastSpawn=today;
+  // For each recurring task that is done, reset it for today
+  state.tasks.forEach(t=>{
+    if(!t.recur||t.recur==='none')return;
+    if(!t.done)return;
+    const shouldReset=checkRecurReset(t);
+    if(shouldReset){t.done=false;t.lastReset=today;}
+  });
+  save();
+}
+
+function checkRecurReset(t){
+  const now=new Date(),today=now.toDateString();
+  if(t.lastReset===today)return false;
+  if(t.recur==='daily')return true;
+  if(t.recur==='weekly'){
+    const lastR=t.lastReset?new Date(t.lastReset):new Date(t.createdAt);
+    const diff=(now-lastR)/(1000*60*60*24);
+    return diff>=7;
+  }
+  if(t.recur==='monthly'){
+    const lastR=t.lastReset?new Date(t.lastReset):new Date(t.createdAt);
+    return now.getMonth()!==lastR.getMonth()||now.getFullYear()!==lastR.getFullYear();
+  }
+  return false;
 }
 
 function completeTask(id,e){
   e.stopPropagation();
   const t=state.tasks.find(x=>x.id===id);if(!t||t.done)return;
+  const cardEl=document.getElementById('task-'+id);
   t.done=true;t.completions=(t.completions||0)+1;t.completedAt=Date.now();
   updateStreak();
   state.activity.unshift({id:state.nextId,taskId:t.id,title:t.title,cat:t.cat,pts:t.pts,time:Date.now()});state.nextId++;
   if(state.activity.length>200)state.activity.pop();
-  save();render();
-  // Animación XP
-  showXPBurst(t.pts,t.cat);
-  if(curTab==='red')setTimeout(drawNeural,30);
+  save();
+  // Animación antes de re-render
+  showXPBurst(t.pts,t.cat,cardEl);
+  if(cardEl){
+    cardEl.style.transition='opacity .4s ease, transform .4s ease';
+    cardEl.style.opacity='0.4';
+    cardEl.style.transform='translateX(8px)';
+  }
+  setTimeout(()=>render(),350);
+  if(curTab==='red')setTimeout(drawNeural,400);
 }
 
 function deleteTask(id,e){
@@ -648,14 +731,45 @@ function deleteTask(id,e){
   save();render();if(curTab==='red')drawNeural();
 }
 
-function showXPBurst(pts,cat){
+function showXPBurst(pts,cat,cardEl){
   const m=CATS[cat]||{color:'#7c3aed'};
+  // XP float
   const el=document.createElement('div');
   el.textContent=`+${pts} XP`;
-  el.style.cssText=`position:fixed;bottom:90px;right:24px;z-index:999;font-family:'Instrument Serif',serif;font-size:22px;font-weight:400;color:${m.color};pointer-events:none;transition:all .7s cubic-bezier(.2,.8,.2,1);opacity:1;transform:translateY(0)`;
+  el.style.cssText=`position:fixed;bottom:90px;right:24px;z-index:999;font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;color:${m.color};pointer-events:none;transition:all .8s cubic-bezier(.2,.8,.2,1);opacity:1;transform:translateY(0) scale(1)`;
   document.body.appendChild(el);
-  requestAnimationFrame(()=>{requestAnimationFrame(()=>{el.style.opacity='0';el.style.transform='translateY(-40px)';});});
-  setTimeout(()=>el.remove(),800);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{el.style.opacity='0';el.style.transform='translateY(-50px) scale(1.2)';}));
+  setTimeout(()=>el.remove(),900);
+  // Confetti burst
+  spawnConfetti(m.color,cat);
+  // Card bounce
+  if(cardEl){
+    cardEl.style.transition='transform .15s cubic-bezier(.3,1.5,.5,1)';
+    cardEl.style.transform='scale(1.03)';
+    setTimeout(()=>{cardEl.style.transform='scale(1)';},150);
+  }
+}
+
+function spawnConfetti(color,cat){
+  const colors=[color,'#a855f7','#ec4899','#f59e0b','#10b981'];
+  const shapes=['●','★','✦','▲','◆'];
+  for(let i=0;i<18;i++){
+    const el=document.createElement('div');
+    el.textContent=shapes[i%shapes.length];
+    const size=8+Math.random()*10;
+    const x=window.innerWidth/2+(Math.random()-0.5)*200;
+    const y=window.innerHeight-100;
+    const tx=(Math.random()-0.5)*300;
+    const ty=-(120+Math.random()*180);
+    const rot=(Math.random()-0.5)*720;
+    el.style.cssText=`position:fixed;left:${x}px;top:${y}px;z-index:999;font-size:${size}px;color:${colors[i%colors.length]};pointer-events:none;transition:all ${0.6+Math.random()*0.5}s cubic-bezier(.2,.8,.2,1);opacity:1;transform:translate(0,0) rotate(0deg)`;
+    document.body.appendChild(el);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      el.style.opacity='0';
+      el.style.transform=`translate(${tx}px,${ty}px) rotate(${rot}deg)`;
+    }));
+    setTimeout(()=>el.remove(),1200);
+  }
 }
 
 function render(){
@@ -692,9 +806,25 @@ function render(){
   ge('tasks-sub')&&(ge('tasks-sub').textContent=`${state.tasks.filter(t=>!t.done).length} pendientes hoy`);
   renderTasks();
   if(curTab==='progreso')renderProgreso();
+  // Always refresh home calendar
+  renderCalendario();
 }
 
 let taskView='pending'; // 'pending' | 'history'
+
+function isDueToday(due){if(!due)return false;const t=new Date(due+'T00:00:00'),n=new Date();return t.toDateString()===n.toDateString();}
+function isDueSoon(due){if(!due)return false;const t=new Date(due+'T00:00:00'),n=new Date();const diff=(t-n)/(1000*60*60*24);return diff>=0&&diff<=2;}
+function isPastDue(due){if(!due)return false;const t=new Date(due+'T00:00:00'),n=new Date();t.setHours(0,0,0,0);n.setHours(0,0,0,0);return t<n;}
+function formatDue(due){
+  if(!due)return'';
+  const t=new Date(due+'T00:00:00'),n=new Date();
+  n.setHours(0,0,0,0);t.setHours(0,0,0,0);
+  const diff=Math.round((t-n)/(1000*60*60*24));
+  if(diff===0)return'Hoy';if(diff===1)return'Mañana';if(diff===-1)return'Ayer';
+  if(diff<0)return`Hace ${Math.abs(diff)}d`;
+  if(diff<=7)return`En ${diff}d`;
+  return t.toLocaleDateString('es-AR',{day:'numeric',month:'short'});
+}
 
 function renderTasks(){
   const c=ge('tasks-container');if(!c)return;
@@ -755,9 +885,17 @@ function renderTaskList(){
     ${ts.map(t=>{
       const ns=nodeState(t);
       const sc={pending:{bg:'var(--bg4)',c:'var(--muted2)',b:'var(--border)'},forming:{bg:m.bg,c:m.tc,b:m.color+'66'},active:{bg:m.bg,c:m.color,b:m.color+'99'},myelin:{bg:'var(--text)',c:'#fff',b:'var(--text)'}}[ns];
-      return`<div class="task-card" id="task-${t.id}">
+      // Due date indicator
+      const dueColor=isPastDue(t.due)?'var(--rose)':isDueToday(t.due)?'var(--rose)':isDueSoon(t.due)?'var(--amber)':'var(--muted2)';
+      const dueIcon=isPastDue(t.due)?'⚠️':isDueToday(t.due)?'❗':isDueSoon(t.due)?'⚡':'📅';
+      const dueStr=t.due?`<span style="font-size:10px;color:${dueColor};white-space:nowrap">${dueIcon} ${formatDue(t.due)}</span>`:'';
+      const recurStr=t.recur&&t.recur!=='none'?`<span style="font-size:10px;color:var(--teal);white-space:nowrap">${{daily:'🔁',weekly:'📅',monthly:'🗓'}[t.recur]}</span>`:'';
+      return`<div class="task-card" id="task-${t.id}" style="${isDueToday(t.due)?'border-color:rgba(190,24,93,0.25)':''}">
         <div class="check" onclick="completeTask(${t.id},event)" title="Marcar completada" style="cursor:pointer"></div>
-        <span class="task-title">${esc(t.title)}</span>
+        <div style="flex:1;min-width:0">
+          <div class="task-title">${esc(t.title)}</div>
+          ${t.due||t.recur&&t.recur!=='none'?`<div style="display:flex;gap:8px;margin-top:3px;flex-wrap:wrap">${dueStr}${recurStr}</div>`:''}
+        </div>
         <span class="task-state" style="background:${sc.bg};color:${sc.c};border-color:${sc.b}">${nsL[ns]}</span>
         <span class="task-reps" title="Veces completada">${t.completions||0}×</span>
         <span class="task-xp" style="background:${m.bg};color:${m.tc}">+${t.pts}</span>
@@ -770,16 +908,33 @@ function renderTaskList(){
 function deleteActivity(idx,e){
   e.stopPropagation();
   const a=state.activity[idx];if(!a)return;
-  // Revertir XP: buscar la tarea y restar completions
-  const task=state.tasks.find(t=>t.title===a.title&&t.cat===a.cat);
-  if(task&&task.completions>0){
-    task.completions--;
-    // Si ya no tiene completions, vuelve a pendiente
-    if(task.completions===0)task.done=false;
+
+  // Buscar tarea por taskId primero, luego por title+cat como fallback
+  const task=state.tasks.find(t=>t.id===a.taskId)||state.tasks.find(t=>t.title===a.title&&t.cat===a.cat);
+
+  if(task){
+    task.completions=Math.max(0,(task.completions||1)-1);
+    if(task.completions===0){
+      // Sin más completions: eliminar la tarea completamente de todos lados
+      state.tasks=state.tasks.filter(t=>t.id!==task.id);
+    }
   }
+
+  // Animación de salida
   const row=document.getElementById('act-row-'+idx);
-  if(row){row.style.transition='all .25s ease';row.style.opacity='0';row.style.transform='translateX(20px)';setTimeout(()=>{state.activity.splice(idx,1);save();render();if(curTab==='red')drawNeural();},220);}
-  else{state.activity.splice(idx,1);save();render();}
+  const doRemove=()=>{
+    state.activity.splice(idx,1);
+    save();render();
+    if(curTab==='red')drawNeural();
+  };
+  if(row){
+    row.style.transition='all .25s ease';
+    row.style.opacity='0';
+    row.style.transform='translateX(20px)';
+    setTimeout(doRemove,220);
+  } else {
+    doRemove();
+  }
 }
 
 function renderProgreso(){
@@ -959,8 +1114,10 @@ let calSelectedDay=null;
 function renderCalendario(){
   const year=calDate.getFullYear(),month=calDate.getMonth();
   const monthNames=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  ge('cal-month-label').textContent=`${monthNames[month]} ${year}`;
-  ge('cal-sub').textContent=`${monthNames[month]} ${year}`;
+  const shortMonths=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  ge('cal-month-label')&&(ge('cal-month-label').textContent=`${monthNames[month]} ${year}`);
+  ge('cal-sub')&&(ge('cal-sub').textContent=`${monthNames[month]} ${year}`);
+  ge('home-cal-label')&&(ge('home-cal-label').textContent=`${shortMonths[month]} ${year}`);
 
   // XP por día del mes
   const xpByDay={};
@@ -1002,10 +1159,11 @@ function renderCalendario(){
       ${acts.length>0?`<div style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);display:flex;gap:2px">${acts.slice(0,3).map(a=>`<div style="width:4px;height:4px;border-radius:50%;background:${(CATS[a.cat]||{color:'#888'}).color}"></div>`).join('')}</div>`:''}
     </div>`;
   }
-  ge('cal-grid').innerHTML=cells;
+  ge('cal-grid')&&(ge('cal-grid').innerHTML=cells);
+  ge('home-cal-grid')&&(ge('home-cal-grid').innerHTML=cells);
 
   // Si hay día seleccionado, mostrar detalle
-  if(calSelectedDay) calShowDay(calSelectedDay);
+  if(calSelectedDay){calShowDay(calSelectedDay);calShowDayHome(calSelectedDay);}
 }
 
 function calNav(dir){
@@ -1017,9 +1175,42 @@ function calNav(dir){
 
 function calSelectDay(d){
   calSelectedDay=calSelectedDay===d?null:d;
-  if(!calSelectedDay){ge('cal-day-detail').style.display='none';renderCalendario();return;}
+  if(!calSelectedDay){
+    ge('cal-day-detail')&&(ge('cal-day-detail').style.display='none');
+    ge('home-cal-detail')&&(ge('home-cal-detail').style.display='none');
+    renderCalendario();return;
+  }
   renderCalendario();
   calShowDay(d);
+  calShowDayHome(d);
+}
+
+function calShowDayHome(d){
+  const year=calDate.getFullYear(),month=calDate.getMonth();
+  const acts=state.activity.filter(a=>{const dd=new Date(a.time);return dd.getFullYear()===year&&dd.getMonth()===month&&dd.getDate()===d;});
+  const noteKey=calNoteKey(d);
+  const note=(state.notes&&state.notes[noteKey])||'';
+  const monthNames=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const dayNames=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  const dateObj=new Date(year,month,d);
+  ge('home-cal-day-title').textContent=`${dayNames[dateObj.getDay()]} ${d} de ${monthNames[month]}`;
+  const totalXP=acts.reduce((s,a)=>s+a.pts,0);
+  ge('home-cal-day-xp').textContent=totalXP>0?`${totalXP} XP`:'';
+  let html='';
+  if(note) html+=`<div style="background:var(--vi-bg);border:0.5px solid rgba(124,58,237,0.2);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:12px;color:var(--vi-tc);font-weight:300;line-height:1.5">${esc(note)}</div>`;
+  if(acts.length){
+    html+=acts.map(a=>{
+      const m=CATS[a.cat]||{color:'#888',bg:'#eee',tc:'#555'};
+      return`<div style="display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:5px">
+        <div style="width:7px;height:7px;border-radius:50%;background:${m.color};flex-shrink:0"></div>
+        <span style="flex:1;font-size:12px;color:var(--text);font-weight:300">${esc(a.title)}</span>
+        <span style="font-size:11px;font-weight:500;padding:2px 7px;border-radius:20px;background:${m.bg};color:${m.tc}">+${a.pts}</span>
+      </div>`;
+    }).join('');
+  }
+  if(!html) html=`<div style="font-size:12px;color:var(--muted2);padding:8px 0;text-align:center">Sin actividad ni notas</div>`;
+  ge('home-cal-day-list').innerHTML=html;
+  ge('home-cal-detail').style.display='block';
 }
 
 function calShowDay(d){
@@ -1094,6 +1285,7 @@ function resetHard(){
 function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);const d=new Date();a.download=`levelup_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}.json`;a.click();}
 function importData(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{const imp=JSON.parse(ev.target.result);if(!imp.tasks)throw new Error();if(!confirm(`Importar ${imp.tasks.length} tareas?`))return;state=imp;save();render();alert('✓ Importado.');}catch{alert('Archivo inválido.');}e.target.value='';};r.readAsText(file);}
 
+spawnRecurrentTasks();
 render();
 window.addEventListener('resize',()=>{if(curTab==='red')drawNeural();});
 </script>
