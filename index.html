@@ -951,7 +951,7 @@ const DEFAULT_CATS=[
               <span style="font-size:9px;color:rgba(255,146,60,0.6)">días</span>
             </div>
           </div>
-          <div style="font-family:'Instrument Serif',serif;font-size:21px;font-style:italic;color:#fff;line-height:1.38;margin-bottom:14px;position:relative;z-index:1;letter-spacing:-.2px" id="stack-quote">Tu mejor versión, cada día.</div>
+          <div style="font-family:'Instrument Serif',serif;font-size:17px;font-style:italic;color:#fff;line-height:1.35;margin-bottom:12px;position:relative;z-index:1;letter-spacing:-.1px" id="stack-quote">Tu mejor versión, cada día.</div>
           <div style="position:relative;z-index:1">
             <div style="height:3px;background:rgba(255,255,255,0.12);border-radius:10px;overflow:hidden;margin-bottom:4px">
               <div id="stack-xp-fill" style="height:100%;background:linear-gradient(90deg,#a855f7,#ec4899);width:0%;border-radius:10px;transition:width .6s"></div>
@@ -963,7 +963,7 @@ const DEFAULT_CATS=[
           </div>
         </div>
         <!-- Stack container -->
-        <div id="stack-cards-container" style="position:relative;margin:0 10px;height:calc(100vh - var(--nav-h) - 185px)"></div>
+        <div id="stack-cards-container" style="position:relative;margin:0 10px;height:calc(100vh - var(--nav-h) - 220px)"></div>
         <!-- Swipe hint -->
         <div id="stack-hint" style="text-align:center;padding:6px;opacity:0.4">
           <div style="font-size:18px;animation:hintBounce 1.8s ease-in-out infinite">↑</div>
@@ -3466,12 +3466,14 @@ function buildCategoryCard(catId){
   const div=document.createElement('div');
   div.className='stack-card active-card';
   div.style.background=bg;
-  div.innerHTML=`<div class="sc-category" style="position:relative"><button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:0;right:0;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
+  div.innerHTML=`<div class="sc-category" style="position:relative"><button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
     <div class="sc-cat-header">
-      <div class="sc-cat-emoji">${cat.emoji}</div>
-      <div style="text-align:right">
-        <div class="sc-cat-xp">${catXP}</div>
-        <div style="font-size:10px;color:rgba(255,255,255,0.5)">XP</div>
+      <div>
+        <div class="sc-cat-emoji">${cat.emoji}</div>
+        <div style="display:flex;align-items:baseline;gap:3px;margin-top:8px">
+          <div class="sc-cat-xp">${catXP}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.5)">XP</div>
+        </div>
       </div>
     </div>
     <div class="sc-cat-name">${cat.name}</div>
@@ -3505,7 +3507,7 @@ function buildHabitsCard(){
   const div=document.createElement('div');
   div.className='stack-card active-card';
   div.style.background='linear-gradient(150deg,#1e1040,#3b1f8c,#5b21b6)';
-  div.innerHTML=`<div class="sc-category" style="position:relative"><button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:0;right:0;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
+  div.innerHTML=`<div class="sc-category" style="position:relative"><button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
     <div class="sc-cat-header">
       <div class="sc-cat-emoji">🔗</div>
       <div style="text-align:right">
@@ -3541,7 +3543,7 @@ function buildBitacoraCard(){
   const div=document.createElement('div');
   div.className='stack-card active-card';
   div.style.background='linear-gradient(150deg,#1a1814,#2d2520,#1a1814)';
-  div.innerHTML=`<div class="sc-category" style="position:relative"><button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:0;right:0;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
+  div.innerHTML=`<div class="sc-category" style="position:relative"><button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
     <div class="sc-cat-header">
       <div class="sc-cat-emoji">✎</div>
       <div style="text-align:right">
