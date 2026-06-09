@@ -1696,10 +1696,8 @@ function renderCatCardsHome(){
     '#be185d':'linear-gradient(135deg,#be185d,#f472b6)',
     '#0369a1':'linear-gradient(135deg,#0369a1,#38bdf8)',
     '#dc2626':'linear-gradient(135deg,#dc2626,#f87171)',
-    '#7c3aed':'linear-gradient(135deg,#6d28d9,#a855f7)',
     '#059669':'linear-gradient(135deg,#059669,#34d399)',
     '#d97706':'linear-gradient(135deg,#d97706,#fbbf24)',
-    '#7c3aed':'linear-gradient(135deg,#7c3aed,#c084fc)',
   };
   function getGrad(color){
     return gradients[color]||`linear-gradient(135deg,${color},${color}88)`;
@@ -2389,7 +2387,13 @@ function render(){
   const {xp,lvl,title,pct,nextXp}=calcLevel();
   // Greet + mensaje contextual
   const h=new Date().getHours();
-  ge('hero-greet').textContent=h<12?'Buenos días':h<19?'Buenas tardes':'Buenas noches';
+  const firstName=(state.profile&&state.profile.name)?state.profile.name.split(' ')[0]:'';
+  let greet;
+  if(h>=0&&h<5) greet=firstName?`¿Trasnochando, ${firstName}?`:'¿Trasnochando?';
+  else if(h<12) greet=firstName?`Buenos días, ${firstName}`:'Buenos días';
+  else if(h<19) greet=firstName?`Buenas tardes, ${firstName}`:'Buenas tardes';
+  else greet=firstName?`Buenas noches, ${firstName}`:'Buenas noches';
+  ge('hero-greet').textContent=greet;
   heroMessage();
   // Hero
   ge('streak-n').textContent=state.streak||0;
