@@ -3630,7 +3630,9 @@ function renderStack(){
   if(ge('stack-xp-lbl'))ge('stack-xp-lbl').textContent=xp+' / '+nextXp+' XP';
   if(ge('stack-xp-pct'))ge('stack-xp-pct').textContent=pct+'%';
 
-    // Clamp index
+  // Clamp index
+  stackCards=getStackOrder();
+  if(!stackCards||stackCards.length===0)return;
   stackIndex=Math.max(0,Math.min(stackIndex,stackCards.length-1));
 
   // Clear existing cards
