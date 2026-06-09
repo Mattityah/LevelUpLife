@@ -1514,8 +1514,7 @@ function renderDayNotes(){
     if(!raw){wrap.style.display='none';}
     else{
       wrap.style.display='block';
-      const lines=raw.split('
-').filter(Boolean);
+      const lines=raw.split('\n').filter(Boolean);
       el.innerHTML=lines.map((line,idx)=>{
         const match=line.match(/^\[(\d{2}:\d{2})\] (.+)$/);
         const time=match?match[1]:'';
@@ -1536,8 +1535,7 @@ function renderDayNotes(){
   if(sbList){
     if(!raw){sbList.innerHTML=`<div style="font-size:11px;color:var(--muted2);text-align:center;padding:8px 0">Sin notas hoy</div>`;}
     else{
-      const lines=raw.split('
-').filter(Boolean).slice(0,4);
+      const lines=raw.split('\n').filter(Boolean).slice(0,4);
       sbList.innerHTML=lines.map((line,idx)=>{
         const match=line.match(/^\[(\d{2}:\d{2})\] (.+)$/);
         const time=match?match[1]:'';
@@ -1553,12 +1551,10 @@ function renderDayNotes(){
 
 function deleteNote(dateKey, lineIdx){
   if(!state.notes||!state.notes[dateKey])return;
-  const lines=state.notes[dateKey].split('
-').filter(Boolean);
+  const lines=state.notes[dateKey].split('\n').filter(Boolean);
   lines.splice(lineIdx,1);
   if(lines.length===0) delete state.notes[dateKey];
-  else state.notes[dateKey]=lines.join('
-');
+  else state.notes[dateKey]=lines.join('\n');
   save();renderDayNotes();renderBitacora();
 }
 
@@ -1585,8 +1581,7 @@ function renderBitacora(){
     const date=new Date(y,m-1,d);
     const isToday=key===(() => {const t=new Date();return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;})();
     const label=isToday?'Hoy':`${dayNames[date.getDay()]}, ${d} de ${monthNames[m-1]}`;
-    const lines=notes[key].split('
-').filter(Boolean);
+    const lines=notes[key].split('\n').filter(Boolean);
 
     const notesHTML=lines.map((line,idx)=>{
       const match=line.match(/^\[(\d{2}:\d{2})\] (.+)$/);
@@ -1642,8 +1637,7 @@ function exportBitacora(){
   keys.forEach(k=>{
     txt+=`=== ${k} ===
 `;
-    all[k].split('
-').filter(Boolean).forEach(l=>txt+=l+'
+    all[k].split('\n').filter(Boolean).forEach(l=>txt+=l+'
 ');
     txt+='
 ';
