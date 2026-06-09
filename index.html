@@ -1351,20 +1351,6 @@ function heroMessage(){
   const dayOfYear=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/(1000*60*60*24));
   const frase=FRASES[dayOfYear%FRASES.length];
 
-  // Mensaje contextual según estado — aparece debajo de la frase
-  let ctx='';
-  if(streak>=7){
-    ctx=`<span style="font-size:11px;color:var(--violet);display:block;margin-top:6px;font-family:'Geist',sans-serif;font-weight:400">🔥 ${streak} días seguidos. Eso ya es un hábito real.</span>`;
-  } else if(streak>=3&&doneToday===0){
-    ctx=`<span style="font-size:11px;color:#ea8040;display:block;margin-top:6px;font-family:'Geist',sans-serif;font-weight:400">🔥 Llevas ${streak} días. No lo rompas hoy.</span>`;
-  } else if(doneToday>0&&pending===0){
-    ctx=`<span style="font-size:11px;color:var(--teal);display:block;margin-top:6px;font-family:'Geist',sans-serif;font-weight:400">✓ Todo al día. Así se construye.</span>`;
-  } else if(doneToday>0&&pending>0){
-    ctx=`<span style="font-size:11px;color:var(--muted);display:block;margin-top:6px;font-family:'Geist',sans-serif;font-weight:400">Sumaste <em style="color:var(--violet)">${doneToday}</em> hoy. Quedan <em style="color:var(--violet)">${pending}</em>.</span>`;
-  } else if(pending>0){
-    ctx=`<span style="font-size:11px;color:var(--muted);display:block;margin-top:6px;font-family:'Geist',sans-serif;font-weight:400">Tenés <em style="color:var(--violet)">${pending} tarea${pending>1?'s':''}</em> esperando.</span>`;
-  }
-
   const msgEl=ge('hero-msg');
   if(msgEl)msgEl.innerHTML=frase;
   // Contexto debajo — separado de la frase
