@@ -1952,11 +1952,11 @@ function habitCardHTML(h,showCheck){
     +'<div style="flex:1;min-width:0"><div class="habit-name">'+esc(h.name)+'</div>'
     +'<div class="habit-meta">'+freqLabel+' · '+h.cat+' · +'+h.xp+' XP</div></div>'
     +'<div style="display:flex;align-items:center;gap:8px">'
-    +(showCheck?'<div class="habit-check'+(done?' done':'') +'" style="'+(done?'background:'+m.color:'background:var(--white)')+'" onclick="toggleHabit(''+h.id+'')">'+(done?'✓':'')+'</div>':'')
-    +'<button onclick="deleteHabit(''+h.id+'')" style="font-size:15px;color:var(--muted2);background:none;border:none;cursor:pointer;padding:4px" title="Eliminar">×</button>'
+    +(showCheck?'<div class="habit-check'+(done?' done':'')+'" style="'+(done?'background:'+m.color:'background:var(--white)')+'" onclick="toggleHabit(\''+h.id+'\')">'+( done?'✓':'')+' </div>':'')
+    +'<button onclick="deleteHabit(\''+h.id+'\')" style="font-size:15px;color:var(--muted2);background:none;border:none;cursor:pointer;padding:4px" title="Eliminar">×</button>'
     +'</div></div>'
     +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">'
-    +'<span style="font-family:'Instrument Serif',serif;font-size:20px;color:var(--text)">'+streak+'</span>'
+    +'<span style="font-family:&quot;Instrument Serif&quot;,serif;font-size:20px;color:var(--text)">'+streak+'</span>'
     +'<span style="font-size:10px;color:var(--muted2)">días de racha 🔥</span>'
     +(done?'<span style="margin-left:auto;font-size:10px;background:'+m.bg+';color:'+m.color+';padding:2px 8px;border-radius:20px;font-weight:500">+'+h.xp+' XP hoy</span>':'')
     +'</div>'
