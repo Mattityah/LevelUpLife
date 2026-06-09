@@ -856,17 +856,10 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
         </div>
         <!-- Quick capture -->
         <div class="quick-capture" id="quick-capture">
-          <button class="quick-capture-cat" id="qc-cat-btn" onclick="toggleQcCats()" title="Categoría">🧠</button>
-          <input class="quick-capture-inp" id="qc-inp" placeholder="¿Qué hiciste o vas a hacer?" maxlength="100"
+          <span style="font-size:16px;opacity:.5">✏️</span>
+          <input class="quick-capture-inp" id="qc-inp" placeholder="Anotá algo en tu bitácora..." maxlength="200"
             oninput="onQcInput()" onkeydown="if(event.key==='Enter')submitQuickCapture()">
           <button class="quick-capture-send" id="qc-send" onclick="submitQuickCapture()">↑</button>
-          <div class="qc-cats" id="qc-cats">
-            <button class="qc-cat-btn sel" data-cat="Mente" style="background:#f5f2ff;color:#5b21b6" onclick="selectQcCat(this,'Mente')">🧠 Mente</button>
-            <button class="qc-cat-btn" data-cat="Cuerpo" style="background:#f0fdf8;color:#134e4a" onclick="selectQcCat(this,'Cuerpo')">💪 Cuerpo</button>
-            <button class="qc-cat-btn" data-cat="Skills" style="background:#fffbeb;color:#92400e" onclick="selectQcCat(this,'Skills')">⚡ Skills</button>
-            <button class="qc-cat-btn" data-cat="Relaciones" style="background:#fdf2f8;color:#9d174d" onclick="selectQcCat(this,'Relaciones')">🤝 Relaciones</button>
-            <button class="qc-cat-btn" data-cat="Trabajo" style="background:#f0f9ff;color:#075985" onclick="selectQcCat(this,'Trabajo')">💼 Trabajo</button>
-          </div>
         </div>
       </div>
       <!-- INICIO BODY: mobile=stack, desktop=2col -->
@@ -879,6 +872,15 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
             <button onclick="sw('tareas')" style="font-size:11px;color:var(--violet);background:var(--vi-bg);border:none;border-radius:20px;padding:4px 12px;cursor:pointer;font-family:'Geist',sans-serif">+ Nueva tarea</button>
           </div>
           <div class="cat-cards-grid" id="cat-cards-home"></div>
+
+          <!-- Bitácora del día -->
+          <div id="day-notes-wrap" style="display:none;background:var(--white);border:1px solid var(--border);border-radius:16px;padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,0.04)">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+              <div style="font-size:9px;font-weight:500;color:var(--muted2);letter-spacing:1.2px;text-transform:uppercase">Bitácora de hoy</div>
+              <span style="font-size:10px;color:var(--muted2)" id="day-notes-date"></span>
+            </div>
+            <div id="day-notes-list"></div>
+          </div>
         </div>
 
         <!-- Columna derecha: Calendario -->
@@ -1398,17 +1400,21 @@ function submitQuickCapture(){
   const inp=ge('qc-inp');
   const title=inp.value.trim();
   if(!title)return;
-  // Agregar como tarea completada directamente
-  const t={id:state.nextId++,title,cat:qcCat,pts:10,done:true,completions:1,createdAt:Date.now(),recur:'none',due:'',completedAt:Date.now()};
-  state.tasks.push(t);
-  updateStreak();
-  state.activity.unshift({id:state.nextId++,taskId:t.id,title,cat:qcCat,pts:10,time:Date.now()});
-  if(state.activity.length>200)state.activity.pop();
+  // Guardar como nota del día, no como tarea
+  const today=new Date();
+  const key=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  if(!state.notes)state.notes={};
+  const timestamp=today.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+  const existing=state.notes[key]||'';
+  // Acumular notas del día separadas por línea con hora
+  state.notes[key]=existing?(existing+'\n'+'['+timestamp+'] '+title):('['+timestamp+'] '+title);
   save();
   inp.value='';
   ge('qc-send').classList.remove('visible');
-  showXPBurst(10,qcCat,ge('quick-capture'));
-  render();
+  // Feedback visual leve
+  const qc=ge('quick-capture');
+  if(qc){qc.style.borderColor='var(--violet)';setTimeout(()=>qc.style.borderColor='',800);}
+  renderDayNotes();
 }
 
 // Cerrar qc-cats al click fuera
@@ -1418,6 +1424,26 @@ document.addEventListener('click',e=>{
     cats.classList.remove('open');
   }
 });
+
+function renderDayNotes(){
+  const el=ge('day-notes-list');if(!el)return;
+  const today=new Date();
+  const key=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  const raw=(state.notes&&state.notes[key])||'';
+  const wrap=ge('day-notes-wrap');
+  if(!raw){if(wrap)wrap.style.display='none';return;}
+  if(wrap)wrap.style.display='block';
+  const lines=raw.split('\n').filter(Boolean).reverse();
+  el.innerHTML=lines.map(line=>{
+    const match=line.match(/^\[(\d{2}:\d{2})\] (.+)$/);
+    const time=match?match[1]:'';
+    const text=match?match[2]:line;
+    return`<div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:10px;color:var(--muted2);white-space:nowrap;margin-top:2px;min-width:34px">${time}</span>
+      <span style="font-size:13px;color:var(--text);font-weight:300;flex:1;line-height:1.4">${esc(text)}</span>
+    </div>`;
+  }).join('');
+}
 function selectCatPill(btn,cat){
   document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');
@@ -1751,6 +1777,10 @@ function render(){
   ge('tasks-sub')&&(ge('tasks-sub').textContent=`${state.tasks.filter(t=>!t.done).length} pendientes hoy`);
   renderTasks();
   renderCatCardsHome();
+  renderDayNotes();
+  // Date label for notes
+  const dn=ge('day-notes-date');
+  if(dn){const d=new Date();dn.textContent=d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});}
   if(curTab==='progreso')renderProgreso();
   renderCalendario();
   applyProfile();
