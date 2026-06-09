@@ -792,6 +792,9 @@ const DEFAULT_CATS=[
     <button class="nav-btn" data-pane="habitos" onclick="sw('habitos')">
       <span class="nav-ico">🔗</span><span class="nav-lbl">Hábitos</span>
     </button>
+    <button class="nav-btn" data-pane="bitacora" onclick="sw('bitacora')">
+      <span class="nav-ico">✎</span><span class="nav-lbl">Bitácora</span>
+    </button>
     <button class="nav-btn" data-pane="perfil" onclick="sw('perfil')">
       <span class="nav-ico">👤</span><span class="nav-lbl">Perfil</span>
     </button>
@@ -979,6 +982,23 @@ const DEFAULT_CATS=[
           <span style="font-family:'Instrument Serif',serif;font-size:40px;color:var(--muted2);display:block;margin-bottom:8px;font-style:italic">◌</span>
           Sin hábitos todavía.<br>
           <span style="font-size:12px">Creá uno con el botón "+" arriba.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- BITÁCORA -->
+    <div class="pane" id="pane-bitacora">
+      <div class="page-pad">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div class="page-title">Bitácora</div>
+          <button onclick="exportBitacora()" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:11px;font-family:'Geist',sans-serif;cursor:pointer">Exportar</button>
+        </div>
+        <div class="page-sub" style="margin-bottom:20px">Tus notas organizadas por día</div>
+        <div id="bitacora-full-list"></div>
+        <div id="bitacora-empty" style="display:none;text-align:center;padding:48px 20px;color:var(--muted)">
+          <span style="font-family:'Instrument Serif',serif;font-size:40px;color:var(--muted2);display:block;margin-bottom:8px;font-style:italic">✎</span>
+          Sin notas todavía.<br>
+          <span style="font-size:12px">Usá el campo de bitácora en Inicio.</span>
         </div>
       </div>
     </div>
@@ -1487,23 +1507,25 @@ function renderDayNotes(){
   const key=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
   const raw=(state.notes&&state.notes[key])||'';
 
-  // Main bitacora (inicio)
+  // Main bitacora (inicio) — solo hoy
   const el=ge('day-notes-list');
   const wrap=ge('day-notes-wrap');
   if(el&&wrap){
     if(!raw){wrap.style.display='none';}
     else{
       wrap.style.display='block';
-      const lines=raw.split('\n').filter(Boolean).reverse();
-      el.innerHTML=lines.map(line=>{
+      const lines=raw.split('
+').filter(Boolean);
+      el.innerHTML=lines.map((line,idx)=>{
         const match=line.match(/^\[(\d{2}:\d{2})\] (.+)$/);
         const time=match?match[1]:'';
         const text=match?match[2]:line;
-        return`<div style="display:flex;gap:12px;align-items:flex-start;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:10px 13px;margin-bottom:7px">
+        return`<div style="display:flex;gap:12px;align-items:flex-start;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:10px 13px;margin-bottom:7px;group">
           <div style="flex-shrink:0;margin-top:1px">
             <div style="font-size:10px;font-weight:500;color:var(--violet);letter-spacing:.3px">${time}</div>
           </div>
           <div style="flex:1;font-size:13px;color:var(--text);font-weight:300;line-height:1.45">${esc(text)}</div>
+          <button onclick="deleteNote('${key}',${idx})" style="flex-shrink:0;background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted2);padding:2px 4px;opacity:0.6;transition:opacity .15s" title="Eliminar" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">✕</button>
         </div>`;
       }).join('');
     }
@@ -1514,8 +1536,9 @@ function renderDayNotes(){
   if(sbList){
     if(!raw){sbList.innerHTML=`<div style="font-size:11px;color:var(--muted2);text-align:center;padding:8px 0">Sin notas hoy</div>`;}
     else{
-      const lines=raw.split('\n').filter(Boolean).reverse().slice(0,4);
-      sbList.innerHTML=lines.map(line=>{
+      const lines=raw.split('
+').filter(Boolean).slice(0,4);
+      sbList.innerHTML=lines.map((line,idx)=>{
         const match=line.match(/^\[(\d{2}:\d{2})\] (.+)$/);
         const time=match?match[1]:'';
         const text=match?match[2]:line;
@@ -1527,6 +1550,111 @@ function renderDayNotes(){
     }
   }
 }
+
+function deleteNote(dateKey, lineIdx){
+  if(!state.notes||!state.notes[dateKey])return;
+  const lines=state.notes[dateKey].split('
+').filter(Boolean);
+  lines.splice(lineIdx,1);
+  if(lines.length===0) delete state.notes[dateKey];
+  else state.notes[dateKey]=lines.join('
+');
+  save();renderDayNotes();renderBitacora();
+}
+
+function renderBitacora(){
+  const list=ge('bitacora-full-list');
+  const empty=ge('bitacora-empty');
+  if(!list||!empty)return;
+
+  const notes=state.notes||{};
+  const keys=Object.keys(notes).filter(k=>notes[k]&&notes[k].trim()).sort().reverse(); // más reciente primero
+
+  if(!keys.length){
+    empty.style.display='block';
+    list.innerHTML='';
+    return;
+  }
+  empty.style.display='none';
+
+  const monthNames=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const dayNames=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+
+  list.innerHTML=keys.map(key=>{
+    const [y,m,d]=key.split('-').map(Number);
+    const date=new Date(y,m-1,d);
+    const isToday=key===(() => {const t=new Date();return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;})();
+    const label=isToday?'Hoy':`${dayNames[date.getDay()]}, ${d} de ${monthNames[m-1]}`;
+    const lines=notes[key].split('
+').filter(Boolean);
+
+    const notesHTML=lines.map((line,idx)=>{
+      const match=line.match(/^\[(\d{2}:\d{2})\] (.+)$/);
+      const time=match?match[1]:'';
+      const text=match?match[2]:line;
+      return`<div style="display:flex;gap:12px;align-items:flex-start;padding:10px 13px;border-bottom:1px solid var(--border)">
+        <div style="font-size:10px;font-weight:500;color:var(--violet);white-space:nowrap;min-width:32px;margin-top:2px">${time}</div>
+        <div style="flex:1;font-size:13px;color:var(--text);font-weight:300;line-height:1.45">${esc(text)}</div>
+        <button onclick="deleteNote('${key}',${idx})" style="flex-shrink:0;background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted2);padding:2px 6px;opacity:0.5;transition:opacity .15s" title="Eliminar" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">✕</button>
+      </div>`;
+    }).join('');
+
+    return`<div style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.8px">${label}</div>
+        <div style="display:flex;gap:6px">
+          <button onclick="archiveDay('${key}')" style="font-size:10px;color:var(--muted2);background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:3px 10px;cursor:pointer;font-family:'Geist',sans-serif">Archivar</button>
+          <button onclick="deleteDayNotes('${key}')" style="font-size:10px;color:var(--rose);background:var(--ro-bg);border:1px solid rgba(190,24,93,0.15);border-radius:20px;padding:3px 10px;cursor:pointer;font-family:'Geist',sans-serif">Eliminar día</button>
+        </div>
+      </div>
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden">
+        ${notesHTML}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteDayNotes(dateKey){
+  if(!confirm('¿Eliminar todas las notas de este día?'))return;
+  if(state.notes)delete state.notes[dateKey];
+  save();renderDayNotes();renderBitacora();
+}
+
+function archiveDay(dateKey){
+  // Marcar día como archivado — mover a state.archivedNotes
+  if(!state.archivedNotes)state.archivedNotes={};
+  if(state.notes&&state.notes[dateKey]){
+    state.archivedNotes[dateKey]=state.notes[dateKey];
+    delete state.notes[dateKey];
+  }
+  save();renderBitacora();
+}
+
+function exportBitacora(){
+  const notes=state.notes||{};
+  const archived=state.archivedNotes||{};
+  const all={...archived,...notes};
+  const keys=Object.keys(all).sort();
+  if(!keys.length){alert('Sin notas para exportar.');return;}
+  let txt='BITÁCORA — LevelUp Life
+
+';
+  keys.forEach(k=>{
+    txt+=`=== ${k} ===
+`;
+    all[k].split('
+').filter(Boolean).forEach(l=>txt+=l+'
+');
+    txt+='
+';
+  });
+  const blob=new Blob([txt],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`bitacora_levelup_${new Date().toISOString().slice(0,10)}.txt`;
+  a.click();
+}
+
 
 function submitSbNote(){
   const inp=ge('sb-note-inp');
@@ -1958,7 +2086,7 @@ function renderHabits(){
   const strip = ge('habit-week-strip');
   if(strip){
     const days = [];
-    for(let i=6;i>=0;i--){
+    for(let i=0;i<=6;i++){
       const d = new Date();
       d.setDate(d.getDate()-i);
       days.push(d);
@@ -2016,10 +2144,11 @@ function habitCardHTML(h,showCheck){
   if(h.freq==='daily'){
     freqHTML=`<span style="font-size:10px;color:var(--muted2);background:var(--bg3);border-radius:20px;padding:2px 8px">Todos los días</span>`;
   } else if(h.freq==='weekly'&&h.days&&h.days.length){
-    const dayBtns=dayLetters.map((l,i)=>{
-      const active=(h.days||[]).includes(i);
+    // Solo mostrar los días seleccionados, no todos los 7
+    const selectedDays=(h.days||[]).slice().sort((a,b)=>a-b);
+    const dayBtns=selectedDays.map(i=>{
       const isToday=i===today;
-      return `<span style="width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:${active?'500':'300'};background:${active?(isToday?m.color:m.bg):'var(--bg3)'};color:${active?(isToday?'#fff':m.color):'var(--muted2)'};border:1px solid ${active?m.color+'44':'var(--border)'}">${l}</span>`;
+      return `<span style="width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;background:${isToday?m.color:m.bg};color:${isToday?'#fff':m.color};border:1px solid ${m.color+'44'}">${dayLetters[i]}</span>`;
     }).join('');
     freqHTML=`<div style="display:flex;gap:3px;align-items:center">${dayBtns}</div>`;
   } else if(h.freq==='custom'){
@@ -2029,7 +2158,7 @@ function habitCardHTML(h,showCheck){
   // Grid 14 días con etiquetas
   const dayLettersGrid=['D','L','M','X','J','V','S'];
   const days=[];
-  for(let i=13;i>=0;i--){
+  for(let i=0;i<=13;i++){
     const d=new Date();d.setDate(d.getDate()-i);
     const key=d.toDateString();
     const isToday=i===0;
@@ -2306,6 +2435,7 @@ function render(){
   renderCatPills();
   renderDayNotes();
   if(curTab==='habitos')renderHabits();
+  if(curTab==='bitacora')renderBitacora();
   // Date label for notes
   const dn=ge('day-notes-date');
   if(dn){const d=new Date();dn.textContent=d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});}
@@ -2480,6 +2610,7 @@ function renderProgreso(){
 function sw(id){
   curTab=id;
   if(id==='habitos')setTimeout(renderHabits,50);
+  if(id==='bitacora')setTimeout(renderBitacora,50);
   document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn,.nav-btn-center').forEach(b=>b.classList.remove('active'));
   const pane=ge('pane-'+id);if(pane)pane.classList.add('active');
