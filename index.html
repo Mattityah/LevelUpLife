@@ -592,6 +592,8 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 
         const applyRemote = (remote) => {
           if (!remote.notes) remote.notes = {};
+          if (!remote.allCategories || !remote.allCategories.length) remote.allCategories = [...DEFAULT_CATS];
+          if (!remote.activeCategories || !remote.activeCategories.length) remote.activeCategories = remote.allCategories.map(c=>c.id);
           // Mutar window.state (que es el mismo objeto que `var state` del script principal)
           // Primero limpiar, luego copiar
           const s = window.state;
@@ -602,6 +604,9 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
             window.state = remote;
           }
           localStorage.setItem('lu_v4', JSON.stringify(remote));
+          // Asegurar que las categorías existan
+          if (!window.state.allCategories||!window.state.allCategories.length) window.state.allCategories=[...DEFAULT_CATS];
+          if (!window.state.activeCategories||!window.state.activeCategories.length) window.state.activeCategories=window.state.allCategories.map(c=>c.id);
           window._fbLoaded = true;
           if (window.render) {
             window.render();
@@ -946,13 +951,7 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
             <label class="btn-sm" style="cursor:pointer" title="Importar">↑<input type="file" accept=".json" onchange="importData(event)" style="display:none"></label>
           </div>
           <!-- hidden select kept for JS compatibility -->
-          <select id="task-cat" style="display:none">
-            <option value="Mente">Mente</option>
-            <option value="Cuerpo">Cuerpo</option>
-            <option value="Skills">Skills</option>
-            <option value="Relaciones">Relaciones</option>
-            <option value="Trabajo">Trabajo</option>
-          </select>
+          <select id="task-cat" style="display:none"></select>
         </div>
         <div id="tasks-container"></div>
       </div>
@@ -1173,13 +1172,28 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 </div><!-- end app -->
 
 <script>
-const CATS={
-  Mente:    {color:'#7c3aed',bg:'#f5f2ff',tc:'#5b21b6',emoji:'🧠'},
-  Cuerpo:   {color:'#0f766e',bg:'#f0fdf8',tc:'#134e4a',emoji:'💪'},
-  Skills:   {color:'#b45309',bg:'#fffbeb',tc:'#92400e',emoji:'⚡'},
-  Relaciones:{color:'#be185d',bg:'#fdf2f8',tc:'#9d174d',emoji:'🤝'},
-  Trabajo:  {color:'#0369a1',bg:'#f0f9ff',tc:'#075985',emoji:'💼'}
-};
+// Categorías base — también usadas como fallback
+const DEFAULT_CATS=[
+  {id:'Mente',    name:'Mente',     color:'#7c3aed',bg:'#f5f2ff',tc:'#5b21b6',emoji:'🧠'},
+  {id:'Cuerpo',   name:'Cuerpo',    color:'#0f766e',bg:'#f0fdf8',tc:'#134e4a',emoji:'💪'},
+  {id:'Skills',   name:'Skills',    color:'#b45309',bg:'#fffbeb',tc:'#92400e',emoji:'⚡'},
+  {id:'Relaciones',name:'Relaciones',color:'#be185d',bg:'#fdf2f8',tc:'#9d174d',emoji:'🤝'},
+  {id:'Trabajo',  name:'Trabajo',   color:'#0369a1',bg:'#f0f9ff',tc:'#075985',emoji:'💼'}
+];
+
+// CATS dinámico — se reconstruye desde state.allCategories
+let CATS={};
+function rebuildCATS(){
+  CATS={};
+  const all=state.allCategories||DEFAULT_CATS;
+  all.forEach(c=>{CATS[c.id]={color:c.color,bg:c.bg,tc:c.tc,emoji:c.emoji,name:c.name};});
+}
+function getActiveCategories(){
+  const all=state.allCategories||DEFAULT_CATS;
+  const active=state.activeCategories||all.map(c=>c.id);
+  return all.filter(c=>active.includes(c.id));
+}
+function getAllCategories(){return state.allCategories||DEFAULT_CATS;}
 const LEVELS=['Aprendiz','Explorador','Guerrero','Maestro','Leyenda'];
 
 function load(){try{const s=localStorage.getItem('lu_v4');if(s){const d=JSON.parse(s);if(!d.notes)d.notes={};return d;}}catch(e){}return{tasks:[],activity:[],streak:0,bestStreak:0,lastActive:null,nextId:1,notes:{}};}
@@ -1190,7 +1204,7 @@ function save(){
   if(window._fbMode==='firebase'&&window._fbSave)window._fbSave(state);
 }
 // var state vive en window — así Firebase y el JS local siempre ven el mismo objeto
-var state={tasks:[],activity:[],streak:0,bestStreak:0,lastActive:null,nextId:1,notes:{}};
+var state={tasks:[],activity:[],streak:0,bestStreak:0,lastActive:null,nextId:1,notes:{},allCategories:[...DEFAULT_CATS],activeCategories:DEFAULT_CATS.map(c=>c.id)};
 var _fbLoaded=false;
 let curFilter='all',curTab='inicio';
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -1451,6 +1465,17 @@ function submitSbNote(){
   setTimeout(()=>{inp.style.borderColor='var(--border2)';},600);
   renderDayNotes();
 }
+/* ── Pills dinámicas de categoría ── */
+function renderCatPills(){
+  const row=ge('cat-pill-row');
+  const sel=ge('task-cat');
+  if(!row||!sel)return;
+  const cats=getAllCategories();
+  row.innerHTML=cats.map((c,i)=>`<button class="cat-pill${i===0?' active':''}" data-cat="${c.id}" style="background:${c.bg};color:${c.tc}" onclick="selectCatPill(this,'${c.id}')">${c.emoji} ${c.name}</button>`).join('');
+  sel.innerHTML=cats.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  if(cats.length)sel.value=cats[0].id;
+}
+
 function selectCatPill(btn,cat){
   document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');
@@ -1462,29 +1487,45 @@ function renderCatCardsHome(){
   const container=ge('cat-cards-home');if(!container)return;
   const catXP={};state.activity.forEach(a=>{catXP[a.cat]=(catXP[a.cat]||0)+a.pts;});
   const maxXP=Math.max(...Object.values(catXP),1);
+  const activeCats=getActiveCategories();
+  const allCats=getAllCategories();
+  const hiddenCats=allCats.filter(c=>!activeCats.find(a=>a.id===c.id));
+
   const gradients={
-    Mente:   'linear-gradient(135deg,#6d28d9,#a855f7)',
-    Cuerpo:  'linear-gradient(135deg,#0f766e,#10b981)',
-    Skills:  'linear-gradient(135deg,#b45309,#f59e0b)',
-    Relaciones:'linear-gradient(135deg,#be185d,#f472b6)',
-    Trabajo: 'linear-gradient(135deg,#0369a1,#38bdf8)'
+    '#7c3aed':'linear-gradient(135deg,#6d28d9,#a855f7)',
+    '#0f766e':'linear-gradient(135deg,#0f766e,#10b981)',
+    '#b45309':'linear-gradient(135deg,#b45309,#f59e0b)',
+    '#be185d':'linear-gradient(135deg,#be185d,#f472b6)',
+    '#0369a1':'linear-gradient(135deg,#0369a1,#38bdf8)',
+    '#dc2626':'linear-gradient(135deg,#dc2626,#f87171)',
+    '#7c3aed':'linear-gradient(135deg,#6d28d9,#a855f7)',
+    '#059669':'linear-gradient(135deg,#059669,#34d399)',
+    '#d97706':'linear-gradient(135deg,#d97706,#fbbf24)',
+    '#7c3aed':'linear-gradient(135deg,#7c3aed,#c084fc)',
   };
-  container.innerHTML=Object.entries(CATS).map(([cat,m])=>{
-    const xp=catXP[cat]||0;
+  function getGrad(color){
+    return gradients[color]||`linear-gradient(135deg,${color},${color}88)`;
+  }
+
+  container.innerHTML=activeCats.map(cat=>{
+    const xp=catXP[cat.id]||0;
     const pct=Math.round(xp/maxXP*100);
-    const pending=state.tasks.filter(t=>t.cat===cat&&!t.done);
+    const pending=state.tasks.filter(t=>t.cat===cat.id&&!t.done);
     const taskItems=pending.slice(0,2).map(t=>`<div class="cat-task-item">${esc(t.title.length>22?t.title.slice(0,22)+'…':t.title)}</div>`).join('');
     const addPrompt=pending.length===0?`<div class="cat-task-add">+ Agregar tarea</div>`:'';
     const extraCount=pending.length>2?`<div style="font-size:10px;color:rgba(255,255,255,0.5);padding:1px 7px">+${pending.length-2} más</div>`:'';
-    return`<div class="cat-big-card" style="background:${gradients[cat]}" onclick="openCatFromHome('${cat}')">
+    return`<div class="cat-big-card" style="background:${getGrad(cat.color)}" onclick="openCatFromHome('${cat.id}')">
       <div>
         <div class="cat-big-card-top">
-          <span class="cat-big-ico">${m.emoji}</span>
-          <span class="cat-big-xp">${xp}</span>
+          <span class="cat-big-ico">${cat.emoji}</span>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span class="cat-big-xp">${xp}</span>
+            <button onclick="event.stopPropagation();openCatOptions('${cat.id}')" style="width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;cursor:pointer;font-size:12px;color:rgba(255,255,255,0.7);display:flex;align-items:center;justify-content:center;transition:background .15s" onmouseover="this.style.background='rgba(255,255,255,0.28)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">⋯</button>
+          </div>
         </div>
         <div style="margin-top:10px">
           <div class="cat-big-label">XP</div>
-          <div class="cat-big-name">${cat}</div>
+          <div class="cat-big-name">${cat.name}</div>
         </div>
       </div>
       <div>
@@ -1494,40 +1535,177 @@ function renderCatCardsHome(){
         </div>
       </div>
     </div>`;
-  }).join('');
+  }).join('')+`
+    <!-- Card + para agregar/recuperar categorías -->
+    <div class="cat-big-card" style="background:var(--white);border:1.5px dashed var(--border2);box-shadow:none;cursor:pointer;align-items:center;justify-content:center;min-height:130px" onclick="openCatManager()">
+      <div style="text-align:center">
+        <div style="font-size:28px;color:var(--border2);margin-bottom:8px">+</div>
+        <div style="font-size:12px;font-weight:400;color:var(--muted);letter-spacing:-.1px">Categoría</div>
+        ${hiddenCats.length?`<div style="font-size:10px;color:var(--muted2);margin-top:3px">${hiddenCats.length} oculta${hiddenCats.length>1?'s':''}</div>`:''}
+      </div>
+    </div>`;
 }
 
-function openCatFromHome(cat){
-  const m=CATS[cat];if(!m)return;
-  const gradients={
-    Mente:'linear-gradient(135deg,#6d28d9,#a855f7)',
-    Cuerpo:'linear-gradient(135deg,#0f766e,#10b981)',
-    Skills:'linear-gradient(135deg,#b45309,#f59e0b)',
-    Relaciones:'linear-gradient(135deg,#be185d,#f472b6)',
-    Trabajo:'linear-gradient(135deg,#0369a1,#38bdf8)'
-  };
-  // Set header
+function openCatFromHome(catId){
+  const cat=getAllCategories().find(c=>c.id===catId);
+  if(!cat)return;
+  // update CATS for modal
+  const gradients={'#7c3aed':'linear-gradient(135deg,#6d28d9,#a855f7)','#0f766e':'linear-gradient(135deg,#0f766e,#10b981)','#b45309':'linear-gradient(135deg,#b45309,#f59e0b)','#be185d':'linear-gradient(135deg,#be185d,#f472b6)','#0369a1':'linear-gradient(135deg,#0369a1,#38bdf8)'};
+  const grad=gradients[cat.color]||`linear-gradient(135deg,${cat.color},${cat.color}88)`;
   const hdr=ge('cat-modal-header');
-  hdr.style.background=gradients[cat];
-  ge('cat-modal-ico').textContent=m.emoji;
-  ge('cat-modal-name').textContent=cat;
-  // XP
-  const catXP=state.activity.reduce((s,a)=>a.cat===cat?s+a.pts:s,0);
+  hdr.style.background=grad;
+  ge('cat-modal-ico').textContent=cat.emoji;
+  ge('cat-modal-name').textContent=cat.name;
+  const catXP=state.activity.reduce((s,a)=>a.cat===catId?s+a.pts:s,0);
   const allXP=state.activity.reduce((s,a)=>s+a.pts,0)||1;
   ge('cat-modal-xp-n').textContent=catXP;
   ge('cat-modal-bar-f').style.width=Math.round(catXP/allXP*100)+'%';
-  // Add button color
-  ge('cat-modal-addbtn').style.background=gradients[cat];
-  // Store active cat
-  ge('cat-modal').dataset.cat=cat;
+  ge('cat-modal-addbtn').style.background=grad;
+  ge('cat-modal').dataset.cat=catId;
   ge('cat-modal-inp').value='';
   ge('cat-modal-pts').value='10';
-  renderCatModal(cat);
-  // Open
+  renderCatModal(catId);
   ge('cat-modal-overlay').classList.add('open');
   ge('cat-modal').classList.add('open');
   setTimeout(()=>ge('cat-modal-inp').focus(),320);
 }
+
+/* ── Opciones de categoría (quitar/borrar) ── */
+function openCatOptions(catId){
+  const cat=getAllCategories().find(c=>c.id===catId);
+  if(!cat)return;
+  const taskCount=state.tasks.filter(t=>t.cat===catId).length;
+  // Simple confirm dialog via overlay
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.4);display:flex;align-items:flex-end;justify-content:center';
+  overlay.innerHTML=`<div style="background:var(--white);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;font-family:Geist,sans-serif">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <span style="font-size:22px">${cat.emoji}</span>
+      <div><div style="font-size:15px;font-weight:500;color:var(--text)">${cat.name}</div><div style="font-size:11px;color:var(--muted2)">${taskCount} tarea${taskCount!==1?'s':''}</div></div>
+    </div>
+    <button onclick="hideCatFromView('${catId}');this.closest('div[style]').remove()" style="width:100%;padding:13px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;font-size:14px;font-family:Geist,sans-serif;cursor:pointer;text-align:left;margin-bottom:8px;color:var(--text)">
+      👁 Quitar del visualizador <span style="font-size:11px;color:var(--muted2);float:right">Las tareas se mantienen</span>
+    </button>
+    <button onclick="deleteCatPermanent('${catId}');this.closest('div[style]').remove()" style="width:100%;padding:13px;background:var(--ro-bg);border:1px solid rgba(190,24,93,0.2);border-radius:12px;font-size:14px;font-family:Geist,sans-serif;cursor:pointer;text-align:left;margin-bottom:8px;color:var(--rose)">
+      🗑 Eliminar para siempre <span style="font-size:11px;color:var(--muted2);float:right">${taskCount>0?`Borra ${taskCount} tarea${taskCount!==1?'s':''}`:'Sin tareas'}</span>
+    </button>
+    <button onclick="this.closest('div[style]').remove()" style="width:100%;padding:11px;background:transparent;border:none;font-size:13px;font-family:Geist,sans-serif;cursor:pointer;color:var(--muted)">Cancelar</button>
+  </div>`;
+  document.body.appendChild(overlay);
+  overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+}
+
+function hideCatFromView(catId){
+  if(!state.activeCategories)state.activeCategories=getAllCategories().map(c=>c.id);
+  state.activeCategories=state.activeCategories.filter(id=>id!==catId);
+  save();render();
+}
+
+function deleteCatPermanent(catId){
+  const cat=getAllCategories().find(c=>c.id===catId);
+  if(!cat)return;
+  const taskCount=state.tasks.filter(t=>t.cat===catId).length;
+  const msg=taskCount>0
+    ?`¿Eliminar "${cat.name}" para siempre?\n\nSe van a borrar ${taskCount} tarea${taskCount!==1?'s':''} y su historial. Esta acción no se puede deshacer.`
+    :`¿Eliminar "${cat.name}" para siempre?`;
+  if(!confirm(msg))return;
+  state.allCategories=(state.allCategories||DEFAULT_CATS).filter(c=>c.id!==catId);
+  state.activeCategories=(state.activeCategories||[]).filter(id=>id!==catId);
+  state.tasks=state.tasks.filter(t=>t.cat!==catId);
+  state.activity=state.activity.filter(a=>a.cat!==catId);
+  save();render();
+}
+
+/* ── Gestor de categorías (agregar/recuperar) ── */
+const CAT_EMOJIS=['🧠','💪','⚡','🤝','💼','📚','🎯','🎸','🌿','🏃','🎨','💡','🔬','✈️','🍎','🧘','💰','🎮','🌍','❤️','🔥','⭐','🏆','🦋','🌊'];
+const CAT_COLORS=['#7c3aed','#0f766e','#b45309','#be185d','#0369a1','#dc2626','#059669','#d97706','#7c2d12','#1d4ed8','#9333ea','#0891b2','#16a34a','#ea580c','#db2777'];
+
+function openCatManager(){
+  const hiddenCats=(state.allCategories||DEFAULT_CATS).filter(c=>!(state.activeCategories||[]).includes(c.id));
+  const overlay=document.createElement('div');
+  overlay.id='cat-manager-overlay';
+  overlay.style.cssText='position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.4);display:flex;align-items:flex-end;justify-content:center';
+
+  const hiddenHTML=hiddenCats.length?`
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:10px">Categorías ocultas — tap para recuperar</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px">
+      ${hiddenCats.map(c=>`<button onclick="restoreCat('${c.id}')" style="display:flex;align-items:center;gap:7px;padding:8px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;font-size:13px;font-family:Geist,sans-serif;cursor:pointer;color:var(--text);transition:all .15s" onmouseover="this.style.background='var(--vi-bg)'" onmouseout="this.style.background='var(--bg3)'">
+        <span>${c.emoji}</span><span>${c.name}</span>
+      </button>`).join('')}
+    </div>`:'';
+
+  overlay.innerHTML=`<div style="background:var(--white);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;font-family:Geist,sans-serif">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+      <div style="font-size:17px;font-weight:500;color:var(--text);font-family:'Instrument Serif',serif">Categorías</div>
+      <button onclick="document.getElementById('cat-manager-overlay').remove()" style="width:28px;height:28px;border-radius:50%;background:var(--bg3);border:none;cursor:pointer;font-size:14px;color:var(--muted)">✕</button>
+    </div>
+    ${hiddenHTML}
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:10px">Nueva categoría</div>
+    <div style="margin-bottom:12px">
+      <input id="new-cat-name" placeholder="Nombre de la categoría..." maxlength="20"
+        style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:10px 13px;font-size:13px;font-family:Geist,sans-serif;font-weight:300;outline:none;margin-bottom:10px"
+        onfocus="this.style.borderColor='var(--violet)'" onblur="this.style.borderColor='var(--border2)'">
+      <div style="font-size:10px;color:var(--muted2);margin-bottom:6px">Emoji</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px" id="new-cat-emoji-picker">
+        ${CAT_EMOJIS.map(e=>`<button onclick="selectNewCatEmoji(this,'${e}')" data-emoji="${e}" style="width:36px;height:36px;border-radius:9px;border:1.5px solid var(--border);background:var(--white);font-size:18px;cursor:pointer;transition:all .15s">${e}</button>`).join('')}
+      </div>
+      <div style="font-size:10px;color:var(--muted2);margin-bottom:6px">Color</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px" id="new-cat-color-picker">
+        ${CAT_COLORS.map(c=>`<button onclick="selectNewCatColor(this,'${c}')" data-color="${c}" style="width:30px;height:30px;border-radius:50%;background:${c};border:2.5px solid transparent;cursor:pointer;transition:all .15s;box-shadow:0 2px 6px rgba(0,0,0,0.15)"></button>`).join('')}
+      </div>
+    </div>
+    <button onclick="createNewCat()" style="width:100%;padding:13px;background:var(--text);color:#fff;border:none;border-radius:12px;font-size:14px;font-family:Geist,sans-serif;font-weight:400;cursor:pointer;transition:all .18s">+ Crear categoría</button>
+  </div>`;
+
+  document.body.appendChild(overlay);
+  overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+
+  // Default selections
+  window._newCatEmoji=CAT_EMOJIS[0];
+  window._newCatColor=CAT_COLORS[0];
+  document.querySelector('#new-cat-emoji-picker button').style.borderColor='var(--violet)';
+  document.querySelector('#new-cat-emoji-picker button').style.background='var(--vi-bg)';
+  document.querySelector('#new-cat-color-picker button').style.borderWidth='2.5px';
+  document.querySelector('#new-cat-color-picker button').style.borderColor='var(--text)';
+}
+
+function selectNewCatEmoji(btn,emoji){
+  document.querySelectorAll('#new-cat-emoji-picker button').forEach(b=>{b.style.borderColor='var(--border)';b.style.background='var(--white)';});
+  btn.style.borderColor='var(--violet)';btn.style.background='var(--vi-bg)';
+  window._newCatEmoji=emoji;
+}
+
+function selectNewCatColor(btn,color){
+  document.querySelectorAll('#new-cat-color-picker button').forEach(b=>b.style.borderColor='transparent');
+  btn.style.borderColor='var(--text)';
+  window._newCatColor=color;
+}
+
+function createNewCat(){
+  const name=ge('new-cat-name').value.trim();
+  if(!name){ge('new-cat-name').focus();ge('new-cat-name').style.borderColor='var(--rose)';return;}
+  const color=window._newCatColor||CAT_COLORS[0];
+  const emoji=window._newCatEmoji||'⭐';
+  // Generar bg/tc desde el color
+  const id=name;
+  const newCat={id,name,color,emoji,bg:color+'18',tc:color};
+  if(!state.allCategories||!state.allCategories.length)state.allCategories=[...DEFAULT_CATS];
+  if(state.allCategories.find(c=>c.id===id)){alert('Ya existe una categoría con ese nombre.');return;}
+  state.allCategories.push(newCat);
+  if(!state.activeCategories)state.activeCategories=DEFAULT_CATS.map(c=>c.id);
+  state.activeCategories.push(id);
+  save();render();
+  ge('cat-manager-overlay').remove();
+}
+
+function restoreCat(catId){
+  if(!state.activeCategories)state.activeCategories=getAllCategories().map(c=>c.id);
+  if(!state.activeCategories.includes(catId))state.activeCategories.push(catId);
+  save();render();
+  ge('cat-manager-overlay').remove();
+}
+
+
 
 function closeCatModal(){
   ge('cat-modal-overlay').classList.remove('open');
@@ -1535,7 +1713,8 @@ function closeCatModal(){
 }
 
 function renderCatModal(cat){
-  const m=CATS[cat];
+  const catObj=getAllCategories().find(c=>c.id===cat)||{color:'#7c3aed',bg:'#f5f2ff',tc:'#5b21b6',emoji:'⭐',name:cat};
+  const m={color:catObj.color,bg:catObj.bg,tc:catObj.tc,emoji:catObj.emoji};
   const pending=state.tasks.filter(t=>t.cat===cat&&!t.done);
   const done=state.tasks.filter(t=>t.cat===cat&&t.done);
   // Pending count label
@@ -1750,6 +1929,7 @@ function spawnConfetti(color,cat){
 }
 
 function render(){
+  rebuildCATS();
   const {xp,lvl,title,pct,nextXp}=calcLevel();
   // Greet + mensaje contextual
   const h=new Date().getHours();
@@ -1784,6 +1964,7 @@ function render(){
   ge('tasks-sub')&&(ge('tasks-sub').textContent=`${state.tasks.filter(t=>!t.done).length} pendientes hoy`);
   renderTasks();
   renderCatCardsHome();
+  renderCatPills();
   renderDayNotes();
   // Date label for notes
   const dn=ge('day-notes-date');
