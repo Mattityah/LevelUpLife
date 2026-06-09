@@ -75,6 +75,7 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
   flex:1;overflow-y:auto;
   padding-bottom:calc(var(--nav-h) + 24px);
   scroll-behavior:smooth;
+  min-height:0;
 }
 .scroll::-webkit-scrollbar{width:0;}
 
@@ -200,15 +201,14 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 }
 
 /* ── Cat Cards estilo App Store ── */
-.cat-cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
-@media(min-width:480px){.cat-cards-grid{grid-template-columns:1fr 1fr;}}
-@media(min-width:900px){.cat-cards-grid{grid-template-columns:1fr 1fr 1fr;}}
+.cat-cards-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:16px;}
+@media(min-width:900px){.cat-cards-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
 
 .cat-big-card{
   border-radius:20px;padding:16px 15px 14px;
   position:relative;overflow:hidden;
   cursor:pointer;transition:transform .18s,box-shadow .18s;
-  min-height:140px;display:flex!important;flex-direction:column!important;justify-content:space-between;
+  min-height:140px;height:auto;display:flex;flex-direction:column;justify-content:space-between;
   box-shadow:0 4px 18px rgba(0,0,0,0.1),0 1px 4px rgba(0,0,0,0.06);
 }
 .cat-big-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,0.14);}
@@ -1639,11 +1639,26 @@ function openCatManager(){
       </button>`).join('')}
     </div>`:'';
 
+  // Active categories list for management
+  const activeCatsNow = getActiveCategories();
+  const activeCatsHTML = activeCatsNow.length ? `
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:10px">Categorías activas</div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:18px">
+      ${activeCatsNow.map(c=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 13px;background:var(--bg3);border:1px solid var(--border);border-radius:12px">
+          <span style="font-size:18px">${c.emoji}</span>
+          <span style="flex:1;font-size:13px;font-weight:400;color:var(--text)">${c.name}</span>
+          <span style="font-size:11px;color:var(--muted2)">${state.tasks.filter(t=>t.cat===c.id).length} tareas</span>
+          <button onclick="openCatOptions('${c.id}');document.getElementById('cat-manager-overlay').remove()" style="font-size:11px;color:var(--muted);background:var(--bg4);border:1px solid var(--border);border-radius:8px;padding:3px 9px;cursor:pointer;font-family:Geist,sans-serif">⋯</button>
+        </div>`).join('')}
+    </div>` : '';
+
   overlay.innerHTML=`<div style="background:var(--white);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;font-family:Geist,sans-serif">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
       <div style="font-size:17px;font-weight:500;color:var(--text);font-family:'Instrument Serif',serif">Categorías</div>
       <button onclick="document.getElementById('cat-manager-overlay').remove()" style="width:28px;height:28px;border-radius:50%;background:var(--bg3);border:none;cursor:pointer;font-size:14px;color:var(--muted)">✕</button>
     </div>
+    ${activeCatsHTML}
     ${hiddenHTML}
     <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:10px">Nueva categoría</div>
     <div style="margin-bottom:12px">
