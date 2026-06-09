@@ -208,7 +208,7 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
   border-radius:20px;padding:16px 15px 14px;
   position:relative;overflow:hidden;
   cursor:pointer;transition:transform .18s,box-shadow .18s;
-  min-height:130px;display:flex;flex-direction:column;justify-content:space-between;
+  min-height:140px;display:flex!important;flex-direction:column!important;justify-content:space-between;
   box-shadow:0 4px 18px rgba(0,0,0,0.1),0 1px 4px rgba(0,0,0,0.06);
 }
 .cat-big-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,0.14);}
@@ -429,6 +429,16 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 .set-arr{font-size:13px;color:var(--muted2);}
 </style>
 
+<script>
+// Categorías base — definidas antes del módulo Firebase para que esté disponible
+const DEFAULT_CATS=[
+  {id:'Mente',    name:'Mente',     color:'#7c3aed',bg:'#f5f2ff',tc:'#5b21b6',emoji:'🧠'},
+  {id:'Cuerpo',   name:'Cuerpo',    color:'#0f766e',bg:'#f0fdf8',tc:'#134e4a',emoji:'💪'},
+  {id:'Skills',   name:'Skills',    color:'#b45309',bg:'#fffbeb',tc:'#92400e',emoji:'⚡'},
+  {id:'Relaciones',name:'Relaciones',color:'#be185d',bg:'#fdf2f8',tc:'#9d174d',emoji:'🤝'},
+  {id:'Trabajo',  name:'Trabajo',   color:'#0369a1',bg:'#f0f9ff',tc:'#075985',emoji:'💼'}
+];
+</script>
 <!-- ══ FIREBASE + AUTH + GOOGLE CALENDAR ══ -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -1172,14 +1182,7 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 </div><!-- end app -->
 
 <script>
-// Categorías base — también usadas como fallback
-const DEFAULT_CATS=[
-  {id:'Mente',    name:'Mente',     color:'#7c3aed',bg:'#f5f2ff',tc:'#5b21b6',emoji:'🧠'},
-  {id:'Cuerpo',   name:'Cuerpo',    color:'#0f766e',bg:'#f0fdf8',tc:'#134e4a',emoji:'💪'},
-  {id:'Skills',   name:'Skills',    color:'#b45309',bg:'#fffbeb',tc:'#92400e',emoji:'⚡'},
-  {id:'Relaciones',name:'Relaciones',color:'#be185d',bg:'#fdf2f8',tc:'#9d174d',emoji:'🤝'},
-  {id:'Trabajo',  name:'Trabajo',   color:'#0369a1',bg:'#f0f9ff',tc:'#075985',emoji:'💼'}
-];
+// DEFAULT_CATS definido en el head (antes del módulo Firebase)
 
 // CATS dinámico — se reconstruye desde state.allCategories
 let CATS={};
@@ -1420,9 +1423,11 @@ function renderDayNotes(){
         const match=line.match(/^\[(\d{2}:\d{2})\] (.+)$/);
         const time=match?match[1]:'';
         const text=match?match[2]:line;
-        return`<div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border)">
-          <span style="font-size:10px;color:var(--muted2);white-space:nowrap;margin-top:2px;min-width:34px">${time}</span>
-          <span style="font-size:13px;color:var(--text);font-weight:300;flex:1;line-height:1.4">${esc(text)}</span>
+        return`<div style="display:flex;gap:12px;align-items:flex-start;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:10px 13px;margin-bottom:7px">
+          <div style="flex-shrink:0;margin-top:1px">
+            <div style="font-size:10px;font-weight:500;color:var(--violet);letter-spacing:.3px">${time}</div>
+          </div>
+          <div style="flex:1;font-size:13px;color:var(--text);font-weight:300;line-height:1.45">${esc(text)}</div>
         </div>`;
       }).join('');
     }
@@ -1438,8 +1443,8 @@ function renderDayNotes(){
         const match=line.match(/^\[(\d{2}:\d{2})\] (.+)$/);
         const time=match?match[1]:'';
         const text=match?match[2]:line;
-        return`<div style="display:flex;gap:8px;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--border)">
-          <span style="font-size:9px;color:var(--muted2);white-space:nowrap;margin-top:2px;min-width:30px">${time}</span>
+        return`<div style="display:flex;gap:8px;align-items:flex-start;background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:7px 10px;margin-bottom:5px">
+          <span style="font-size:9px;font-weight:500;color:var(--violet);white-space:nowrap;margin-top:2px">${time}</span>
           <span style="font-size:11px;color:var(--text);font-weight:300;flex:1;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${esc(text)}</span>
         </div>`;
       }).join('');
@@ -1944,6 +1949,7 @@ function render(){
   // Stats
   const catXP={};state.activity.forEach(a=>{catXP[a.cat]=(catXP[a.cat]||0)+a.pts;});
   const maxXP=Math.max(...Object.values(catXP),1);
+  // Dynamic stat update (legacy elements still updated if they exist)
   [{k:'m',c:'Mente'},{k:'c',c:'Cuerpo'},{k:'s',c:'Skills'},{k:'r',c:'Relaciones'}].forEach(({k,c})=>{
     const v=catXP[c]||0;
     ge('sv-'+k)&&(ge('sv-'+k).textContent=v);
@@ -2192,6 +2198,7 @@ function buildNeural(){
 
 /* ── VISTA MACRO ── */
 function buildMacro(ctx,W,H,gc,canvas,dpr,wrap){
+  rebuildCATS();
   const catKeys=Object.keys(CATS),nC=catKeys.length,cx=W/2,cy=H/2,rad=Math.min(W,H)*0.32;
   const nodes=[{id:'root',type:'root',x:cx,y:cy,fx:cx,fy:cy}],links=[];
   catKeys.forEach((cat,i)=>{const angle=(i/nC)*Math.PI*2-Math.PI/2;nodes.push({id:'c-'+cat,type:'cat',cat,x:cx+Math.cos(angle)*rad,y:cy+Math.sin(angle)*rad,fx:cx+Math.cos(angle)*rad,fy:cy+Math.sin(angle)*rad});links.push({source:'root',target:'c-'+cat,type:'trunk'});});
@@ -2240,6 +2247,7 @@ function buildMacro(ctx,W,H,gc,canvas,dpr,wrap){
 
 /* ── VISTA DRILL — layout telaraña fija ── */
 function buildDrill(ctx,W,H,gc,canvas,dpr,wrap){
+  rebuildCATS();
   const m=CATS[drillCat],tasks=state.tasks.filter(t=>t.cat===drillCat),cx=W/2,cy=H/2;
 
   // Layout telaraña: posiciones fijas en anillos concéntricos
