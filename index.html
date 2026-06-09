@@ -213,7 +213,7 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 .habit-meta{font-size:10px;color:var(--muted2);margin-top:2px;}
 .habit-check{margin-left:auto;width:34px;height:34px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;flex-shrink:0;font-size:16px;}
 .habit-check.done{border-color:transparent;color:#fff;}
-.habit-grid{display:grid;grid-template-columns:repeat(14,1fr);gap:3px;margin-top:10px;}
+.habit-grid{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:4px;margin-top:10px;overflow:hidden;}
 .habit-day{aspect-ratio:1;border-radius:3px;background:var(--bg3);}
 .habit-freq-btn{border:1px solid var(--border2);border-radius:20px;padding:6px 14px;font-size:12px;font-family:'Geist',sans-serif;background:var(--white);cursor:pointer;transition:all .15s;color:var(--text);}
 .habit-freq-btn.active{background:var(--text);color:#fff;border-color:var(--text);}
@@ -2026,12 +2026,21 @@ function habitCardHTML(h,showCheck){
     freqHTML=`<span style="font-size:10px;color:var(--muted2);background:var(--bg3);border-radius:20px;padding:2px 8px">${h.timesPerWeek}x semana</span>`;
   }
 
-  // Grid 14 días
+  // Grid 14 días con etiquetas
+  const dayLettersGrid=['D','L','M','X','J','V','S'];
   const days=[];
   for(let i=13;i>=0;i--){
     const d=new Date();d.setDate(d.getDate()-i);
-    const key=d.toDateString();const isToday=i===0;const isDone=habitDoneOn(h,key);
-    days.push(`<div class="habit-day" style="background:${isDone?m.color+'cc':'var(--bg3)'};${isToday?'outline:2px solid '+m.color+';outline-offset:1px':''}" title="${d.toLocaleDateString('es-AR',{day:'numeric',month:'short'})}"></div>`);
+    const key=d.toDateString();
+    const isToday=i===0;
+    const isDone=habitDoneOn(h,key);
+    const dayLetter=dayLettersGrid[d.getDay()];
+    const dayNum=d.getDate();
+    days.push(`<div style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0">
+      <div style="font-size:8px;color:${isToday?m.color:'var(--muted2)'};font-weight:${isToday?'500':'300'};text-transform:uppercase">${dayLetter}</div>
+      <div style="font-size:9px;color:${isToday?m.color:'var(--muted2)'};font-weight:${isToday?'500':'300'}">${dayNum}</div>
+      <div style="width:100%;aspect-ratio:1;border-radius:4px;background:${isDone?m.color+'cc':'var(--bg3)'};${isToday?'outline:2px solid '+m.color+';outline-offset:1px':''}" title="${d.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'})}"></div>
+    </div>`);
   }
 
   const checkBtn=showCheck?`<div class="habit-check${done?' done':''}" style="${done?'background:'+m.color+';box-shadow:0 3px 10px '+m.color+'44':'background:var(--white)'}" onclick="toggleHabit('${h.id}')">${done?'✓':''}</div>`:'';
