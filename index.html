@@ -512,7 +512,7 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 /* ══ CARD STACK (mobile) ══ */
 .stack-viewport{
   position:relative;
-  height:calc(100vh - var(--nav-h) - 80px);
+  height:calc(100vh - var(--nav-h) - 130px);
   overflow:hidden;
   display:flex;align-items:flex-start;justify-content:center;
   padding:16px 16px 0;
@@ -561,7 +561,7 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 
 /* Card inner content */
 .sc-category{
-  min-height:calc(100vh - var(--nav-h) - 80px);
+  min-height:calc(100vh - var(--nav-h) - 130px);
   display:flex;flex-direction:column;
   padding:24px 22px 22px;
 }
@@ -939,11 +939,12 @@ const DEFAULT_CATS=[
 
       <!-- ══ MOBILE: Card Stack ══ -->
       <div id="stack-mobile-wrap" style="display:block">
-        <!-- Greeting bar (always visible) -->
-        <div style="padding:14px 18px 10px;background:var(--bg)">
-          <div style="font-size:10px;color:var(--muted2);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px" id="stack-greet">BUENAS TARDES</div>
-          <div style="height:2px;background:var(--bg3);border-radius:10px;overflow:hidden"><div id="stack-xp-fill" style="height:100%;background:linear-gradient(90deg,var(--violet),#a855f7);width:0%;border-radius:10px;transition:width .6s"></div></div>
-          <div style="display:flex;justify-content:space-between;margin-top:3px">
+        <!-- Greeting + quote header -->
+        <div style="padding:18px 20px 14px;background:var(--bg)">
+          <div style="font-size:11px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px" id="stack-greet">BUENAS TARDES</div>
+          <div style="font-family:'Instrument Serif',serif;font-size:20px;font-style:italic;color:var(--text);line-height:1.35;margin-bottom:12px" id="stack-quote">Progreso lento es infinitamente mejor que parálisis.</div>
+          <div style="height:3px;background:var(--bg3);border-radius:10px;overflow:hidden"><div id="stack-xp-fill" style="height:100%;background:linear-gradient(90deg,var(--violet),#a855f7);width:0%;border-radius:10px;transition:width .6s"></div></div>
+          <div style="display:flex;justify-content:space-between;margin-top:4px">
             <span style="font-size:10px;color:var(--muted2)" id="stack-xp-lbl">0 / 100 XP</span>
             <span style="font-size:10px;color:var(--muted)" id="stack-xp-pct">0%</span>
           </div>
@@ -3450,7 +3451,7 @@ function buildCategoryCard(catId){
   const div=document.createElement('div');
   div.className='stack-card active-card';
   div.style.background=bg;
-  div.innerHTML=`<div class="sc-category">
+  div.innerHTML=`<div class="sc-category" style="position:relative"><button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:0;right:0;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
     <div class="sc-cat-header">
       <div class="sc-cat-emoji">${cat.emoji}</div>
       <div style="text-align:right">
@@ -3489,7 +3490,7 @@ function buildHabitsCard(){
   const div=document.createElement('div');
   div.className='stack-card active-card';
   div.style.background='linear-gradient(150deg,#1e1040,#3b1f8c,#5b21b6)';
-  div.innerHTML=`<div class="sc-category">
+  div.innerHTML=`<div class="sc-category" style="position:relative"><button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:0;right:0;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
     <div class="sc-cat-header">
       <div class="sc-cat-emoji">🔗</div>
       <div style="text-align:right">
@@ -3525,7 +3526,7 @@ function buildBitacoraCard(){
   const div=document.createElement('div');
   div.className='stack-card active-card';
   div.style.background='linear-gradient(150deg,#1a1814,#2d2520,#1a1814)';
-  div.innerHTML=`<div class="sc-category">
+  div.innerHTML=`<div class="sc-category" style="position:relative"><button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:0;right:0;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
     <div class="sc-cat-header">
       <div class="sc-cat-emoji">✎</div>
       <div style="text-align:right">
@@ -3574,6 +3575,16 @@ function buildCalendarShortcutCard(){
   return div;
 }
 
+
+function stackSkipCard(){
+  // Move current card to end of stack
+  if(stackCards.length<=1)return;
+  const current=stackCards.splice(stackIndex,1)[0];
+  stackCards.push(current);
+  stackIndex=Math.min(stackIndex,stackCards.length-1);
+  renderStack();
+}
+
 function scSubmitNote(){
   const inp=ge('sc-note-inp');
   if(!inp||!inp.value.trim())return;
@@ -3602,6 +3613,14 @@ function renderStack(){
   else if(h<19) greet=firstName?`Buenas tardes, ${firstName}`:'Buenas tardes';
   else greet=firstName?`Buenas noches, ${firstName}`:'Buenas noches';
   if(ge('stack-greet'))ge('stack-greet').textContent=greet.toUpperCase();
+
+  // Update quote (same pool as heroMessage)
+  const quotes=['Progreso lento es infinitamente mejor que parálisis.','La identidad no es lo que decís que sos. Es lo que hacés.','Cada acción es un voto por la persona que querés ser.','No necesitás motivación, necesitás un sistema.','El progreso es invisible hasta que de repente es innegable.','Lo que se registra, mejora.','Un hábito no se forma en un día, pero se rompe en uno.','La disciplina es elegir entre lo que querés ahora y lo que más querés.','Pequeñas acciones diarias, grandes cambios con el tiempo.','Tu personaje crece cuando vos crecés.'];
+  const qEl=ge('stack-quote');
+  if(qEl){
+    const dayIdx=new Date().getDay();
+    qEl.textContent=quotes[dayIdx%quotes.length];
+  }
 
   const {xp,pct,nextXp}=calcLevel();
   if(ge('stack-xp-fill'))ge('stack-xp-fill').style.width=pct+'%';
@@ -3664,12 +3683,14 @@ function attachSwipe(el){
     if(!isDragging)return;
     const dy=e.touches[0].clientY-startY;
     const dx=e.touches[0].clientX-startX;
-    if(!moved&&Math.abs(dy)<Math.abs(dx))return; // horizontal swipe ignore
+    if(!moved&&Math.abs(dy)<Math.abs(dx)*0.8)return;
     moved=true;
-    if(dy<0){ // only allow upward
+    if(dy<0){
+      // Swipe up — stretch slightly
       el.style.transform=`translateY(${dy}px) scale(${1+dy*0.0002})`;
     } else {
-      el.style.transform=`translateY(${Math.min(dy*0.15,10)}px)`;
+      // Swipe down — resist with spring
+      el.style.transform=`translateY(${Math.min(dy*0.2,20)}px) scale(${1-dy*0.0003})`;
     }
   },{passive:true});
 
@@ -3677,14 +3698,20 @@ function attachSwipe(el){
     if(!isDragging)return;
     isDragging=false;
     const dy=e.changedTouches[0].clientY-startY;
-    el.style.transition='transform .35s cubic-bezier(.32,1,.5,1)';
+    el.style.transition='transform .35s cubic-bezier(.32,1,.5,1),opacity .3s';
+
     if(dy<-60&&stackCards.length>1){
-      // Advance to next card
+      // ── Swipe UP: advance to next ──
       el.style.transform='translateY(-110%) scale(0.95)';
       el.style.opacity='0';
-      el.style.transition='transform .35s cubic-bezier(.4,0,.2,1),opacity .3s';
       stackIndex=(stackIndex+1)%stackCards.length;
       setTimeout(()=>renderStack(),380);
+    } else if(dy>60&&stackCards.length>1){
+      // ── Swipe DOWN: go back to previous ──
+      el.style.transform='translateY(80px) scale(0.95)';
+      el.style.opacity='0';
+      stackIndex=(stackIndex-1+stackCards.length)%stackCards.length;
+      setTimeout(()=>renderStack(),320);
     } else {
       el.style.transform='scale(1) translateY(0)';
     }
