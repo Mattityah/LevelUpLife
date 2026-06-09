@@ -1631,16 +1631,11 @@ function exportBitacora(){
   const all={...archived,...notes};
   const keys=Object.keys(all).sort();
   if(!keys.length){alert('Sin notas para exportar.');return;}
-  let txt='BITÁCORA — LevelUp Life
-
-';
+  let txt='BITÁCORA — LevelUp Life\n\n';
   keys.forEach(k=>{
-    txt+=`=== ${k} ===
-`;
-    all[k].split('\n').filter(Boolean).forEach(l=>txt+=l+'
-');
-    txt+='
-';
+    txt+=`=== ${k} ===\n`;
+    all[k].split('\n').filter(Boolean).forEach(l=>txt+=l+'\n');
+    txt+='\n';
   });
   const blob=new Blob([txt],{type:'text/plain'});
   const a=document.createElement('a');
