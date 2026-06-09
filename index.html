@@ -517,7 +517,7 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
   display:flex;align-items:flex-start;justify-content:center;
   padding:16px 16px 0;
 }
-@media(min-width:768px){#stack-mobile-wrap{display:none !important;}}
+#stack-mobile-wrap{display:block;}@media(min-width:768px){#stack-mobile-wrap{display:none !important;}}
 
 .stack-card{
   position:absolute;
@@ -938,31 +938,31 @@ const DEFAULT_CATS=[
     <div class="pane active" id="pane-inicio">
 
       <!-- ══ MOBILE: Card Stack ══ -->
-      <div id="stack-mobile-wrap" style="display:block">
-        <!-- Greeting card -->
-        <div style="padding:12px 14px 10px">
-          <div style="background:linear-gradient(135deg,#1e1040,#2d1a5e);border-radius:18px;padding:14px 16px;position:relative;overflow:hidden">
-            <div style="position:absolute;top:-30px;right:-20px;width:100px;height:100px;background:radial-gradient(circle,rgba(139,92,246,0.3),transparent 65%);pointer-events:none"></div>
-            <div style="font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:3px" id="stack-greet">BUENAS TARDES</div>
-            <div style="font-family:'Instrument Serif',serif;font-size:16px;font-style:italic;color:#fff;line-height:1.35;margin-bottom:10px;position:relative;z-index:1" id="stack-quote">Progreso lento es infinitamente mejor que parálisis.</div>
-            <div style="height:2px;background:rgba(255,255,255,0.15);border-radius:10px;overflow:hidden"><div id="stack-xp-fill" style="height:100%;background:linear-gradient(90deg,#a855f7,#ec4899);width:0%;border-radius:10px;transition:width .6s"></div></div>
-            <div style="display:flex;justify-content:space-between;margin-top:3px">
-              <span style="font-size:9px;color:rgba(255,255,255,0.35)" id="stack-xp-lbl">0 / 100 XP</span>
-              <span style="font-size:9px;color:rgba(255,255,255,0.45)" id="stack-xp-pct">0%</span>
-            </div>
+      <div id="stack-mobile-wrap">
+        <!-- Header -->
+        <div style="padding:14px 16px 10px;background:linear-gradient(135deg,#1e1040,#2d1a5e);margin:10px;border-radius:18px">
+          <div style="font-size:9px;color:rgba(255,255,255,0.45);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px" id="stack-greet">BUENAS TARDES</div>
+          <div style="font-family:'Instrument Serif',serif;font-size:17px;font-style:italic;color:#fff;line-height:1.35;margin-bottom:10px" id="stack-quote">Tu mejor versión, cada día.</div>
+          <div style="height:2px;background:rgba(255,255,255,0.15);border-radius:10px;overflow:hidden">
+            <div id="stack-xp-fill" style="height:100%;background:linear-gradient(90deg,#a855f7,#ec4899);width:0%;border-radius:10px;transition:width .6s"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:3px">
+            <span style="font-size:9px;color:rgba(255,255,255,0.35)" id="stack-xp-lbl">0 / 100 XP</span>
+            <span style="font-size:9px;color:rgba(255,255,255,0.45)" id="stack-xp-pct">0%</span>
           </div>
         </div>
-        <!-- Stack viewport -->
-        <div class="stack-viewport" id="stack-viewport">
-          <div class="stack-hint" id="stack-hint">
-            <div class="stack-hint-arrow">↑</div>
-            <div class="stack-hint-label">Swipe para ver más</div>
-          </div>
-          <div class="stack-dots" id="stack-dots"></div>
+        <!-- Stack container -->
+        <div id="stack-cards-container" style="position:relative;margin:0 10px;height:calc(100vh - var(--nav-h) - 160px)"></div>
+        <!-- Swipe hint -->
+        <div id="stack-hint" style="text-align:center;padding:6px;opacity:0.4">
+          <div style="font-size:18px;animation:hintBounce 1.8s ease-in-out infinite">↑</div>
+          <div style="font-size:10px;color:var(--muted2);letter-spacing:.5px">Swipe para ver más</div>
         </div>
+        <!-- Dots -->
+        <div id="stack-dots" style="position:fixed;right:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px;z-index:50"></div>
       </div>
 
-      <!-- ══ DESKTOP: Original layout ══ -->
+            <!-- ══ DESKTOP: Original layout ══ -->
       <div class="desktop-inicio">
         <div class="hero">
           <div class="hero-card">
@@ -3602,77 +3602,87 @@ function scSubmitNote(){
 }
 
 function renderStack(){
-  const viewport=ge('stack-viewport');
-  if(!viewport)return;
-  if(window.innerWidth>=768)return;
+  if(window.innerWidth>=768) return;
 
-  // Update greeting bar
+  // ── Update header ──
   const h=new Date().getHours();
-  const p=state.profile||{};
-  const firstName=(p.name||'').split(' ')[0]||'';
+  const firstName=((state.profile||{}).name||'').split(' ')[0]||'';
   let greet;
-  if(h>=0&&h<5) greet=firstName?`¿Trasnochando, ${firstName}?`:'¿Trasnochando?';
-  else if(h<12) greet=firstName?`Buenos días, ${firstName}`:'Buenos días';
-  else if(h<19) greet=firstName?`Buenas tardes, ${firstName}`:'Buenas tardes';
-  else greet=firstName?`Buenas noches, ${firstName}`:'Buenas noches';
-  if(ge('stack-greet'))ge('stack-greet').textContent=greet.toUpperCase();
+  if(h>=0&&h<5)   greet=firstName?`¿Trasnochando, ${firstName}?`:'¿Trasnochando?';
+  else if(h<12)   greet=firstName?`Buenos días, ${firstName}`:'Buenos días';
+  else if(h<19)   greet=firstName?`Buenas tardes, ${firstName}`:'Buenas tardes';
+  else            greet=firstName?`Buenas noches, ${firstName}`:'Buenas noches';
+  if(ge('stack-greet')) ge('stack-greet').textContent=greet.toUpperCase();
 
-  // Update quote (same pool as heroMessage)
-  const quotes=['Progreso lento es infinitamente mejor que parálisis.','La identidad no es lo que decís que sos. Es lo que hacés.','Cada acción es un voto por la persona que querés ser.','No necesitás motivación, necesitás un sistema.','El progreso es invisible hasta que de repente es innegable.','Lo que se registra, mejora.','Un hábito no se forma en un día, pero se rompe en uno.','La disciplina es elegir entre lo que querés ahora y lo que más querés.','Pequeñas acciones diarias, grandes cambios con el tiempo.','Tu personaje crece cuando vos crecés.'];
-  const qEl=ge('stack-quote');
-  if(qEl){
-    const dayIdx=new Date().getDay();
-    qEl.textContent=quotes[dayIdx%quotes.length];
-  }
+  const quotes=['Progreso lento es infinitamente mejor que parálisis.','La identidad no es lo que decís que sos. Es lo que hacés.','Cada acción es un voto por la persona que querés ser.','No necesitás motivación, necesitás un sistema.','El progreso es invisible hasta que de repente es innegable.','Lo que se registra, mejora.','Pequeñas acciones diarias, grandes cambios con el tiempo.'];
+  if(ge('stack-quote')) ge('stack-quote').textContent=quotes[new Date().getDay()%quotes.length];
 
   const {xp,pct,nextXp}=calcLevel();
-  if(ge('stack-xp-fill'))ge('stack-xp-fill').style.width=pct+'%';
-  if(ge('stack-xp-lbl'))ge('stack-xp-lbl').textContent=xp+' / '+nextXp+' XP';
-  if(ge('stack-xp-pct'))ge('stack-xp-pct').textContent=pct+'%';
+  if(ge('stack-xp-fill')) ge('stack-xp-fill').style.width=pct+'%';
+  if(ge('stack-xp-lbl'))  ge('stack-xp-lbl').textContent=xp+' / '+nextXp+' XP';
+  if(ge('stack-xp-pct'))  ge('stack-xp-pct').textContent=pct+'%';
 
-  // Clamp index
+  // ── Build card list ──
   stackCards=getStackOrder();
-  if(!stackCards||stackCards.length===0)return;
+  if(!stackCards||stackCards.length===0) return;
   stackIndex=Math.max(0,Math.min(stackIndex,stackCards.length-1));
 
-  // Clear existing cards
-  const existing=viewport.querySelectorAll('.stack-card');
-  existing.forEach(e=>e.remove());
+  // ── Render cards into container ──
+  const container=ge('stack-cards-container');
+  if(!container) return;
+  container.innerHTML='';  // clear
 
-  // Build and insert cards (show current + 3 behind)
-  const show=Math.min(4,stackCards.length);
-  for(let i=show-1;i>=0;i--){
-    const cardIdx=(stackIndex+i)%stackCards.length;
-    const cardData=stackCards[cardIdx];
+  // Show active card + up to 3 peeking behind
+  const totalShow=Math.min(stackCards.length,4);
+  for(let offset=totalShow-1; offset>=0; offset--){
+    const idx=(stackIndex+offset)%stackCards.length;
+    const cardData=stackCards[idx];
     let el=null;
     if(cardData.type==='category') el=buildCategoryCard(cardData.catId);
-    else if(cardData.type==='habits') el=buildHabitsCard();
+    else if(cardData.type==='habits')   el=buildHabitsCard();
     else if(cardData.type==='bitacora') el=buildBitacoraCard();
     else if(cardData.type==='calendar') el=buildCalendarShortcutCard();
-    if(!el)continue;
+    if(!el) continue;
 
-    // Set position class
-    if(i===0) el.className='stack-card active-card';
-    else if(i===1) el.className='stack-card behind-1';
-    else if(i===2) el.className='stack-card behind-2';
-    else el.className='stack-card behind-3';
+    // Position
+    el.style.position='absolute';
+    el.style.width='100%';
+    el.style.borderRadius='22px';
+    el.style.overflow='hidden';
+    el.style.boxShadow='0 8px 32px rgba(0,0,0,0.18)';
+    el.style.transition='transform .35s cubic-bezier(.32,1,.5,1)';
 
-    viewport.insertBefore(el,ge('stack-hint'));
-    if(i===0) attachSwipe(el);
+    if(offset===0){
+      el.style.transform='scale(1) translateY(0)';
+      el.style.zIndex='10';
+      attachSwipe(el);
+    } else if(offset===1){
+      el.style.transform='scale(0.94) translateY(26px)';
+      el.style.zIndex='5';
+    } else if(offset===2){
+      el.style.transform='scale(0.88) translateY(48px)';
+      el.style.zIndex='3';
+    } else {
+      el.style.transform='scale(0.82) translateY(66px)';
+      el.style.zIndex='1';
+      el.style.opacity='0.7';
+    }
+    container.appendChild(el);
   }
 
-  // Update dots
+  // ── Dots ──
   const dots=ge('stack-dots');
   if(dots){
     dots.innerHTML=stackCards.map((_,i)=>
-      `<div class="stack-dot${i===stackIndex?' active':''}"></div>`
+      `<div style="width:5px;height:${i===stackIndex?'14px':'5px'};border-radius:3px;background:${i===stackIndex?'var(--text)':'var(--border2)'};transition:all .3s"></div>`
     ).join('');
   }
 
-  // Hide hint after first swipe
+  // Hide swipe hint after first navigation
   const hint=ge('stack-hint');
-  if(hint) hint.style.display=stackIndex>0?'none':'flex';
+  if(hint) hint.style.display=stackIndex>0?'none':'block';
 }
+
 
 function attachSwipe(el){
   let startY=0,startX=0,isDragging=false,moved=false;
