@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>LevelUp Life</title>
 <link rel="manifest" href="data:application/json,{
   &quot;name&quot;: &quot;LevelUp Life&quot;,
@@ -592,6 +592,16 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 .rp-level-name{font-family:'Instrument Serif',serif;font-size:16px;color:var(--text);}
 .rp-level-sub{font-size:11px;color:var(--muted);margin-top:2px;}
 .rp-quote{font-family:'Instrument Serif',serif;font-size:14px;font-style:italic;color:var(--text);line-height:1.6;opacity:0.85;}
+
+/* ── Prevent iOS zoom on input focus ── */
+input, textarea, select {
+  font-size: 16px !important;
+  -webkit-text-size-adjust: 100%;
+}
+@media(min-width:768px){
+  input, textarea, select { font-size: inherit !important; }
+}
+* { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 </style>
 
 <script>
@@ -3332,7 +3342,6 @@ function applyProfile(){
   if(ge('sb-plvl'))ge('sb-plvl').textContent='Nivel '+lvl+' · '+title;
   if(ge('sb-xp-fill2'))ge('sb-xp-fill2').style.width=pct+'%';
 
-  const p=state.profile||{};
   const name=p.name||'Mi personaje';
   const emoji=p.emoji&&p.emoji!=='✦'?p.emoji:null;
   const grad=p.grad||'linear-gradient(135deg,#7c3aed,#ec4899)';
