@@ -512,7 +512,7 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 /* ══ CARD STACK (mobile) ══ */
 .stack-viewport{
   position:relative;
-  height:calc(100vh - var(--nav-h) - 130px);
+  height:calc(100vh - var(--nav-h) - 160px);
   overflow:hidden;
   display:flex;align-items:flex-start;justify-content:center;
   padding:16px 16px 0;
@@ -561,7 +561,7 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 
 /* Card inner content */
 .sc-category{
-  min-height:calc(100vh - var(--nav-h) - 130px);
+  min-height:calc(100vh - var(--nav-h) - 160px);
   display:flex;flex-direction:column;
   padding:24px 22px 22px;
 }
@@ -939,14 +939,17 @@ const DEFAULT_CATS=[
 
       <!-- ══ MOBILE: Card Stack ══ -->
       <div id="stack-mobile-wrap" style="display:block">
-        <!-- Greeting + quote header -->
-        <div style="padding:18px 20px 14px;background:var(--bg)">
-          <div style="font-size:11px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px" id="stack-greet">BUENAS TARDES</div>
-          <div style="font-family:'Instrument Serif',serif;font-size:20px;font-style:italic;color:var(--text);line-height:1.35;margin-bottom:12px" id="stack-quote">Progreso lento es infinitamente mejor que parálisis.</div>
-          <div style="height:3px;background:var(--bg3);border-radius:10px;overflow:hidden"><div id="stack-xp-fill" style="height:100%;background:linear-gradient(90deg,var(--violet),#a855f7);width:0%;border-radius:10px;transition:width .6s"></div></div>
-          <div style="display:flex;justify-content:space-between;margin-top:4px">
-            <span style="font-size:10px;color:var(--muted2)" id="stack-xp-lbl">0 / 100 XP</span>
-            <span style="font-size:10px;color:var(--muted)" id="stack-xp-pct">0%</span>
+        <!-- Greeting card -->
+        <div style="padding:12px 14px 10px">
+          <div style="background:linear-gradient(135deg,#1e1040,#2d1a5e);border-radius:18px;padding:14px 16px;position:relative;overflow:hidden">
+            <div style="position:absolute;top:-30px;right:-20px;width:100px;height:100px;background:radial-gradient(circle,rgba(139,92,246,0.3),transparent 65%);pointer-events:none"></div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:3px" id="stack-greet">BUENAS TARDES</div>
+            <div style="font-family:'Instrument Serif',serif;font-size:16px;font-style:italic;color:#fff;line-height:1.35;margin-bottom:10px;position:relative;z-index:1" id="stack-quote">Progreso lento es infinitamente mejor que parálisis.</div>
+            <div style="height:2px;background:rgba(255,255,255,0.15);border-radius:10px;overflow:hidden"><div id="stack-xp-fill" style="height:100%;background:linear-gradient(90deg,#a855f7,#ec4899);width:0%;border-radius:10px;transition:width .6s"></div></div>
+            <div style="display:flex;justify-content:space-between;margin-top:3px">
+              <span style="font-size:9px;color:rgba(255,255,255,0.35)" id="stack-xp-lbl">0 / 100 XP</span>
+              <span style="font-size:9px;color:rgba(255,255,255,0.45)" id="stack-xp-pct">0%</span>
+            </div>
           </div>
         </div>
         <!-- Stack viewport -->
