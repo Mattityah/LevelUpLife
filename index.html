@@ -2007,7 +2007,7 @@ function openAddHabit(){
   }).join('');
 
   const catBtns=cats.map((c,i)=>{
-    return'<button onclick="selectHabitCat(this,''+c.id+'')" style="display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;border:1px solid '+(i===0?'var(--violet)':'var(--border)')+';background:'+(i===0?'var(--vi-bg)':'var(--white)')+';font-size:12px;font-family:Geist,sans-serif;cursor:pointer;color:var(--text)">'+c.emoji+' '+c.name+'</button>';
+    return`<button onclick="selectHabitCat(this,'${c.id}')" style="display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;border:1px solid ${i===0?'var(--violet)':'var(--border)'};background:${i===0?'var(--vi-bg)':'var(--white)'};font-size:12px;font-family:Geist,sans-serif;cursor:pointer;color:var(--text)">${c.emoji} ${c.name}</button>`;
   }).join('');
 
   const dayBtns=WEEK_DAYS.map(wd=>{
