@@ -203,6 +203,21 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 .quick-capture-send:hover{transform:scale(1.08);}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
+
+/* ── Habit Tracker ── */
+.habit-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,0.04);transition:all .18s;}
+.habit-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.08);}
+.habit-top{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.habit-ico{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.habit-name{font-size:14px;font-weight:400;color:var(--text);letter-spacing:-.1px;}
+.habit-meta{font-size:10px;color:var(--muted2);margin-top:2px;}
+.habit-check{margin-left:auto;width:34px;height:34px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;flex-shrink:0;font-size:16px;}
+.habit-check.done{border-color:transparent;color:#fff;}
+.habit-grid{display:grid;grid-template-columns:repeat(14,1fr);gap:3px;margin-top:10px;}
+.habit-day{aspect-ratio:1;border-radius:3px;background:var(--bg3);}
+.habit-freq-btn{border:1px solid var(--border2);border-radius:20px;padding:6px 14px;font-size:12px;font-family:'Geist',sans-serif;background:var(--white);cursor:pointer;transition:all .15s;color:var(--text);}
+.habit-freq-btn.active{background:var(--text);color:#fff;border-color:var(--text);}
+
 /* ══ SHARED ══ */
 .sec-label{font-size:9px;font-weight:500;color:var(--muted2);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:11px;}
 .page-pad{padding:22px 20px;}
@@ -636,6 +651,7 @@ const DEFAULT_CATS=[
           }
           localStorage.setItem('lu_v4', JSON.stringify(remote));
           // Asegurar que las categorías existan
+          if (!window.state.habits) window.state.habits=[];
           if (!window.state.allCategories||!window.state.allCategories.length) window.state.allCategories=[...DEFAULT_CATS];
           if (!window.state.activeCategories||!window.state.activeCategories.length) window.state.activeCategories=window.state.allCategories.map(c=>c.id);
           window._fbLoaded = true;
@@ -766,13 +782,16 @@ const DEFAULT_CATS=[
     <button class="nav-btn" data-pane="tareas" onclick="sw('tareas')">
       <span class="nav-ico">📋</span><span class="nav-lbl">Tareas</span>
     </button>
+    <button class="nav-btn" data-pane="habitos" onclick="sw('habitos')">
+      <span class="nav-ico">🔗</span><span class="nav-lbl">Hábitos</span>
+    </button>
     <!-- CENTRO: Red Neuronal -->
     <button class="nav-btn-center" data-pane="red" onclick="sw('red')">
       <div class="nav-center-bubble">🧬</div>
       <span class="nav-lbl">Red</span>
     </button>
-    <button class="nav-btn" data-pane="comunidad" onclick="sw('comunidad')">
-      <span class="nav-ico">👥</span><span class="nav-lbl">Comunidad</span>
+    <button class="nav-btn" data-pane="habitos" onclick="sw('habitos')">
+      <span class="nav-ico">🔗</span><span class="nav-lbl">Hábitos</span>
     </button>
     <button class="nav-btn" data-pane="perfil" onclick="sw('perfil')">
       <span class="nav-ico">👤</span><span class="nav-lbl">Perfil</span>
@@ -931,6 +950,28 @@ const DEFAULT_CATS=[
           </div>
         </div>
 
+      </div>
+    </div>
+
+    <!-- HÁBITOS -->
+    <div class="pane" id="pane-habitos">
+      <div class="page-pad">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div class="page-title">Hábitos</div>
+          <button onclick="openAddHabit()" style="background:var(--text);color:#fff;border:none;border-radius:20px;padding:7px 16px;font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;font-weight:400">+ Nuevo</button>
+        </div>
+        <div class="page-sub" id="habits-sub">Tus hábitos de hoy</div>
+        <!-- Hábitos de hoy -->
+        <div class="sec-label" style="margin-bottom:10px">Hoy</div>
+        <div id="habits-today"></div>
+        <!-- Todos los hábitos -->
+        <div class="sec-label" style="margin-bottom:10px;margin-top:20px">Todos los hábitos</div>
+        <div id="habits-all"></div>
+        <div id="habits-empty" style="display:none;text-align:center;padding:48px 20px;color:var(--muted)">
+          <span style="font-family:'Instrument Serif',serif;font-size:40px;color:var(--muted2);display:block;margin-bottom:8px;font-style:italic">◌</span>
+          Todavía no tenés hábitos.<br>
+          <span style="font-size:12px">Creá uno con el botón "+" arriba.</span>
+        </div>
       </div>
     </div>
 
@@ -1230,7 +1271,7 @@ function save(){
   if(window._fbMode==='firebase'&&window._fbSave)window._fbSave(state);
 }
 // var state vive en window — así Firebase y el JS local siempre ven el mismo objeto
-var state={tasks:[],activity:[],streak:0,bestStreak:0,lastActive:null,nextId:1,notes:{},allCategories:[...DEFAULT_CATS],activeCategories:DEFAULT_CATS.map(c=>c.id)};
+var state={tasks:[],activity:[],streak:0,bestStreak:0,lastActive:null,nextId:1,notes:{},habits:[],allCategories:[...DEFAULT_CATS],activeCategories:DEFAULT_CATS.map(c=>c.id)};
 var _fbLoaded=false;
 let curFilter='all',curTab='inicio';
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -1349,9 +1390,13 @@ function heroMessage(){
   const pending=state.tasks.filter(t=>!t.done).length;
 
   // Saludo con hora y nombre
-  const greet = h<12 ? 'Buenos días' : h<19 ? 'Buenas tardes' : 'Buenas noches';
   const firstName = name.split(' ')[0] || '';
-  ge('hero-greet').textContent = firstName ? `${greet}, ${firstName}` : greet;
+  let greet;
+  if(h >= 0 && h < 5) greet = firstName ? `¿Trasnochando, ${firstName}?` : '¿Trasnochando?';
+  else if(h < 12) greet = firstName ? `Buenos días, ${firstName}` : 'Buenos días';
+  else if(h < 19) greet = firstName ? `Buenas tardes, ${firstName}` : 'Buenas tardes';
+  else greet = firstName ? `Buenas noches, ${firstName}` : 'Buenas noches';
+  ge('hero-greet').textContent = greet;
 
   // Frase del día — rota cada día, distinta para cada uno
   const dayOfYear=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/(1000*60*60*24));
@@ -1857,7 +1902,159 @@ function addTask(){
   if(ge('task-recur'))ge('task-recur').value='none';
   save();render();
   // Spawn recurrent tasks for today if needed
-  spawnRecurrentTasks();
+  
+/* ══════════════════════════════
+   HABIT TRACKER
+══════════════════════════════ */
+
+const HABIT_EMOJIS=['🏃','📚','🧘','💪','🥗','💧','🛌','✍️','🎸','🌿','🧠','💊','🚴','🏋️','☀️','🍎','🧹','💰','🎯','🌊'];
+const WEEK_DAYS=[{d:0,l:'D'},{d:1,l:'L'},{d:2,l:'M'},{d:3,l:'X'},{d:4,l:'J'},{d:5,l:'V'},{d:6,l:'S'}];
+let _newHabitEmoji=HABIT_EMOJIS[0],_newHabitCat='Mente',_newHabitFreq='daily',_newHabitDays=[],_newHabitTimes=3,_newHabitXP=10;
+
+function habitDoneToday(h){const today=new Date().toDateString();return !!(h.log&&h.log[today]);}
+function habitDoneOn(h,key){return !!(h.log&&h.log[key]);}
+function habitStreak(h){
+  let streak=0;const d=new Date();
+  for(let i=0;i<366;i++){const key=d.toDateString();if(!habitDoneOn(h,key))break;streak++;d.setDate(d.getDate()-1);}
+  return streak;
+}
+function shouldShowHabitToday(h){
+  if(h.freq==='daily')return true;
+  if(h.freq==='weekly')return(h.days||[]).includes(new Date().getDay());
+  return true;
+}
+
+function renderHabits(){
+  if(!state.habits||!state.habits.length){
+    ge('habits-empty').style.display='block';
+    ge('habits-today').innerHTML='';ge('habits-all').innerHTML='';return;
+  }
+  ge('habits-empty').style.display='none';
+  const todayHabits=state.habits.filter(h=>shouldShowHabitToday(h));
+  const doneCount=todayHabits.filter(h=>habitDoneToday(h)).length;
+  ge('habits-sub').textContent=doneCount+'/'+todayHabits.length+' completados hoy';
+  ge('habits-today').innerHTML=todayHabits.length?todayHabits.map(h=>habitCardHTML(h,true)).join(''):'<div style="font-size:12px;color:var(--muted2);padding:8px 0">No hay hábitos para hoy.</div>';
+  ge('habits-all').innerHTML=state.habits.map(h=>habitCardHTML(h,false)).join('');
+}
+
+function habitCardHTML(h,showCheck){
+  const m=CATS[h.cat]||{color:'#7c3aed',bg:'#f5f2ff'};
+  const done=habitDoneToday(h);
+  const streak=habitStreak(h);
+  const freqLabel=h.freq==='daily'?'Todos los días':h.freq==='weekly'?'Días seleccionados':h.timesPerWeek?h.timesPerWeek+'x semana':'';
+  const days=[];
+  for(let i=13;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const key=d.toDateString();const isToday=i===0;const isDone=habitDoneOn(h,key);
+    days.push('<div class="habit-day" style="background:'+( isDone?m.color+'cc':'var(--bg3)')+';'+(isToday?'outline:2px solid '+m.color+';outline-offset:1px':'')+'" title="'+d.toLocaleDateString('es-AR',{day:'numeric',month:'short'})+'"></div>');
+  }
+  return'<div class="habit-card" id="habit-'+h.id+'">'
+    +'<div class="habit-top">'
+    +'<div class="habit-ico" style="background:'+m.bg+'">'+h.emoji+'</div>'
+    +'<div style="flex:1;min-width:0"><div class="habit-name">'+esc(h.name)+'</div>'
+    +'<div class="habit-meta">'+freqLabel+' · '+h.cat+' · +'+h.xp+' XP</div></div>'
+    +'<div style="display:flex;align-items:center;gap:8px">'
+    +(showCheck?'<div class="habit-check'+(done?' done':'') +'" style="'+(done?'background:'+m.color:'background:var(--white)')+'" onclick="toggleHabit(''+h.id+'')">'+(done?'✓':'')+'</div>':'')
+    +'<button onclick="deleteHabit(''+h.id+'')" style="font-size:15px;color:var(--muted2);background:none;border:none;cursor:pointer;padding:4px" title="Eliminar">×</button>'
+    +'</div></div>'
+    +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">'
+    +'<span style="font-family:'Instrument Serif',serif;font-size:20px;color:var(--text)">'+streak+'</span>'
+    +'<span style="font-size:10px;color:var(--muted2)">días de racha 🔥</span>'
+    +(done?'<span style="margin-left:auto;font-size:10px;background:'+m.bg+';color:'+m.color+';padding:2px 8px;border-radius:20px;font-weight:500">+'+h.xp+' XP hoy</span>':'')
+    +'</div>'
+    +'<div class="habit-grid">'+days.join('')+'</div>'
+    +'</div>';
+}
+
+function toggleHabit(id){
+  const h=state.habits.find(x=>x.id===id);if(!h)return;
+  if(!h.log)h.log={};
+  const today=new Date().toDateString();
+  if(h.log[today]){
+    delete h.log[today];
+    state.activity=state.activity.filter(a=>!(a.habitId===id&&new Date(a.time).toDateString()===today));
+  } else {
+    h.log[today]=Date.now();
+    updateStreak();
+    state.activity.unshift({id:state.nextId++,habitId:id,title:h.name,cat:h.cat,pts:h.xp,time:Date.now()});
+    if(state.activity.length>200)state.activity.pop();
+    showXPBurst(h.xp,h.cat,ge('habit-'+id));
+  }
+  save();render();
+}
+
+function deleteHabit(id){
+  const h=state.habits.find(x=>x.id===id);if(!h)return;
+  if(!confirm('¿Eliminar el hábito "'+h.name+'"?'))return;
+  state.habits=state.habits.filter(x=>x.id!==id);save();render();
+}
+
+function openAddHabit(){
+  _newHabitEmoji=HABIT_EMOJIS[0];_newHabitFreq='daily';_newHabitDays=[];_newHabitTimes=3;_newHabitXP=10;
+  const cats=getAllCategories();
+  const overlay=document.createElement('div');
+  overlay.id='habit-add-overlay';
+  overlay.style.cssText='position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.4);display:flex;align-items:flex-end;justify-content:center';
+  overlay.innerHTML='<div style="background:var(--white);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;font-family:Geist,sans-serif">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">'
+    +'<div style="font-size:17px;font-weight:500;color:var(--text);font-family:'Instrument Serif',serif">Nuevo hábito</div>'
+    +'<button onclick="document.getElementById('habit-add-overlay').remove()" style="width:28px;height:28px;border-radius:50%;background:var(--bg3);border:none;cursor:pointer;font-size:14px;color:var(--muted)">✕</button>'
+    +'</div>'
+    +'<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Nombre</div>'
+    +'<input id="new-habit-name" placeholder="Ej: Leer 30 minutos..." maxlength="40" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:10px 13px;font-size:13px;font-family:Geist,sans-serif;font-weight:300;outline:none;margin-bottom:16px" onfocus="this.style.borderColor='var(--violet)'" onblur="this.style.borderColor='var(--border2)'">'
+    +'<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Emoji</div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px" id="habit-emoji-picker">'
+    +HABIT_EMOJIS.map((e,i)=>'<button onclick="selectHabitEmoji(this,''+e+'')" style="width:36px;height:36px;border-radius:9px;border:1.5px solid '+(i===0?'var(--violet)':'var(--border)')+';background:'+(i===0?'var(--vi-bg)':'var(--white)')+';font-size:18px;cursor:pointer">'+e+'</button>').join('')
+    +'</div>'
+    +'<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Categoría</div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px" id="habit-cat-picker">'
+    +cats.map((c,i)=>'<button onclick="selectHabitCat(this,''+c.id+'')" style="display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;border:1px solid '+(i===0?'var(--violet)':'var(--border)')+';background:'+(i===0?'var(--vi-bg)':'var(--white)')+';font-size:12px;font-family:Geist,sans-serif;cursor:pointer;color:var(--text)">'+c.emoji+' '+c.name+'</button>').join('')
+    +'</div>'
+    +'<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Frecuencia</div>'
+    +'<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">'
+    +'<button class="habit-freq-btn active" id="hfb-daily" onclick="selectHabitFreq('daily')">Diario</button>'
+    +'<button class="habit-freq-btn" id="hfb-weekly" onclick="selectHabitFreq('weekly')">Días específicos</button>'
+    +'<button class="habit-freq-btn" id="hfb-custom" onclick="selectHabitFreq('custom')">X veces/semana</button>'
+    +'</div>'
+    +'<div id="habit-days-picker" style="display:none;margin-bottom:12px"><div style="display:flex;gap:6px">'
+    +WEEK_DAYS.map(wd=>'<button onclick="toggleHabitDay(this,'+wd.d+')" style="width:36px;height:36px;border-radius:50%;border:1px solid var(--border2);background:var(--white);font-size:12px;font-family:Geist,sans-serif;cursor:pointer;color:var(--text)">'+wd.l+'</button>').join('')
+    +'</div></div>'
+    +'<div id="habit-times-picker" style="display:none;align-items:center;gap:10px;margin-bottom:12px">'
+    +'<button onclick="changeHabitTimes(-1)" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:var(--white);font-size:18px;cursor:pointer">−</button>'
+    +'<span id="habit-times-n" style="font-family:'Instrument Serif',serif;font-size:24px;min-width:30px;text-align:center">3</span>'
+    +'<button onclick="changeHabitTimes(1)" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:var(--white);font-size:18px;cursor:pointer">+</button>'
+    +'<span style="font-size:13px;color:var(--muted)">veces por semana</span></div>'
+    +'<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">XP por completar</div>'
+    +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">'
+    +'<button onclick="changeHabitXP(-5)" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:var(--white);font-size:18px;cursor:pointer">−</button>'
+    +'<span id="habit-xp-n" style="font-family:'Instrument Serif',serif;font-size:24px;min-width:40px;text-align:center">10</span>'
+    +'<button onclick="changeHabitXP(5)" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:var(--white);font-size:18px;cursor:pointer">+</button>'
+    +'<span style="font-size:13px;color:var(--muted)">XP</span></div>'
+    +'<button onclick="saveNewHabit()" style="width:100%;padding:13px;background:var(--text);color:#fff;border:none;border-radius:12px;font-size:14px;font-family:Geist,sans-serif;font-weight:400;cursor:pointer">Crear hábito</button>'
+    +'</div>';
+  document.body.appendChild(overlay);
+  overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+  _newHabitCat=cats.length?cats[0].id:'Mente';
+}
+
+function selectHabitEmoji(btn,e){document.querySelectorAll('#habit-emoji-picker button').forEach(b=>{b.style.borderColor='var(--border)';b.style.background='var(--white)';});btn.style.borderColor='var(--violet)';btn.style.background='var(--vi-bg)';_newHabitEmoji=e;}
+function selectHabitCat(btn,cat){document.querySelectorAll('#habit-cat-picker button').forEach(b=>{b.style.borderColor='var(--border)';b.style.background='var(--white)';});btn.style.borderColor='var(--violet)';btn.style.background='var(--vi-bg)';_newHabitCat=cat;}
+function selectHabitFreq(freq){_newHabitFreq=freq;document.querySelectorAll('.habit-freq-btn').forEach(b=>b.classList.remove('active'));ge('hfb-'+freq).classList.add('active');ge('habit-days-picker').style.display=freq==='weekly'?'block':'none';ge('habit-times-picker').style.display=freq==='custom'?'flex':'none';}
+function toggleHabitDay(btn,day){if(_newHabitDays.includes(day)){_newHabitDays=_newHabitDays.filter(d=>d!==day);btn.style.background='var(--white)';btn.style.borderColor='var(--border2)';btn.style.color='var(--text)';}else{_newHabitDays.push(day);btn.style.background='var(--text)';btn.style.borderColor='var(--text)';btn.style.color='#fff';}}
+function changeHabitTimes(delta){_newHabitTimes=Math.max(1,Math.min(7,_newHabitTimes+delta));ge('habit-times-n').textContent=_newHabitTimes;}
+function changeHabitXP(delta){_newHabitXP=Math.max(5,Math.min(100,_newHabitXP+delta));ge('habit-xp-n').textContent=_newHabitXP;}
+
+function saveNewHabit(){
+  const name=ge('new-habit-name').value.trim();
+  if(!name){ge('new-habit-name').focus();ge('new-habit-name').style.borderColor='var(--rose)';return;}
+  if(_newHabitFreq==='weekly'&&_newHabitDays.length===0){alert('Elegí al menos un día.');return;}
+  if(!state.habits)state.habits=[];
+  state.habits.push({id:'h'+Date.now(),name,emoji:_newHabitEmoji,cat:_newHabitCat,freq:_newHabitFreq,days:_newHabitDays,timesPerWeek:_newHabitTimes,xp:_newHabitXP,log:{},createdAt:Date.now()});
+  save();render();ge('habit-add-overlay').remove();
+}
+
+
+spawnRecurrentTasks();
 }
 
 function spawnRecurrentTasks(){
@@ -2004,6 +2201,7 @@ function render(){
   renderCatCardsHome();
   renderCatPills();
   renderDayNotes();
+  if(curTab==='habitos')renderHabits();
   // Date label for notes
   const dn=ge('day-notes-date');
   if(dn){const d=new Date();dn.textContent=d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});}
@@ -2177,6 +2375,7 @@ function renderProgreso(){
 /* ── NAV ── */
 function sw(id){
   curTab=id;
+  if(id==='habitos')setTimeout(renderHabits,50);
   document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn,.nav-btn-center').forEach(b=>b.classList.remove('active'));
   const pane=ge('pane-'+id);if(pane)pane.classList.add('active');
@@ -2830,6 +3029,158 @@ async function createGcalEvent(title, dateStr, description) {
   }
 }
 window.createGcalEvent = createGcalEvent;
+
+
+/* ══════════════════════════════
+   HABIT TRACKER
+══════════════════════════════ */
+
+const HABIT_EMOJIS=['🏃','📚','🧘','💪','🥗','💧','🛌','✍️','🎸','🌿','🧠','💊','🚴','🏋️','☀️','🍎','🧹','💰','🎯','🌊'];
+const WEEK_DAYS=[{d:0,l:'D'},{d:1,l:'L'},{d:2,l:'M'},{d:3,l:'X'},{d:4,l:'J'},{d:5,l:'V'},{d:6,l:'S'}];
+let _newHabitEmoji=HABIT_EMOJIS[0],_newHabitCat='Mente',_newHabitFreq='daily',_newHabitDays=[],_newHabitTimes=3,_newHabitXP=10;
+
+function habitDoneToday(h){const today=new Date().toDateString();return !!(h.log&&h.log[today]);}
+function habitDoneOn(h,key){return !!(h.log&&h.log[key]);}
+function habitStreak(h){
+  let streak=0;const d=new Date();
+  for(let i=0;i<366;i++){const key=d.toDateString();if(!habitDoneOn(h,key))break;streak++;d.setDate(d.getDate()-1);}
+  return streak;
+}
+function shouldShowHabitToday(h){
+  if(h.freq==='daily')return true;
+  if(h.freq==='weekly')return(h.days||[]).includes(new Date().getDay());
+  return true;
+}
+
+function renderHabits(){
+  if(!state.habits||!state.habits.length){
+    ge('habits-empty').style.display='block';
+    ge('habits-today').innerHTML='';ge('habits-all').innerHTML='';return;
+  }
+  ge('habits-empty').style.display='none';
+  const todayHabits=state.habits.filter(h=>shouldShowHabitToday(h));
+  const doneCount=todayHabits.filter(h=>habitDoneToday(h)).length;
+  ge('habits-sub').textContent=doneCount+'/'+todayHabits.length+' completados hoy';
+  ge('habits-today').innerHTML=todayHabits.length?todayHabits.map(h=>habitCardHTML(h,true)).join(''):'<div style="font-size:12px;color:var(--muted2);padding:8px 0">No hay hábitos para hoy.</div>';
+  ge('habits-all').innerHTML=state.habits.map(h=>habitCardHTML(h,false)).join('');
+}
+
+function habitCardHTML(h,showCheck){
+  const m=CATS[h.cat]||{color:'#7c3aed',bg:'#f5f2ff'};
+  const done=habitDoneToday(h);
+  const streak=habitStreak(h);
+  const freqLabel=h.freq==='daily'?'Todos los días':h.freq==='weekly'?'Días seleccionados':h.timesPerWeek?h.timesPerWeek+'x semana':'';
+  const days=[];
+  for(let i=13;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const key=d.toDateString();const isToday=i===0;const isDone=habitDoneOn(h,key);
+    days.push('<div class="habit-day" style="background:'+( isDone?m.color+'cc':'var(--bg3)')+';'+(isToday?'outline:2px solid '+m.color+';outline-offset:1px':'')+'" title="'+d.toLocaleDateString('es-AR',{day:'numeric',month:'short'})+'"></div>');
+  }
+  return'<div class="habit-card" id="habit-'+h.id+'">'
+    +'<div class="habit-top">'
+    +'<div class="habit-ico" style="background:'+m.bg+'">'+h.emoji+'</div>'
+    +'<div style="flex:1;min-width:0"><div class="habit-name">'+esc(h.name)+'</div>'
+    +'<div class="habit-meta">'+freqLabel+' · '+h.cat+' · +'+h.xp+' XP</div></div>'
+    +'<div style="display:flex;align-items:center;gap:8px">'
+    +(showCheck?'<div class="habit-check'+(done?' done':'') +'" style="'+(done?'background:'+m.color:'background:var(--white)')+'" onclick="toggleHabit(''+h.id+'')">'+(done?'✓':'')+'</div>':'')
+    +'<button onclick="deleteHabit(''+h.id+'')" style="font-size:15px;color:var(--muted2);background:none;border:none;cursor:pointer;padding:4px" title="Eliminar">×</button>'
+    +'</div></div>'
+    +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">'
+    +'<span style="font-family:'Instrument Serif',serif;font-size:20px;color:var(--text)">'+streak+'</span>'
+    +'<span style="font-size:10px;color:var(--muted2)">días de racha 🔥</span>'
+    +(done?'<span style="margin-left:auto;font-size:10px;background:'+m.bg+';color:'+m.color+';padding:2px 8px;border-radius:20px;font-weight:500">+'+h.xp+' XP hoy</span>':'')
+    +'</div>'
+    +'<div class="habit-grid">'+days.join('')+'</div>'
+    +'</div>';
+}
+
+function toggleHabit(id){
+  const h=state.habits.find(x=>x.id===id);if(!h)return;
+  if(!h.log)h.log={};
+  const today=new Date().toDateString();
+  if(h.log[today]){
+    delete h.log[today];
+    state.activity=state.activity.filter(a=>!(a.habitId===id&&new Date(a.time).toDateString()===today));
+  } else {
+    h.log[today]=Date.now();
+    updateStreak();
+    state.activity.unshift({id:state.nextId++,habitId:id,title:h.name,cat:h.cat,pts:h.xp,time:Date.now()});
+    if(state.activity.length>200)state.activity.pop();
+    showXPBurst(h.xp,h.cat,ge('habit-'+id));
+  }
+  save();render();
+}
+
+function deleteHabit(id){
+  const h=state.habits.find(x=>x.id===id);if(!h)return;
+  if(!confirm('¿Eliminar el hábito "'+h.name+'"?'))return;
+  state.habits=state.habits.filter(x=>x.id!==id);save();render();
+}
+
+function openAddHabit(){
+  _newHabitEmoji=HABIT_EMOJIS[0];_newHabitFreq='daily';_newHabitDays=[];_newHabitTimes=3;_newHabitXP=10;
+  const cats=getAllCategories();
+  const overlay=document.createElement('div');
+  overlay.id='habit-add-overlay';
+  overlay.style.cssText='position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.4);display:flex;align-items:flex-end;justify-content:center';
+  overlay.innerHTML='<div style="background:var(--white);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;font-family:Geist,sans-serif">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">'
+    +'<div style="font-size:17px;font-weight:500;color:var(--text);font-family:'Instrument Serif',serif">Nuevo hábito</div>'
+    +'<button onclick="document.getElementById('habit-add-overlay').remove()" style="width:28px;height:28px;border-radius:50%;background:var(--bg3);border:none;cursor:pointer;font-size:14px;color:var(--muted)">✕</button>'
+    +'</div>'
+    +'<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Nombre</div>'
+    +'<input id="new-habit-name" placeholder="Ej: Leer 30 minutos..." maxlength="40" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:10px 13px;font-size:13px;font-family:Geist,sans-serif;font-weight:300;outline:none;margin-bottom:16px" onfocus="this.style.borderColor='var(--violet)'" onblur="this.style.borderColor='var(--border2)'">'
+    +'<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Emoji</div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px" id="habit-emoji-picker">'
+    +HABIT_EMOJIS.map((e,i)=>'<button onclick="selectHabitEmoji(this,''+e+'')" style="width:36px;height:36px;border-radius:9px;border:1.5px solid '+(i===0?'var(--violet)':'var(--border)')+';background:'+(i===0?'var(--vi-bg)':'var(--white)')+';font-size:18px;cursor:pointer">'+e+'</button>').join('')
+    +'</div>'
+    +'<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Categoría</div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px" id="habit-cat-picker">'
+    +cats.map((c,i)=>'<button onclick="selectHabitCat(this,''+c.id+'')" style="display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;border:1px solid '+(i===0?'var(--violet)':'var(--border)')+';background:'+(i===0?'var(--vi-bg)':'var(--white)')+';font-size:12px;font-family:Geist,sans-serif;cursor:pointer;color:var(--text)">'+c.emoji+' '+c.name+'</button>').join('')
+    +'</div>'
+    +'<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Frecuencia</div>'
+    +'<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">'
+    +'<button class="habit-freq-btn active" id="hfb-daily" onclick="selectHabitFreq('daily')">Diario</button>'
+    +'<button class="habit-freq-btn" id="hfb-weekly" onclick="selectHabitFreq('weekly')">Días específicos</button>'
+    +'<button class="habit-freq-btn" id="hfb-custom" onclick="selectHabitFreq('custom')">X veces/semana</button>'
+    +'</div>'
+    +'<div id="habit-days-picker" style="display:none;margin-bottom:12px"><div style="display:flex;gap:6px">'
+    +WEEK_DAYS.map(wd=>'<button onclick="toggleHabitDay(this,'+wd.d+')" style="width:36px;height:36px;border-radius:50%;border:1px solid var(--border2);background:var(--white);font-size:12px;font-family:Geist,sans-serif;cursor:pointer;color:var(--text)">'+wd.l+'</button>').join('')
+    +'</div></div>'
+    +'<div id="habit-times-picker" style="display:none;align-items:center;gap:10px;margin-bottom:12px">'
+    +'<button onclick="changeHabitTimes(-1)" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:var(--white);font-size:18px;cursor:pointer">−</button>'
+    +'<span id="habit-times-n" style="font-family:'Instrument Serif',serif;font-size:24px;min-width:30px;text-align:center">3</span>'
+    +'<button onclick="changeHabitTimes(1)" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:var(--white);font-size:18px;cursor:pointer">+</button>'
+    +'<span style="font-size:13px;color:var(--muted)">veces por semana</span></div>'
+    +'<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">XP por completar</div>'
+    +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">'
+    +'<button onclick="changeHabitXP(-5)" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:var(--white);font-size:18px;cursor:pointer">−</button>'
+    +'<span id="habit-xp-n" style="font-family:'Instrument Serif',serif;font-size:24px;min-width:40px;text-align:center">10</span>'
+    +'<button onclick="changeHabitXP(5)" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:var(--white);font-size:18px;cursor:pointer">+</button>'
+    +'<span style="font-size:13px;color:var(--muted)">XP</span></div>'
+    +'<button onclick="saveNewHabit()" style="width:100%;padding:13px;background:var(--text);color:#fff;border:none;border-radius:12px;font-size:14px;font-family:Geist,sans-serif;font-weight:400;cursor:pointer">Crear hábito</button>'
+    +'</div>';
+  document.body.appendChild(overlay);
+  overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+  _newHabitCat=cats.length?cats[0].id:'Mente';
+}
+
+function selectHabitEmoji(btn,e){document.querySelectorAll('#habit-emoji-picker button').forEach(b=>{b.style.borderColor='var(--border)';b.style.background='var(--white)';});btn.style.borderColor='var(--violet)';btn.style.background='var(--vi-bg)';_newHabitEmoji=e;}
+function selectHabitCat(btn,cat){document.querySelectorAll('#habit-cat-picker button').forEach(b=>{b.style.borderColor='var(--border)';b.style.background='var(--white)';});btn.style.borderColor='var(--violet)';btn.style.background='var(--vi-bg)';_newHabitCat=cat;}
+function selectHabitFreq(freq){_newHabitFreq=freq;document.querySelectorAll('.habit-freq-btn').forEach(b=>b.classList.remove('active'));ge('hfb-'+freq).classList.add('active');ge('habit-days-picker').style.display=freq==='weekly'?'block':'none';ge('habit-times-picker').style.display=freq==='custom'?'flex':'none';}
+function toggleHabitDay(btn,day){if(_newHabitDays.includes(day)){_newHabitDays=_newHabitDays.filter(d=>d!==day);btn.style.background='var(--white)';btn.style.borderColor='var(--border2)';btn.style.color='var(--text)';}else{_newHabitDays.push(day);btn.style.background='var(--text)';btn.style.borderColor='var(--text)';btn.style.color='#fff';}}
+function changeHabitTimes(delta){_newHabitTimes=Math.max(1,Math.min(7,_newHabitTimes+delta));ge('habit-times-n').textContent=_newHabitTimes;}
+function changeHabitXP(delta){_newHabitXP=Math.max(5,Math.min(100,_newHabitXP+delta));ge('habit-xp-n').textContent=_newHabitXP;}
+
+function saveNewHabit(){
+  const name=ge('new-habit-name').value.trim();
+  if(!name){ge('new-habit-name').focus();ge('new-habit-name').style.borderColor='var(--rose)';return;}
+  if(_newHabitFreq==='weekly'&&_newHabitDays.length===0){alert('Elegí al menos un día.');return;}
+  if(!state.habits)state.habits=[];
+  state.habits.push({id:'h'+Date.now(),name,emoji:_newHabitEmoji,cat:_newHabitCat,freq:_newHabitFreq,days:_newHabitDays,timesPerWeek:_newHabitTimes,xp:_newHabitXP,log:{},createdAt:Date.now()});
+  save();render();ge('habit-add-overlay').remove();
+}
+
 
 spawnRecurrentTasks();
 render();
