@@ -1577,8 +1577,9 @@ function heroMessage(){
 let qcCat='Mente';
 
 function onQcInput(){
-  const val=ge('qc-inp').value.trim();
-  const btn=ge('qc-send');
+  const val=(ge('qc-inp')||{value:''}).value.trim();
+  const btn=ge('qc-send')||ge('qc-btn');
+  if(!btn)return;
   if(val.length>0)btn.classList.add('visible');
   else btn.classList.remove('visible');
 }
@@ -2517,14 +2518,14 @@ function render(){
   else if(h<12) greet=firstName?`Buenos días, ${firstName}`:'Buenos días';
   else if(h<19) greet=firstName?`Buenas tardes, ${firstName}`:'Buenas tardes';
   else greet=firstName?`Buenas noches, ${firstName}`:'Buenas noches';
-  ge('hero-greet').textContent=greet;
+  if(ge('hero-greet'))ge('hero-greet').textContent=greet;
   heroMessage();
   // Hero
-  ge('streak-n').textContent=state.streak||0;
-  ge('xp-lbl').textContent=`${xp} / ${nextXp} XP`;
-  ge('xp-pct').textContent=pct+'%';
-  ge('xp-fill').style.width=pct+'%';
-  ge('char-lvl').textContent=`Nivel ${lvl} · ${title}`;
+  if(ge('streak-n'))ge('streak-n').textContent=state.streak||0;
+  if(ge('xp-lbl'))ge('xp-lbl').textContent=`${xp} / ${nextXp} XP`;
+  if(ge('xp-pct'))ge('xp-pct').textContent=pct+'%';
+  if(ge('xp-fill'))ge('xp-fill').style.width=pct+'%';
+  if(ge('char-lvl'))ge('char-lvl').textContent=`Nivel ${lvl} · ${title}`;
   // Stats
   const catXP={};state.activity.forEach(a=>{catXP[a.cat]=(catXP[a.cat]||0)+a.pts;});
   const maxXP=Math.max(...Object.values(catXP),1);
@@ -2541,10 +2542,10 @@ function render(){
   ge('s-myelin')&&(ge('s-myelin').textContent=state.tasks.filter(t=>nodeState(t)==='myelin').length);
   ge('sb-streak')&&(ge('sb-streak').textContent=state.streak||0);
   // Perfil
-  ge('prof-sub').textContent=`${title} · Nivel ${lvl}`;
-  ge('pf-streak').textContent=state.streak||0;
-  ge('pf-done').textContent=state.tasks.filter(t=>t.done).length;
-  ge('pf-xp').textContent=xp;
+  ge('prof-sub')&&(ge('prof-sub').textContent=`${title} · Nivel ${lvl}`);
+  ge('pf-streak')&&(ge('pf-streak').textContent=state.streak||0);
+  ge('pf-done')&&(ge('pf-done').textContent=state.tasks.filter(t=>t.done).length);
+  ge('pf-xp')&&(ge('pf-xp').textContent=xp);
   // Tasks sub
   ge('tasks-sub')&&(ge('tasks-sub').textContent=`${state.tasks.filter(t=>!t.done).length} pendientes hoy`);
   renderTasks();
