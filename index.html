@@ -1944,24 +1944,28 @@ function habitCardHTML(h,showCheck){
   for(let i=13;i>=0;i--){
     const d=new Date();d.setDate(d.getDate()-i);
     const key=d.toDateString();const isToday=i===0;const isDone=habitDoneOn(h,key);
-    days.push('<div class="habit-day" style="background:'+( isDone?m.color+'cc':'var(--bg3)')+';'+(isToday?'outline:2px solid '+m.color+';outline-offset:1px':'')+'" title="'+d.toLocaleDateString('es-AR',{day:'numeric',month:'short'})+'"></div>');
+    days.push(`<div class="habit-day" style="background:${isDone?m.color+'cc':'var(--bg3)'};${isToday?'outline:2px solid '+m.color+';outline-offset:1px':''}" title="${d.toLocaleDateString('es-AR',{day:'numeric',month:'short'})}"></div>`);
   }
-  return'<div class="habit-card" id="habit-'+h.id+'">'
-    +'<div class="habit-top">'
-    +'<div class="habit-ico" style="background:'+m.bg+'">'+h.emoji+'</div>'
-    +'<div style="flex:1;min-width:0"><div class="habit-name">'+esc(h.name)+'</div>'
-    +'<div class="habit-meta">'+freqLabel+' · '+h.cat+' · +'+h.xp+' XP</div></div>'
-    +'<div style="display:flex;align-items:center;gap:8px">'
-    +(showCheck?'<div class="habit-check'+(done?' done':'')+'" style="'+(done?'background:'+m.color:'background:var(--white)')+'" onclick="toggleHabit(\''+h.id+'\')">'+( done?'✓':'')+' </div>':'')
-    +'<button onclick="deleteHabit(\''+h.id+'\')" style="font-size:15px;color:var(--muted2);background:none;border:none;cursor:pointer;padding:4px" title="Eliminar">×</button>'
-    +'</div></div>'
-    +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">'
-    +'<span style="font-family:&quot;Instrument Serif&quot;,serif;font-size:20px;color:var(--text)">'+streak+'</span>'
-    +'<span style="font-size:10px;color:var(--muted2)">días de racha 🔥</span>'
-    +(done?'<span style="margin-left:auto;font-size:10px;background:'+m.bg+';color:'+m.color+';padding:2px 8px;border-radius:20px;font-weight:500">+'+h.xp+' XP hoy</span>':'')
-    +'</div>'
-    +'<div class="habit-grid">'+days.join('')+'</div>'
-    +'</div>';
+  const checkBtn=showCheck?`<div class="habit-check${done?' done':''}" style="${done?'background:'+m.color:'background:var(--white)'}" onclick="toggleHabit('${h.id}')">${done?'✓':''}</div>`:'';
+  return `<div class="habit-card" id="habit-${h.id}">
+    <div class="habit-top">
+      <div class="habit-ico" style="background:${m.bg}">${h.emoji}</div>
+      <div style="flex:1;min-width:0">
+        <div class="habit-name">${esc(h.name)}</div>
+        <div class="habit-meta">${freqLabel} · ${h.cat} · +${h.xp} XP</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        ${checkBtn}
+        <button onclick="deleteHabit('${h.id}')" style="font-size:15px;color:var(--muted2);background:none;border:none;cursor:pointer;padding:4px" title="Eliminar">×</button>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+      <span style="font-size:20px;color:var(--text)">${streak}</span>
+      <span style="font-size:10px;color:var(--muted2)">días de racha 🔥</span>
+      ${done?`<span style="margin-left:auto;font-size:10px;background:${m.bg};color:${m.color};padding:2px 8px;border-radius:20px;font-weight:500">+${h.xp} XP hoy</span>`:''}
+    </div>
+    <div class="habit-grid">${days.join('')}</div>
+  </div>`;
 }
 
 function toggleHabit(id){
@@ -1993,43 +1997,63 @@ function openAddHabit(){
   const overlay=document.createElement('div');
   overlay.id='habit-add-overlay';
   overlay.style.cssText='position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.4);display:flex;align-items:flex-end;justify-content:center';
-  overlay.innerHTML='<div style="background:var(--white);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;font-family:Geist,sans-serif">'
-    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">'
-    +'<div style="font-size:17px;font-weight:500;color:var(--text);font-family:'Instrument Serif',serif">Nuevo hábito</div>'
-    +'<button onclick="document.getElementById('habit-add-overlay').remove()" style="width:28px;height:28px;border-radius:50%;background:var(--bg3);border:none;cursor:pointer;font-size:14px;color:var(--muted)">✕</button>'
-    +'</div>'
-    +'<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Nombre</div>'
-    +'<input id="new-habit-name" placeholder="Ej: Leer 30 minutos..." maxlength="40" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:10px 13px;font-size:13px;font-family:Geist,sans-serif;font-weight:300;outline:none;margin-bottom:16px" onfocus="this.style.borderColor='var(--violet)'" onblur="this.style.borderColor='var(--border2)'">'
-    +'<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Emoji</div>'
-    +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px" id="habit-emoji-picker">'
-    +HABIT_EMOJIS.map((e,i)=>'<button onclick="selectHabitEmoji(this,''+e+'')" style="width:36px;height:36px;border-radius:9px;border:1.5px solid '+(i===0?'var(--violet)':'var(--border)')+';background:'+(i===0?'var(--vi-bg)':'var(--white)')+';font-size:18px;cursor:pointer">'+e+'</button>').join('')
-    +'</div>'
-    +'<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Categoría</div>'
-    +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px" id="habit-cat-picker">'
-    +cats.map((c,i)=>'<button onclick="selectHabitCat(this,''+c.id+'')" style="display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;border:1px solid '+(i===0?'var(--violet)':'var(--border)')+';background:'+(i===0?'var(--vi-bg)':'var(--white)')+';font-size:12px;font-family:Geist,sans-serif;cursor:pointer;color:var(--text)">'+c.emoji+' '+c.name+'</button>').join('')
-    +'</div>'
-    +'<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Frecuencia</div>'
-    +'<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">'
-    +'<button class="habit-freq-btn active" id="hfb-daily" onclick="selectHabitFreq('daily')">Diario</button>'
-    +'<button class="habit-freq-btn" id="hfb-weekly" onclick="selectHabitFreq('weekly')">Días específicos</button>'
-    +'<button class="habit-freq-btn" id="hfb-custom" onclick="selectHabitFreq('custom')">X veces/semana</button>'
-    +'</div>'
-    +'<div id="habit-days-picker" style="display:none;margin-bottom:12px"><div style="display:flex;gap:6px">'
-    +WEEK_DAYS.map(wd=>'<button onclick="toggleHabitDay(this,'+wd.d+')" style="width:36px;height:36px;border-radius:50%;border:1px solid var(--border2);background:var(--white);font-size:12px;font-family:Geist,sans-serif;cursor:pointer;color:var(--text)">'+wd.l+'</button>').join('')
-    +'</div></div>'
-    +'<div id="habit-times-picker" style="display:none;align-items:center;gap:10px;margin-bottom:12px">'
-    +'<button onclick="changeHabitTimes(-1)" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:var(--white);font-size:18px;cursor:pointer">−</button>'
-    +'<span id="habit-times-n" style="font-family:'Instrument Serif',serif;font-size:24px;min-width:30px;text-align:center">3</span>'
-    +'<button onclick="changeHabitTimes(1)" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:var(--white);font-size:18px;cursor:pointer">+</button>'
-    +'<span style="font-size:13px;color:var(--muted)">veces por semana</span></div>'
-    +'<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">XP por completar</div>'
-    +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">'
-    +'<button onclick="changeHabitXP(-5)" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:var(--white);font-size:18px;cursor:pointer">−</button>'
-    +'<span id="habit-xp-n" style="font-family:'Instrument Serif',serif;font-size:24px;min-width:40px;text-align:center">10</span>'
-    +'<button onclick="changeHabitXP(5)" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:var(--white);font-size:18px;cursor:pointer">+</button>'
-    +'<span style="font-size:13px;color:var(--muted)">XP</span></div>'
-    +'<button onclick="saveNewHabit()" style="width:100%;padding:13px;background:var(--text);color:#fff;border:none;border-radius:12px;font-size:14px;font-family:Geist,sans-serif;font-weight:400;cursor:pointer">Crear hábito</button>'
-    +'</div>';
+
+  const emojiBtns=HABIT_EMOJIS.map((e,i)=>{
+    const btn=document.createElement('button');
+    btn.textContent=e;btn.dataset.emoji=e;
+    btn.style.cssText='width:36px;height:36px;border-radius:9px;border:1.5px solid '+(i===0?'var(--violet)':'var(--border)')+';background:'+(i===0?'var(--vi-bg)':'var(--white)')+';font-size:18px;cursor:pointer';
+    btn.onclick=()=>selectHabitEmoji(btn,e);
+    return btn.outerHTML;
+  }).join('');
+
+  const catBtns=cats.map((c,i)=>{
+    return'<button onclick="selectHabitCat(this,''+c.id+'')" style="display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;border:1px solid '+(i===0?'var(--violet)':'var(--border)')+';background:'+(i===0?'var(--vi-bg)':'var(--white)')+';font-size:12px;font-family:Geist,sans-serif;cursor:pointer;color:var(--text)">'+c.emoji+' '+c.name+'</button>';
+  }).join('');
+
+  const dayBtns=WEEK_DAYS.map(wd=>{
+    return'<button onclick="toggleHabitDay(this,'+wd.d+')" style="width:36px;height:36px;border-radius:50%;border:1px solid var(--border2);background:var(--white);font-size:12px;font-family:Geist,sans-serif;cursor:pointer;color:var(--text)">'+wd.l+'</button>';
+  }).join('');
+
+  const div=document.createElement('div');
+  div.style.cssText='background:var(--white);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;font-family:Geist,sans-serif';
+  div.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div style="font-size:17px;font-weight:500;color:var(--text)">Nuevo hábito</div>
+      <button onclick="document.getElementById('habit-add-overlay').remove()" style="width:28px;height:28px;border-radius:50%;background:var(--bg3);border:none;cursor:pointer;font-size:14px;color:var(--muted)">✕</button>
+    </div>
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Nombre</div>
+    <input id="new-habit-name" placeholder="Ej: Leer 30 minutos..." maxlength="40"
+      style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:10px 13px;font-size:13px;font-family:Geist,sans-serif;font-weight:300;outline:none;margin-bottom:16px"
+      onfocus="this.style.borderColor='var(--violet)'" onblur="this.style.borderColor='var(--border2)'">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Emoji</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px" id="habit-emoji-picker">${emojiBtns}</div>
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Categoría</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px" id="habit-cat-picker">${catBtns}</div>
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Frecuencia</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <button class="habit-freq-btn active" id="hfb-daily" onclick="selectHabitFreq('daily')">Diario</button>
+      <button class="habit-freq-btn" id="hfb-weekly" onclick="selectHabitFreq('weekly')">Días específicos</button>
+      <button class="habit-freq-btn" id="hfb-custom" onclick="selectHabitFreq('custom')">X veces/semana</button>
+    </div>
+    <div id="habit-days-picker" style="display:none;margin-bottom:12px">
+      <div style="display:flex;gap:6px">${dayBtns}</div>
+    </div>
+    <div id="habit-times-picker" style="display:none;align-items:center;gap:10px;margin-bottom:12px">
+      <button onclick="changeHabitTimes(-1)" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:var(--white);font-size:18px;cursor:pointer">−</button>
+      <span id="habit-times-n" style="font-size:24px;min-width:30px;text-align:center">3</span>
+      <button onclick="changeHabitTimes(1)" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:var(--white);font-size:18px;cursor:pointer">+</button>
+      <span style="font-size:13px;color:var(--muted)">veces por semana</span>
+    </div>
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">XP por completar</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+      <button onclick="changeHabitXP(-5)" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:var(--white);font-size:18px;cursor:pointer">−</button>
+      <span id="habit-xp-n" style="font-size:24px;min-width:40px;text-align:center">10</span>
+      <button onclick="changeHabitXP(5)" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:var(--white);font-size:18px;cursor:pointer">+</button>
+      <span style="font-size:13px;color:var(--muted)">XP</span>
+    </div>
+    <button onclick="saveNewHabit()" style="width:100%;padding:13px;background:var(--text);color:#fff;border:none;border-radius:12px;font-size:14px;font-family:Geist,sans-serif;font-weight:400;cursor:pointer">Crear hábito</button>
+  `;
+  overlay.appendChild(div);
   document.body.appendChild(overlay);
   overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
   _newHabitCat=cats.length?cats[0].id:'Mente';
