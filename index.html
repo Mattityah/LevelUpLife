@@ -154,7 +154,7 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
   box-shadow:0 8px 32px rgba(0,0,0,0.18),0 2px 8px rgba(0,0,0,0.1);
   margin-bottom:0;
 }
-@media(min-width:768px){.hero-card{min-height:240px;}}
+@media(min-width:768px){
 
 /* Glow de fondo dentro de la card */
 .hero-card::before{content:'';position:absolute;top:-50px;left:-50px;width:260px;height:260px;background:radial-gradient(circle,rgba(124,58,237,0.3),transparent 65%);pointer-events:none;}
@@ -231,6 +231,8 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 .qc-cat-btn{border:none;border-radius:20px;padding:5px 11px;font-size:11px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s;opacity:.55;}
 .qc-cat-btn.sel{opacity:1;box-shadow:0 2px 6px rgba(0,0,0,0.1);}
 
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
 /* ══ SHARED ══ */
 .sec-label{font-size:9px;font-weight:500;color:var(--muted2);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:11px;}
@@ -1336,14 +1338,14 @@ const FRASES=[
 function heroMessage(){
   const h=new Date().getHours();
   const name=(state.profile&&state.profile.name)||'';
-  const firstName=name.split(' ')[0]||'';
   const streak=state.streak||0;
   const doneToday=state.activity.filter(a=>new Date(a.time).toDateString()===new Date().toDateString()).length;
   const pending=state.tasks.filter(t=>!t.done).length;
 
-  // Saludo con nombre
-  const greet=h<6?'Buenas noches':h<12?'Buenos días':h<19?'Buenas tardes':'Buenas noches';
-  ge('hero-greet').textContent=greet+(firstName?`, ${firstName}`:'');
+  // Saludo con hora y nombre
+  const greet = h<12 ? 'Buenos días' : h<19 ? 'Buenas tardes' : 'Buenas noches';
+  const firstName = name.split(' ')[0] || '';
+  ge('hero-greet').textContent = firstName ? `${greet}, ${firstName}` : greet;
 
   // Frase del día — rota cada día, distinta para cada uno
   const dayOfYear=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/(1000*60*60*24));
