@@ -963,7 +963,7 @@ const DEFAULT_CATS=[
           </div>
         </div>
         <!-- Stack container -->
-        <div id="stack-cards-container" style="position:relative;margin:0 10px;height:calc(100vh - var(--nav-h) - 220px)"></div>
+        <div id="stack-cards-container" style="position:relative;margin:0 10px;height:calc(100vh - var(--nav-h) - 270px)"></div>
         <!-- Swipe hint -->
         <div id="stack-hint" style="text-align:center;padding:6px;opacity:0.4">
           <div style="font-size:18px;animation:hintBounce 1.8s ease-in-out infinite">↑</div>
@@ -971,6 +971,22 @@ const DEFAULT_CATS=[
         </div>
         <!-- Dots -->
         <div id="stack-dots" style="position:fixed;right:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px;z-index:50"></div>
+
+        <!-- Quick access row -->
+        <div style="display:flex;gap:8px;padding:8px 10px 4px">
+          <button onclick="sw('calendario')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;background:var(--white);border:1px solid var(--border);border-radius:14px;padding:11px 14px;cursor:pointer;font-family:'Geist',sans-serif;transition:all .15s" onmousedown="this.style.background='var(--bg3)'" onmouseup="this.style.background='var(--white)'">
+            <span style="font-size:18px">📅</span>
+            <span style="font-size:12px;color:var(--text);font-weight:400">Calendario</span>
+          </button>
+          <button onclick="sw('bitacora')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;background:var(--white);border:1px solid var(--border);border-radius:14px;padding:11px 14px;cursor:pointer;font-family:'Geist',sans-serif;transition:all .15s" onmousedown="this.style.background='var(--bg3)'" onmouseup="this.style.background='var(--white)'">
+            <span style="font-size:18px">✎</span>
+            <span style="font-size:12px;color:var(--text);font-weight:400">Bitácora</span>
+          </button>
+          <button onclick="sw('progreso')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;background:var(--white);border:1px solid var(--border);border-radius:14px;padding:11px 14px;cursor:pointer;font-family:'Geist',sans-serif;transition:all .15s" onmousedown="this.style.background='var(--bg3)'" onmouseup="this.style.background='var(--white)'">
+            <span style="font-size:18px">📈</span>
+            <span style="font-size:12px;color:var(--text);font-weight:400">Progreso</span>
+          </button>
+        </div>
       </div>
 
             <!-- ══ DESKTOP: Original layout ══ -->
