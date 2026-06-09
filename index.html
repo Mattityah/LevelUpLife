@@ -229,8 +229,8 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 @media(min-width:768px){.stats-grid{grid-template-columns:1fr 1fr;}}
 /* Inicio layout */
 .inicio-body{padding:16px 16px 30px;}
-.inicio-left{margin-bottom:20px;}
-.inicio-right{}
+.inicio-left{margin-bottom:20px;position:relative;z-index:2;}
+.inicio-right{position:relative;z-index:1;}
 @media(min-width:768px){
   .inicio-body{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start;}
   .inicio-left{margin-bottom:0;}
