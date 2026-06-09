@@ -940,19 +940,30 @@ const DEFAULT_CATS=[
       <!-- ══ MOBILE: Card Stack ══ -->
       <div id="stack-mobile-wrap">
         <!-- Header -->
-        <div style="padding:14px 16px 10px;background:linear-gradient(135deg,#1e1040,#2d1a5e);margin:10px;border-radius:18px">
-          <div style="font-size:9px;color:rgba(255,255,255,0.45);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px" id="stack-greet">BUENAS TARDES</div>
-          <div style="font-family:'Instrument Serif',serif;font-size:17px;font-style:italic;color:#fff;line-height:1.35;margin-bottom:10px" id="stack-quote">Tu mejor versión, cada día.</div>
-          <div style="height:2px;background:rgba(255,255,255,0.15);border-radius:10px;overflow:hidden">
-            <div id="stack-xp-fill" style="height:100%;background:linear-gradient(90deg,#a855f7,#ec4899);width:0%;border-radius:10px;transition:width .6s"></div>
+        <div style="position:relative;margin:10px 10px 8px;background:linear-gradient(135deg,#1a0d35 0%,#2d1a5e 60%,#1e1040 100%);border-radius:20px;padding:18px 18px 14px;overflow:hidden">
+          <div style="position:absolute;top:-40px;right:-20px;width:160px;height:160px;background:radial-gradient(circle,rgba(139,92,246,0.25),transparent 65%);pointer-events:none"></div>
+          <div style="position:absolute;bottom:-30px;left:20px;width:100px;height:100px;background:radial-gradient(circle,rgba(236,72,153,0.12),transparent 65%);pointer-events:none"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;position:relative;z-index:1">
+            <div style="font-size:9px;color:rgba(255,255,255,0.45);letter-spacing:1.3px;text-transform:uppercase" id="stack-greet">BUENAS TARDES</div>
+            <div style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.15);border-radius:20px;padding:4px 10px">
+              <span style="font-size:14px">🔥</span>
+              <span style="font-family:'Instrument Serif',serif;font-size:16px;color:#fb923c;line-height:1" id="stack-streak-n">0</span>
+              <span style="font-size:9px;color:rgba(255,146,60,0.6)">días</span>
+            </div>
           </div>
-          <div style="display:flex;justify-content:space-between;margin-top:3px">
-            <span style="font-size:9px;color:rgba(255,255,255,0.35)" id="stack-xp-lbl">0 / 100 XP</span>
-            <span style="font-size:9px;color:rgba(255,255,255,0.45)" id="stack-xp-pct">0%</span>
+          <div style="font-family:'Instrument Serif',serif;font-size:21px;font-style:italic;color:#fff;line-height:1.38;margin-bottom:14px;position:relative;z-index:1;letter-spacing:-.2px" id="stack-quote">Tu mejor versión, cada día.</div>
+          <div style="position:relative;z-index:1">
+            <div style="height:3px;background:rgba(255,255,255,0.12);border-radius:10px;overflow:hidden;margin-bottom:4px">
+              <div id="stack-xp-fill" style="height:100%;background:linear-gradient(90deg,#a855f7,#ec4899);width:0%;border-radius:10px;transition:width .6s"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between">
+              <span style="font-size:9px;color:rgba(255,255,255,0.3)" id="stack-xp-lbl">0 / 100 XP</span>
+              <span style="font-size:9px;color:rgba(255,255,255,0.45)" id="stack-xp-pct">0%</span>
+            </div>
           </div>
         </div>
         <!-- Stack container -->
-        <div id="stack-cards-container" style="position:relative;margin:0 10px;height:calc(100vh - var(--nav-h) - 160px)"></div>
+        <div id="stack-cards-container" style="position:relative;margin:0 10px;height:calc(100vh - var(--nav-h) - 185px)"></div>
         <!-- Swipe hint -->
         <div id="stack-hint" style="text-align:center;padding:6px;opacity:0.4">
           <div style="font-size:18px;animation:hintBounce 1.8s ease-in-out infinite">↑</div>
@@ -3622,6 +3633,7 @@ function renderStack(){
   if(ge('stack-xp-fill')) ge('stack-xp-fill').style.width=pct+'%';
   if(ge('stack-xp-lbl'))  ge('stack-xp-lbl').textContent=xp+' / '+nextXp+' XP';
   if(ge('stack-xp-pct'))  ge('stack-xp-pct').textContent=pct+'%';
+  if(ge('stack-streak-n'))ge('stack-streak-n').textContent=state.streak||0;
 
   // ── Build card list ──
   stackCards=getStackOrder();
