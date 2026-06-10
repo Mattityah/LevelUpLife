@@ -938,9 +938,9 @@ const DEFAULT_CATS=[
     <div class="pane active" id="pane-inicio">
 
       <!-- ══ MOBILE: Card Stack ══ -->
-      <div id="stack-mobile-wrap">
+      <div id="stack-mobile-wrap" style="display:flex;flex-direction:column;height:calc(100vh - var(--nav-h));overflow:hidden">
         <!-- Header -->
-        <div style="position:relative;margin:10px 10px 8px;background:linear-gradient(135deg,#1a0d35 0%,#2d1a5e 60%,#1e1040 100%);border-radius:20px;padding:18px 18px 14px;overflow:hidden">
+        <div style="position:relative;margin:10px 10px 8px;background:linear-gradient(135deg,#1a0d35 0%,#2d1a5e 60%,#1e1040 100%);border-radius:20px;padding:18px 18px 14px;overflow:hidden;flex-shrink:0">
           <div style="position:absolute;top:-40px;right:-20px;width:160px;height:160px;background:radial-gradient(circle,rgba(139,92,246,0.25),transparent 65%);pointer-events:none"></div>
           <div style="position:absolute;bottom:-30px;left:20px;width:100px;height:100px;background:radial-gradient(circle,rgba(236,72,153,0.12),transparent 65%);pointer-events:none"></div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;position:relative;z-index:1">
@@ -963,17 +963,22 @@ const DEFAULT_CATS=[
           </div>
         </div>
         <!-- Stack container -->
-        <div id="stack-cards-container" style="position:relative;margin:0 10px;height:calc(100vh - var(--nav-h) - 250px)"></div>
-        <!-- Swipe hint -->
-        <div id="stack-hint" style="text-align:center;padding:6px;opacity:0.4">
-          <div style="font-size:18px;animation:hintBounce 1.8s ease-in-out infinite">↑</div>
-          <div style="font-size:10px;color:var(--muted2);letter-spacing:.5px">Swipe para ver más</div>
+        <div id="stack-cards-container" style="position:relative;margin:0 10px;flex:1;min-height:0"></div>
+        <!-- Swipe hint + add button -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 10px 0;flex-shrink:0">
+          <div id="stack-hint" style="display:flex;align-items:center;gap:5px;opacity:0.4">
+            <div style="font-size:14px;animation:hintBounce 1.8s ease-in-out infinite">↑</div>
+            <div style="font-size:10px;color:var(--muted2);letter-spacing:.5px">Swipe para ver más</div>
+          </div>
+          <button onclick="openStackAddMenu()" style="display:flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:5px 12px;cursor:pointer;font-family:'Geist',sans-serif;font-size:11px;color:var(--muted)">
+            <span style="font-size:14px;line-height:1">+</span> Agregar carta
+          </button>
         </div>
         <!-- Dots -->
         <div id="stack-dots" style="position:fixed;right:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px;z-index:50"></div>
 
         <!-- Calendar banner -->
-        <div onclick="sw('calendario')" id="cal-banner" style="margin:8px 10px 0;background:var(--white);border:1px solid var(--border);border-radius:16px;padding:14px 18px;display:flex;align-items:center;gap:13px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.07)">
+        <div onclick="sw('calendario')" id="cal-banner" style="margin:8px 10px 6px;background:var(--white);border:1px solid var(--border);border-radius:16px;padding:14px 18px;display:flex;align-items:center;gap:13px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.07);flex-shrink:0">
           <div style="width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,#0369a1,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 3px 10px rgba(3,105,161,0.25)">📅</div>
           <div style="flex:1">
             <div style="font-size:14px;font-weight:400;color:var(--text);letter-spacing:-.1px" id="cal-banner-day">Martes, 9 de junio</div>
@@ -1444,7 +1449,7 @@ function save(){
   if(window._fbMode==='firebase'&&window._fbSave)window._fbSave(state);
 }
 // var state vive en window — así Firebase y el JS local siempre ven el mismo objeto
-var state={tasks:[],activity:[],streak:0,bestStreak:0,lastActive:null,nextId:1,notes:{},habits:[],allCategories:[...DEFAULT_CATS],activeCategories:DEFAULT_CATS.map(c=>c.id),favoriteCategory:null,stackOrder:[]};
+var state={tasks:[],activity:[],streak:0,bestStreak:0,lastActive:null,nextId:1,notes:{},habits:[],allCategories:[...DEFAULT_CATS],activeCategories:DEFAULT_CATS.map(c=>c.id),favoriteCategory:null,stackOrder:[],hiddenStackCards:[]};
 var _fbLoaded=false;
 let curFilter='all',curTab='inicio';
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -2655,7 +2660,7 @@ function renderTaskList(){
   if(!tasks.length){c.innerHTML=`<div class="empty"><span class="empty-g">✓</span>Todo al día. Agregá nuevas tareas arriba.</div>`;return;}
   const groups={};tasks.forEach(t=>{if(!groups[t.cat])groups[t.cat]=[];groups[t.cat].push(t);});
   c.innerHTML=Object.entries(groups).map(([cat,ts])=>{
-    const m=CATS[cat];
+    const m=CATS[cat]||{emoji:'📌',color:'#7c3aed',bg:'#f5f2ff'};
     return`<div class="task-group"><div class="tg-hdr">${m.emoji} ${cat}<div class="tg-line"></div><span>${ts.length}</span></div>
     ${ts.map(t=>{
       const ns=nodeState(t);
@@ -3433,15 +3438,19 @@ function getStackOrder(){
     return (catXP[b.id]||0)-(catXP[a.id]||0);
   });
 
-  // Build card list
-  const cards=sorted.map(c=>({type:'category',catId:c.id}));
+  const hidden=state.hiddenStackCards||[];
 
-  // Add habits card if there are habits for today
+  // Build card list — filter hidden
+  const cards=sorted
+    .filter(c=>!hidden.includes('cat_'+c.id))
+    .map(c=>({type:'category',catId:c.id}));
+
+  // Add habits card if there are habits for today and not hidden
   const todayHabits=(state.habits||[]).filter(h=>shouldShowHabitToday(h));
-  if(todayHabits.length>0) cards.push({type:'habits'});
+  if(todayHabits.length>0&&!hidden.includes('habits')) cards.push({type:'habits'});
 
-  // Add bitacora card
-  cards.push({type:'bitacora'});
+  // Add bitacora card if not hidden
+  if(!hidden.includes('bitacora')) cards.push({type:'bitacora'});
 
   return cards;
 }
@@ -3602,12 +3611,71 @@ function buildCalendarShortcutCard(){
 
 
 function stackSkipCard(){
-  // Move current card to end of stack
   if(stackCards.length<=1)return;
-  const current=stackCards.splice(stackIndex,1)[0];
-  stackCards.push(current);
+  const current=stackCards[stackIndex];
+  // Add to hidden list
+  if(!state.hiddenStackCards)state.hiddenStackCards=[];
+  const key=current.type==='category'?'cat_'+current.catId:current.type;
+  if(!state.hiddenStackCards.includes(key))state.hiddenStackCards.push(key);
+  save();
+  stackCards.splice(stackIndex,1);
   stackIndex=Math.min(stackIndex,stackCards.length-1);
   renderStack();
+}
+
+function stackRestoreCard(key){
+  if(!state.hiddenStackCards)state.hiddenStackCards=[];
+  state.hiddenStackCards=state.hiddenStackCards.filter(k=>k!==key);
+  save();
+  renderStack();
+  // Close menu
+  const menu=ge('stack-add-menu');
+  if(menu)menu.remove();
+}
+
+function openStackAddMenu(){
+  // Remove existing
+  const existing=ge('stack-add-menu');
+  if(existing){existing.remove();return;}
+
+  if(!state.hiddenStackCards||state.hiddenStackCards.length===0){
+    // Nothing hidden — show feedback
+    const msg=document.createElement('div');
+    msg.style.cssText='position:fixed;bottom:120px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;font-family:Geist,sans-serif;z-index:200';
+    msg.textContent='No hay cartas ocultas';
+    document.body.appendChild(msg);
+    setTimeout(()=>msg.remove(),1800);
+    return;
+  }
+
+  const menu=document.createElement('div');
+  menu.id='stack-add-menu';
+  menu.style.cssText='position:fixed;bottom:110px;left:50%;transform:translateX(-50%);background:var(--white);border:1px solid var(--border);border-radius:18px;padding:14px;z-index:200;box-shadow:0 8px 30px rgba(0,0,0,0.14);min-width:240px';
+
+  const cats=getAllCategories();
+  const items=state.hiddenStackCards.map(key=>{
+    let label='',emoji='';
+    if(key.startsWith('cat_')){
+      const catId=key.replace('cat_','');
+      const cat=cats.find(c=>c.id===catId)||{name:catId,emoji:'📌'};
+      label=cat.name;emoji=cat.emoji;
+    } else if(key==='habits'){label='Hábitos';emoji='🔗';}
+    else if(key==='bitacora'){label='Bitácora';emoji='✎';}
+    return`<div onclick="stackRestoreCard('${key}')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;cursor:pointer;transition:background .15s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='transparent'">
+      <span style="font-size:20px">${emoji}</span>
+      <span style="font-size:13px;color:var(--text);flex:1">${label}</span>
+      <span style="font-size:11px;color:var(--violet)">+ Agregar</span>
+    </div>`;
+  }).join('');
+
+  menu.innerHTML=`<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px;padding:0 4px">Cartas ocultas</div>${items}`;
+
+  // Close on outside tap
+  setTimeout(()=>document.addEventListener('click',function h(e){
+    if(!menu.contains(e.target)){menu.remove();document.removeEventListener('click',h);}
+  }),100);
+
+  document.body.appendChild(menu);
 }
 
 function scSubmitNote(){
