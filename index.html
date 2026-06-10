@@ -966,7 +966,7 @@ const DEFAULT_CATS=[
         <!-- Stack container -->
         <div id="stack-cards-container" style="position:relative;margin:0 10px;flex:1;min-height:0"></div>
         <!-- Swipe hint + add button -->
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 10px 0;flex-shrink:0">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px 4px;flex-shrink:0">
           <div id="stack-hint" style="display:flex;align-items:center;gap:5px;opacity:0.4">
             <div style="font-size:14px;animation:hintBounce 1.8s ease-in-out infinite">↑</div>
             <div style="font-size:10px;color:var(--muted2);letter-spacing:.5px">Swipe para ver más</div>
@@ -3503,6 +3503,11 @@ function buildCategoryCard(catId){
         <span>+ Agregar tarea</span>
       </div>
     </div>
+    ${pending.length===0?`
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;opacity:0.35;padding:20px 0">
+      <div style="font-size:52px;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.2))">${cat.emoji}</div>
+      <div style="font-family:'Instrument Serif',serif;font-style:italic;font-size:15px;color:#fff;text-align:center;line-height:1.4">Sin tareas pendientes.<br>¿Qué vas a hacer hoy?</div>
+    </div>`:''}
   </div>`;
   return div;
 }
