@@ -1494,6 +1494,29 @@ const DEFAULT_CATS=[
         <div class="set-item" onclick="exportData()"><div class="set-ico" style="background:var(--bg3)">📤</div><span class="set-txt">Exportar datos</span><span class="set-arr">›</span></div>
         <div class="set-item"><div class="set-ico" style="background:var(--bg3)">📥</div><label style="flex:1;font-size:13px;font-weight:400;cursor:pointer">Importar datos<input type="file" accept=".json" onchange="importData(event)" style="display:none"></label><span class="set-arr">›</span></div>
       </div>
+      <!-- Integraciones IA -->
+      <div style="padding:0 20px 20px" id="prof-ai-section">
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:12px;display:flex;align-items:center;gap:6px">
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+          Integraciones IA
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+        </div>
+        <div id="ai-connect-card" style="background:var(--bg3);border-radius:14px;padding:16px;border:1px solid var(--border)">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+            <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#a855f7);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">✦</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:500;color:var(--text)">Claude AI</div>
+              <div id="ai-key-status" style="font-size:11px;color:var(--muted);margin-top:1px">No conectado</div>
+            </div>
+            <div id="ai-key-indicator" style="width:8px;height:8px;border-radius:50%;background:var(--border2);flex-shrink:0"></div>
+          </div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:14px">Conectá tu cuenta de Anthropic para usar el planificador inteligente de tareas.</div>
+          <button id="ai-connect-btn" onclick="openAPIKeySetup('refreshAIStatus')" style="width:100%;padding:10px;border-radius:10px;border:none;font-size:13px;font-family:'Geist',sans-serif;cursor:pointer;font-weight:400;transition:all .15s">
+            Conectar con Anthropic
+          </button>
+        </div>
+      </div>
+
       <!-- Zona de peligro -->
       <div style="padding:0 20px 30px">
         <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--rose);font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:6px">
@@ -3262,6 +3285,7 @@ function sw(id){
   if(id==='red')setTimeout(drawNeural,60);
   if(id==='progreso')renderProgreso();
   if(id==='calendario')renderCalendario();
+  if(id==='perfil')setTimeout(refreshAIStatus,50);
 }
 
 /* ── Desktop sidebar setup ── */
@@ -3763,6 +3787,29 @@ let _plannerPhase='chat'; // 'chat' | 'plan'
 function getAIKey(){return localStorage.getItem('lu_ai_key')||'';}
 function setAIKey(k){if(k)localStorage.setItem('lu_ai_key',k.trim());else localStorage.removeItem('lu_ai_key');}
 
+function refreshAIStatus(){
+  const key=getAIKey();
+  const status=document.getElementById('ai-key-status');
+  const indicator=document.getElementById('ai-key-indicator');
+  const btn=document.getElementById('ai-connect-btn');
+  if(!status||!indicator||!btn)return;
+  if(key){
+    status.textContent='Conectado · '+key.slice(0,10)+'...';
+    status.style.color='#15803d';
+    indicator.style.background='#15803d';
+    btn.textContent='Cambiar API key';
+    btn.style.background='var(--bg4)';
+    btn.style.color='var(--muted)';
+  } else {
+    status.textContent='No conectado';
+    status.style.color='var(--muted)';
+    indicator.style.background='var(--border2)';
+    btn.textContent='Conectar con Anthropic';
+    btn.style.background='linear-gradient(135deg,var(--violet),#a855f7)';
+    btn.style.color='#fff';
+  }
+}
+
 function openAPIKeySetup(callback){
   const existing=getAIKey();
   const ov=document.createElement('div');
@@ -3796,11 +3843,12 @@ function openAPIKeySetup(callback){
         if(!k.startsWith('sk-ant-')){alert('La key debe empezar con sk-ant-');return;}
         setAIKey(k);
         document.getElementById('apikey-overlay').remove();
-        ${callback?`(${callback})();`:''}
+        refreshAIStatus();
+        ${callback?`try{if(typeof ${callback}==='function'){${callback}();}else{eval('('+${JSON.stringify(callback)}+')')();}}catch(e){}`:''}
       " style="width:100%;padding:12px;background:var(--violet);color:#fff;border:none;border-radius:11px;font-size:13px;font-family:'Geist',sans-serif;cursor:pointer">
         Guardar y continuar
       </button>
-      ${existing?`<button onclick="setAIKey('');ge('apikey-input').value='';showToast('Key eliminada')" style="width:100%;padding:9px;background:transparent;color:var(--rose);border:none;font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;margin-top:4px">Eliminar key guardada</button>`:''}
+      ${existing?`<button onclick="setAIKey('');ge('apikey-input').value='';refreshAIStatus();showToast('Key eliminada');document.getElementById('apikey-overlay').remove()" style="width:100%;padding:9px;background:transparent;color:var(--rose);border:none;font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;margin-top:4px">Eliminar key guardada</button>`:''}
     </div>`;
   document.body.appendChild(ov);
   setTimeout(()=>ge('apikey-input').focus(),300);
@@ -3810,7 +3858,15 @@ function openAPIKeySetup(callback){
 function openPlanner(preselectedId){
   const pending=state.tasks.filter(t=>!t.done);
   if(!pending.length){alert('No hay tareas pendientes para planificar.');return;}
-  if(!getAIKey()){openAPIKeySetup(`function(){openPlanner(${preselectedId||'undefined'})}`);return;}
+  if(!getAIKey()){
+    sw('perfil');
+    setTimeout(()=>{
+      const card=document.getElementById('prof-ai-section');
+      if(card){card.style.transition='background .4s';card.style.background='rgba(124,58,237,0.07)';setTimeout(()=>{card.style.background='';},1200);}
+      showToast('Primero conectá tu cuenta de Anthropic en Perfil');
+    },200);
+    return;
+  }
   _plannerMessages=[];_plannerTask=null;_plannerPhase='chat';
 
   const overlay=document.createElement('div');
