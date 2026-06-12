@@ -992,7 +992,7 @@ const DEFAULT_CATS=[
           </div>
         </div>
         <!-- Stack container -->
-        <div id="stack-cards-container" style="position:relative;margin:0 10px;height:min(46vh,340px);flex-shrink:0"></div>
+        <div id="stack-cards-container" style="position:relative;margin:0 10px;margin-right:28px;height:min(46vh,340px);flex-shrink:0"></div>
 
         <!-- Spacer fijo — área de seguridad entre cartas y botón -->
         <div style="height:150px;flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;padding:0 14px;position:relative">
@@ -1006,7 +1006,7 @@ const DEFAULT_CATS=[
         </div>
 
         <!-- Dots -->
-        <div id="stack-dots" style="position:fixed;right:10px;top:calc(50% - 50px);transform:translateY(-50%);display:flex;flex-direction:column;gap:5px;z-index:50"></div>
+        <div id="stack-dots" style="position:absolute;right:-18px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px;z-index:50"></div>
 
         <!-- Calendar banner -->
         <div onclick="sw('calendario')" id="cal-banner" style="margin:6px 12px 24px;background:var(--white);border:1px solid var(--border);border-radius:18px;padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.08);flex-shrink:0">
@@ -2577,54 +2577,49 @@ function renderHeatmap(){
     return Object.values(h.log).some(v=>v&&new Date(v).toDateString()===key);
   }
 
-  // Header: nombre de hábito por columna
-  const headerCols=habits.map(h=>{
-    const m=CATS[h.cat]||{color:'#7c3aed'};
-    return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 2px">
-      <span style="font-size:14px">${h.emoji}</span>
-      <div style="width:100%;height:3px;border-radius:2px;background:${m.color};opacity:0.6"></div>
+  // Construir array de fechas del mes
+  const dates=[];
+  for(let d=1;d<=daysInMonth;d++) dates.push(new Date(year,month,d));
+
+  // Header de columnas: números de día
+  const dayHeaders=dates.map(date=>{
+    const isToday=date.toDateString()===today.toDateString();
+    const dow=['D','L','M','X','J','V','S'][date.getDay()];
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:1px;min-width:22px">
+      <span style="font-size:7px;color:${isToday?'var(--violet)':'var(--muted2)'};opacity:0.7">${dow}</span>
+      <span style="font-size:9px;color:${isToday?'var(--violet)':'var(--muted2)'};font-weight:${isToday?'600':'400'}">${date.getDate()}</span>
     </div>`;
   }).join('');
 
-  // Rows: one per day of month
-  const rows=[];
-  for(let day=1;day<=daysInMonth;day++){
-    const date=new Date(year,month,day);
-    const isToday=date.toDateString()===today.toDateString();
-    const isFuture=date>today;
-    const dow=['D','L','M','X','J','V','S'][date.getDay()];
-
-    const cells=habits.map(h=>{
-      const m=CATS[h.cat]||{color:'#7c3aed'};
+  // Filas: una por hábito
+  const rows=habits.map(h=>{
+    const m=CATS[h.cat]||{color:'#7c3aed'};
+    const cells=dates.map(date=>{
+      const isFuture=date>today;
       const scheduled=shouldShowHabitOnDay(h,date);
       const done=!isFuture&&isDone(h,date);
+      const isToday=date.toDateString()===today.toDateString();
       let bg='transparent',border='';
       if(!scheduled){ bg='transparent'; }
       else if(isFuture){ bg='var(--bg3)'; border='border:1px dashed var(--border)'; }
       else if(done){ bg=m.color; }
       else{ bg='var(--bg3)'; border='border:1px solid var(--border2)'; }
-      return `<div style="aspect-ratio:1;border-radius:4px;background:${bg};${border}${isToday&&scheduled?';outline:2px solid '+m.color+';outline-offset:1px':''}"></div>`;
+      return `<div style="width:22px;height:22px;border-radius:4px;background:${bg};${border}${isToday&&scheduled?';outline:2px solid '+m.color+';outline-offset:1px':'';flex-shrink:0}"></div>`;
     }).join('');
 
-    rows.push(`<div style="display:contents">
-      <div style="display:flex;align-items:center;gap:4px;padding-right:6px">
-        <span style="font-size:9px;color:${isToday?'var(--violet)':'var(--muted2)'};font-weight:${isToday?'600':'400'};min-width:16px;text-align:right">${day}</span>
-        <span style="font-size:8px;color:${isToday?'var(--violet)':'var(--muted2)'};opacity:0.7">${dow}</span>
+    return `<div style="display:flex;align-items:center;gap:3px;margin-bottom:4px">
+      <div style="display:flex;align-items:center;gap:5px;width:80px;flex-shrink:0">
+        <span style="font-size:15px">${h.emoji}</span>
+        <span style="font-size:10px;color:var(--text);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:55px">${h.name}</span>
       </div>
-      ${cells}
-    </div>`);
-  }
+      <div style="display:flex;gap:3px;flex-shrink:0">${cells}</div>
+    </div>`;
+  }).join('');
 
-  const cols=`38px repeat(${habits.length},1fr)`;
-
-  el.innerHTML=`<div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
-    <div style="min-width:${Math.max(220, habits.length*36+40)}px">
-      <div style="display:grid;grid-template-columns:${cols};gap:3px;margin-bottom:4px">
-        <div></div>${headerCols}
-      </div>
-      <div style="display:grid;grid-template-columns:${cols};gap:3px">
-        ${rows.join('')}
-      </div>
+  el.innerHTML=`<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px">
+    <div style="min-width:max-content">
+      <div style="display:flex;align-items:center;gap:3px;margin-bottom:6px;padding-left:85px">${dayHeaders}</div>
+      ${rows}
     </div>
   </div>`;
 }
@@ -4262,8 +4257,8 @@ function renderStack(){
   if(!container) return;
   container.innerHTML='';  // clear
 
-  // Show active card + up to 3 peeking behind
-  const totalShow=Math.min(stackCards.length,4);
+  // Show active card + up to 2 peeking behind
+  const totalShow=Math.min(stackCards.length,3);
   for(let offset=totalShow-1; offset>=0; offset--){
     const idx=(stackIndex+offset)%stackCards.length;
     const cardData=stackCards[idx];
@@ -4288,15 +4283,12 @@ function renderStack(){
       el.style.zIndex='10';
       attachSwipe(el);
     } else if(offset===1){
-      el.style.transform='scale(0.94) translateY(26px)';
+      el.style.transform='scale(0.95) translateY(18px)';
       el.style.zIndex='5';
-    } else if(offset===2){
-      el.style.transform='scale(0.88) translateY(48px)';
-      el.style.zIndex='3';
     } else {
-      el.style.transform='scale(0.82) translateY(66px)';
-      el.style.zIndex='1';
-      el.style.opacity='0.7';
+      el.style.transform='scale(0.90) translateY(32px)';
+      el.style.zIndex='3';
+      el.style.opacity='0.8';
     }
     container.appendChild(el);
   }
