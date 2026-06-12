@@ -2945,7 +2945,7 @@ function render(){
   applyProfile();
 }
 
-let taskView='pending'; // 'pending' | 'history'
+let taskView='pending'; // 'pending' | 'history' | 'habits'
 
 function isDueToday(due){if(!due)return false;const t=new Date(due+'T00:00:00'),n=new Date();return t.toDateString()===n.toDateString();}
 function isDueSoon(due){if(!due)return false;const t=new Date(due+'T00:00:00'),n=new Date();const diff=(t-n)/(1000*60*60*24);return diff>=0&&diff<=2;}
@@ -2963,13 +2963,14 @@ function formatDue(due){
 
 function renderTasks(){
   const c=ge('tasks-container');if(!c)return;
-  // Tabs
   const pendCount=state.tasks.filter(t=>!t.done&&(curFilter==='all'||t.cat===curFilter)).length;
-  const histCount=state.activity.filter(a=>curFilter==='all'||a.cat===curFilter).length;
+  const histCount=state.activity.filter(a=>(curFilter==='all'||a.cat===curFilter)&&a.taskId!=null).length;
+  const habitCount=state.activity.filter(a=>(curFilter==='all'||a.cat===curFilter)&&a.habitId!=null).length;
   c.innerHTML=`
-    <div class="task-tabs">
+    <div class="task-tabs" style="gap:5px">
       <button class="task-tab${taskView==='pending'?' active':''}" onclick="setTaskView('pending')">Pendientes <span class="ttab-badge">${pendCount}</span></button>
-      <button class="task-tab${taskView==='history'?' active':''}" onclick="setTaskView('history')">Historial <span class="ttab-badge">${histCount}</span></button>
+      <button class="task-tab${taskView==='history'?' active':''}" onclick="setTaskView('history')">Tareas <span class="ttab-badge">${histCount}</span></button>
+      <button class="task-tab${taskView==='habits'?' active':''}" onclick="setTaskView('habits')">Hábitos <span class="ttab-badge">${habitCount}</span></button>
     </div>
     <div id="task-list-inner"></div>`;
   renderTaskList();
@@ -3048,9 +3049,10 @@ function renderTaskList(){
   const c=ge('task-list-inner');if(!c)return;
   const nsL={pending:'—',forming:'En formación',active:'Activo',myelin:'Mielinizado'};
 
+  // ── Historial de tareas ──
   if(taskView==='history'){
-    const acts=state.activity.filter(a=>curFilter==='all'||a.cat===curFilter);
-    if(!acts.length){c.innerHTML=`<div class="empty"><span class="empty-g">∅</span>Completá tareas para ver tu historial.</div>`;return;}
+    const acts=state.activity.filter(a=>a.taskId!=null&&(curFilter==='all'||a.cat===curFilter));
+    if(!acts.length){c.innerHTML=`<div class="empty"><span class="empty-g">∅</span>Completá tareas para ver su historial.</div>`;return;}
     const byDate={};
     acts.forEach(a=>{
       a._idx=state.activity.indexOf(a);
@@ -3070,6 +3072,34 @@ function renderTaskList(){
             <span style="font-size:10px;color:var(--muted2);white-space:nowrap">${new Date(a.time).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})}</span>
             <span class="task-xp" style="background:${m.bg};color:${m.tc}">+${a.pts}</span>
             <span class="task-del" onclick="deleteActivity(${a._idx},event)" title="Eliminar del historial" style="opacity:1">×</span>
+          </div>`;
+        }).join('')}
+      </div>`).join('');
+    return;
+  }
+
+  // ── Historial de hábitos ──
+  if(taskView==='habits'){
+    const acts=state.activity.filter(a=>a.habitId!=null&&(curFilter==='all'||a.cat===curFilter));
+    if(!acts.length){c.innerHTML=`<div class="empty"><span class="empty-g">∅</span>Completá hábitos para ver su historial.</div>`;return;}
+    const byDate={};
+    acts.forEach(a=>{
+      a._idx=state.activity.indexOf(a);
+      const d=new Date(a.time);
+      const key=d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
+      if(!byDate[key])byDate[key]=[];byDate[key].push(a);
+    });
+    c.innerHTML=Object.entries(byDate).map(([date,items])=>`
+      <div class="task-group">
+        <div class="tg-hdr" style="text-transform:capitalize">${date}<div class="tg-line"></div><span>${items.reduce((s,a)=>s+a.pts,0)} XP</span></div>
+        ${items.map(a=>{const m=CATS[a.cat]||{bg:'#eee',tc:'#888',color:'#888',emoji:'·'};
+          const hab=state.habits.find(h=>h.id===a.habitId);
+          const emoji=hab?hab.emoji:'🔁';
+          return`<div class="task-card done" style="cursor:default" id="act-row-${a._idx}">
+            <div style="font-size:18px;flex-shrink:0;width:24px;text-align:center">${emoji}</div>
+            <span class="task-title" style="text-decoration:none;opacity:.7">${esc(a.title)}</span>
+            <span style="font-size:10px;color:var(--muted2);white-space:nowrap">${new Date(a.time).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})}</span>
+            <span class="task-xp" style="background:${m.bg};color:${m.tc}">+${a.pts}</span>
           </div>`;
         }).join('')}
       </div>`).join('');
