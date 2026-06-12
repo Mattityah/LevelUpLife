@@ -1004,7 +1004,7 @@ const DEFAULT_CATS=[
           </div>
         </div>
         <!-- Stack container -->
-        <div id="stack-cards-container" style="position:relative;margin:0 10px;margin-right:28px;height:min(46vh,340px);flex-shrink:0"></div>
+        <div id="stack-cards-container" style="position:relative;margin:0 10px;height:min(46vh,340px);flex-shrink:0"></div>
 
         <!-- Spacer fijo — área de seguridad entre cartas y botón -->
         <div style="height:150px;flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:0 14px;position:relative">
@@ -1021,7 +1021,7 @@ const DEFAULT_CATS=[
         </div>
 
         <!-- Dots -->
-        <div id="stack-dots" style="position:absolute;right:-18px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px;z-index:50"></div>
+        <div id="stack-dots" style="position:fixed;right:6px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px;z-index:50"></div>
 
         <!-- Calendar banner -->
         <div onclick="sw('calendario')" id="cal-banner" style="margin:6px 12px 24px;background:var(--white);border:1px solid var(--border);border-radius:18px;padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.08);flex-shrink:0">
@@ -3864,6 +3864,7 @@ Respondé ÚNICAMENTE con este JSON (sin markdown, sin texto extra):
     const text=data.content.map(i=>i.text||'').join('');
     const clean=text.replace(/```json|```/g,'').trim();
     const plan=JSON.parse(clean);
+    window._lastPlan=plan; // guardar para savePlanAsSubtasks()
 
     // Mostrar resultado
     _plannerTaskId=taskId;
@@ -3929,7 +3930,7 @@ Respondé ÚNICAMENTE con este JSON (sin markdown, sin texto extra):
         </div>
 
         <!-- Botón guardar subtareas -->
-        <button onclick="savePlanAsSubtasks(${JSON.stringify(plan).replace(/"/g,'&quot;')})" style="width:100%;padding:12px;background:var(--text);color:#fff;border:none;border-radius:11px;font-size:13px;font-family:'Geist',sans-serif;font-weight:400;cursor:pointer;margin-top:4px">
+        <button onclick="savePlanAsSubtasks()" style="width:100%;padding:12px;background:var(--text);color:#fff;border:none;border-radius:11px;font-size:13px;font-family:'Geist',sans-serif;font-weight:400;cursor:pointer;margin-top:4px">
           ✓ Convertir en sub-tareas
         </button>
         <button onclick="document.getElementById('planner-overlay').remove()" style="width:100%;padding:10px;background:transparent;color:var(--muted);border:none;font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;margin-top:4px">
@@ -3947,7 +3948,9 @@ Respondé ÚNICAMENTE con este JSON (sin markdown, sin texto extra):
   }
 }
 
-function savePlanAsSubtasks(plan){
+function savePlanAsSubtasks(){
+  const plan=window._lastPlan;
+  if(!plan){alert('No hay plan guardado.');return;}
   const task=state.tasks.find(t=>t.id===_plannerTaskId);
   if(!task)return;
   // Guardar complejidad en la tarea
@@ -4562,7 +4565,20 @@ function renderStack(){
 
   // ── Build card list ──
   stackCards=getStackOrder();
-  if(!stackCards||stackCards.length===0) return;
+  if(!stackCards||stackCards.length===0){
+    const container=ge('stack-cards-container');
+    if(container){
+      container.innerHTML=`<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center">
+        <div style="font-size:36px">✦</div>
+        <div style="font-family:'Instrument Serif',serif;font-style:italic;font-size:18px;color:var(--text)">Todavía no tenés categorías</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.5">Tocá <strong>Crear categoría</strong> abajo<br>para empezar a construir tu mapa.</div>
+        <button onclick="openCatManager()" style="margin-top:8px;padding:10px 24px;background:var(--text);color:#fff;border:none;border-radius:20px;font-size:13px;font-family:'Geist',sans-serif;cursor:pointer">+ Crear categoría</button>
+      </div>`;
+    }
+    const dots=ge('stack-dots');
+    if(dots)dots.innerHTML='';
+    return;
+  }
   stackIndex=Math.max(0,Math.min(stackIndex,stackCards.length-1));
 
   // ── Render cards into container ──
