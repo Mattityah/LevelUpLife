@@ -366,9 +366,12 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 .task-group{margin-bottom:18px;}
 .tg-hdr{display:flex;align-items:center;gap:6px;font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);margin-bottom:10px;font-weight:500;}
 .tg-line{flex:1;height:1px;background:var(--border);}
-.task-card{display:flex;align-items:center;gap:11px;background:var(--white);border:1px solid var(--border);border-radius:14px;padding:13px 15px;margin-bottom:7px;cursor:pointer;transition:all .18s;user-select:none;box-shadow:0 1px 4px rgba(0,0,0,0.04);}
-.task-card:hover{border-color:var(--border2);box-shadow:0 4px 16px rgba(0,0,0,0.08);transform:translateY(-1px);}
-.task-card:active{transform:none;}
+.swipe-wrap{position:relative;margin-bottom:7px;border-radius:14px;overflow:hidden;}
+.swipe-del-bg{position:absolute;right:0;top:0;bottom:0;width:80px;background:#e11d48;display:flex;align-items:center;justify-content:center;border-radius:14px;pointer-events:none;}
+.swipe-del-bg svg{opacity:.9;}
+.task-card{display:flex;align-items:center;gap:11px;background:var(--white);border:1px solid var(--border);border-radius:14px;padding:13px 15px;margin-bottom:0;cursor:pointer;transition:box-shadow .18s,border-color .18s;user-select:none;box-shadow:0 1px 4px rgba(0,0,0,0.04);position:relative;z-index:1;touch-action:pan-y;}
+.task-card:hover{border-color:var(--border2);box-shadow:0 4px 16px rgba(0,0,0,0.08);}
+.task-card:active{}
 .task-card.done{opacity:.4;background:var(--bg3);box-shadow:none;transform:none;}
 .task-card.done .task-title{text-decoration:line-through;}
 .check{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .22s;}
@@ -2974,6 +2977,73 @@ function renderTasks(){
 
 function setTaskView(v){taskView=v;renderTasks();}
 
+function initSwipeTasks(){
+  const THRESHOLD=72; // px para confirmar eliminación
+  document.querySelectorAll('.swipe-wrap').forEach(wrap=>{
+    const card=wrap.querySelector('.task-card');
+    if(!card||card.dataset.swipeInit)return;
+    card.dataset.swipeInit='1';
+    let startX=0,startY=0,curX=0,dragging=false,committed=false;
+
+    function onStart(x,y){
+      if(committed)return;
+      startX=x;startY=y;curX=0;dragging=true;
+      card.style.transition='none';
+    }
+    function onMove(x,y){
+      if(!dragging||committed)return;
+      const dx=x-startX;
+      const dy=Math.abs(y-startY);
+      if(dy>18&&Math.abs(dx)<dy){dragging=false;reset();return;} // scroll vertical
+      if(dx>4){dragging=false;reset();return;} // swipe derecha → ignorar
+      curX=Math.min(0,dx);
+      card.style.transform=`translateX(${curX}px)`;
+      // mostrar ícono rojo proporcionalmente
+      const ratio=Math.min(1,Math.abs(curX)/THRESHOLD);
+      wrap.querySelector('.swipe-del-bg').style.opacity=ratio;
+    }
+    function onEnd(){
+      if(!dragging||committed)return;
+      dragging=false;
+      if(Math.abs(curX)>=THRESHOLD){
+        // Confirmar eliminación
+        committed=true;
+        card.style.transition='transform .2s ease';
+        card.style.transform=`translateX(-100%)`;
+        setTimeout(()=>{
+          wrap.style.transition='max-height .25s ease,opacity .25s ease,margin .25s ease';
+          wrap.style.maxHeight=wrap.offsetHeight+'px';
+          wrap.style.overflow='hidden';
+          requestAnimationFrame(()=>{
+            wrap.style.maxHeight='0';wrap.style.opacity='0';wrap.style.marginBottom='0';
+          });
+          setTimeout(()=>{
+            // extraer id del task-card
+            const idStr=card.id.replace('task-','');
+            deleteTask(parseInt(idStr),{stopPropagation:()=>{}});
+          },240);
+        },180);
+      } else {
+        reset();
+      }
+    }
+    function reset(){
+      card.style.transition='transform .25s ease';
+      card.style.transform='translateX(0)';
+      wrap.querySelector('.swipe-del-bg').style.opacity=0;
+    }
+
+    // Touch
+    card.addEventListener('touchstart',e=>{const t=e.touches[0];onStart(t.clientX,t.clientY);},{passive:true});
+    card.addEventListener('touchmove',e=>{const t=e.touches[0];onMove(t.clientX,t.clientY);},{passive:true});
+    card.addEventListener('touchend',onEnd);
+    // Mouse (desktop)
+    card.addEventListener('mousedown',e=>{onStart(e.clientX,e.clientY);});
+    window.addEventListener('mousemove',e=>{if(dragging)onMove(e.clientX,e.clientY);});
+    window.addEventListener('mouseup',()=>{if(dragging)onEnd();});
+  });
+}
+
 function renderTaskList(){
   const c=ge('task-list-inner');if(!c)return;
   const nsL={pending:'—',forming:'En formación',active:'Activo',myelin:'Mielinizado'};
@@ -3022,7 +3092,9 @@ function renderTaskList(){
       const dueIcon=isPastDue(t.due)?'⚠️':isDueToday(t.due)?'❗':isDueSoon(t.due)?'⚡':'📅';
       const dueStr=t.due?`<span style="font-size:10px;color:${dueColor};white-space:nowrap">${dueIcon} ${formatDue(t.due)}</span>`:'';
       const recurStr=t.recur&&t.recur!=='none'?`<span style="font-size:10px;color:var(--teal);white-space:nowrap">${{daily:'🔁',weekly:'📅',monthly:'🗓'}[t.recur]}</span>`:'';
-      return`<div class="task-card" id="task-${t.id}" style="${isDueToday(t.due)?'border-color:rgba(190,24,93,0.25)':''}">
+      return`<div class="swipe-wrap" id="swipe-${t.id}">
+        <div class="swipe-del-bg"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></div>
+        <div class="task-card" id="task-${t.id}" style="${isDueToday(t.due)?'border-color:rgba(190,24,93,0.25)':''}">
         <div class="check" onclick="completeTask(${t.id},event)" title="Marcar completada" style="cursor:pointer"></div>
         <div style="flex:1;min-width:0">
           <div class="task-title">${esc(t.title)}</div>
@@ -3032,9 +3104,10 @@ function renderTaskList(){
         <span class="task-reps" title="Veces completada">${t.completions||0}×</span>
         <span class="task-xp" style="background:${m.bg};color:${m.tc}">+${t.pts}</span>
         <span class="task-del" onclick="deleteTask(${t.id},event)" title="Eliminar tarea">×</span>
-      </div>`;
+      </div></div>`;
     }).join('')}</div>`;
   }).join('');
+  requestAnimationFrame(initSwipeTasks);
 }
 
 function deleteActivity(idx,e){
@@ -3544,10 +3617,7 @@ function calShowDay(d){
     <div style="margin-top:12px">
       <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Notas del día</div>
       <textarea id="cal-note-input" placeholder="Anotá algo sobre este día..." style="width:100%;min-height:90px;background:var(--white);border:1px solid var(--border2);border-radius:11px;padding:11px 13px;font-size:13px;font-family:'Geist',sans-serif;font-weight:300;color:var(--text);outline:none;resize:vertical;transition:border-color .15s;line-height:1.55" onfocus="this.style.borderColor='var(--violet)';this.style.boxShadow='0 0 0 3px rgba(124,58,237,0.07)'" onblur="this.style.borderColor='var(--border2)';this.style.boxShadow='none'">${esc(existingNote)}</textarea>
-      <div style="margin-top:8px;display:flex;gap:8px;">
-        <button id="cal-note-save" onclick="saveNote(${d})" style="flex:1;padding:9px;background:var(--text);color:#fff;border:none;border-radius:9px;font-size:13px;font-family:'Geist',sans-serif;font-weight:400;cursor:pointer;transition:all .18s">Guardar nota</button>
-        <button id="cal-gcal-save" onclick="saveNoteToGcal(${d})" style="flex:1;padding:9px;background:var(--violet);color:#fff;border:none;border-radius:9px;font-size:13px;font-family:'Geist',sans-serif;font-weight:400;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:6px"><span style="font-size:14px">📅</span> Google Cal</button>
-      </div>
+      <button id="cal-note-save" onclick="saveNote(${d})" style="margin-top:8px;width:100%;padding:9px;background:var(--text);color:#fff;border:none;border-radius:9px;font-size:13px;font-family:'Geist',sans-serif;font-weight:400;cursor:pointer;transition:all .18s">Guardar nota</button>
     </div>`;
   ge('cal-day-detail').style.display='block';
   ge('cal-day-detail').scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -3568,67 +3638,6 @@ function saveNote(d){
   const btn=ge('cal-note-save');
   btn.textContent='✓ Guardado';btn.style.background='var(--teal)';
   setTimeout(()=>{btn.textContent='Guardar nota';btn.style.background='var(--text)';},1200);
-}
-
-async function saveNoteToGcal(d){
-  const val=ge('cal-note-input').value.trim();
-  if(!val){alert('Escribí algo antes de guardar en Google Calendar.');return;}
-  const btn=ge('cal-gcal-save');
-  const token=window._gcalToken||localStorage.getItem('gcal_token');
-  const tokenTime=parseInt(localStorage.getItem('gcal_token_time')||'0');
-  const tokenValid=token&&(Date.now()-tokenTime<3500000); // ~58 min
-  if(!tokenValid){
-    btn.textContent='Conectando...';
-    try{
-      // Re-usar el flujo de auth de Google que ya existe en la app
-      if(window.loginGoogle){await window.loginGoogle();}
-      // Esperamos que el token se refresque
-      await new Promise(r=>setTimeout(r,1500));
-    }catch(e){
-      btn.innerHTML='<span style="font-size:14px">📅</span> Google Cal';
-      alert('No se pudo conectar con Google. Intentá de nuevo.');return;
-    }
-  }
-  const freshToken=window._gcalToken||localStorage.getItem('gcal_token');
-  if(!freshToken){
-    btn.innerHTML='<span style="font-size:14px">📅</span> Google Cal';
-    alert('Necesitás iniciar sesión con Google para sincronizar con Calendar.');return;
-  }
-  btn.textContent='Guardando...';btn.style.opacity='0.7';
-  // Construir el evento: día seleccionado, todo el día
-  const year=calDate.getFullYear(),month=calDate.getMonth();
-  const dateStr=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-  const nextDay=new Date(year,month,d+1);
-  const nextDateStr=`${nextDay.getFullYear()}-${String(nextDay.getMonth()+1).padStart(2,'0')}-${String(nextDay.getDate()).padStart(2,'0')}`;
-  const event={
-    summary:'📝 Nota — LevelUp Life',
-    description:val,
-    start:{date:dateStr},
-    end:{date:nextDateStr}
-  };
-  try{
-    const res=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events',{
-      method:'POST',
-      headers:{'Authorization':'Bearer '+freshToken,'Content-Type':'application/json'},
-      body:JSON.stringify(event)
-    });
-    if(res.ok){
-      btn.textContent='✓ En Calendar';btn.style.background='#1a7340';btn.style.opacity='1';
-      setTimeout(()=>{btn.innerHTML='<span style="font-size:14px">📅</span> Google Cal';btn.style.background='var(--violet)';btn.style.opacity='1';},2000);
-    }else{
-      const err=await res.json();
-      btn.innerHTML='<span style="font-size:14px">📅</span> Google Cal';btn.style.opacity='1';
-      if(err.error&&err.error.code===401){
-        localStorage.removeItem('gcal_token');localStorage.removeItem('gcal_token_time');window._gcalToken=null;
-        alert('El token de Google venció. Intentá de nuevo para re-autenticar.');
-      }else{
-        alert('Error al guardar en Google Calendar: '+(err.error&&err.error.message||'desconocido'));
-      }
-    }
-  }catch(e){
-    btn.innerHTML='<span style="font-size:14px">📅</span> Google Cal';btn.style.opacity='1';
-    alert('Error de red. Verificá tu conexión e intentá de nuevo.');
-  }
 }
 
 /* ── RESET ── */
