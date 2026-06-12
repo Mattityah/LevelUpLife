@@ -2475,6 +2475,7 @@ function habitCardHTML(h,showCheck){
       </div>
       <div style="display:flex;align-items:center;gap:6px" onclick="event.stopPropagation()">
         ${done?`<button onclick="event.stopPropagation();toggleHabit('${h.id}')" title="Deshacer" style="width:26px;height:26px;border-radius:50%;background:${m.bg};border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;color:${m.color};font-size:15px;font-weight:300">↺</button>`:`<button disabled style="width:26px;height:26px;border-radius:50%;background:var(--bg3);border:none;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted2);font-size:15px;opacity:0.4;font-weight:300">↺</button>`}
+        <button onclick="event.stopPropagation();openEditHabit('${h.id}')" title="Editar" style="width:26px;height:26px;border-radius:50%;background:var(--bg3);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted2);font-size:13px">⚙</button>
         <button onclick="deleteHabit('${h.id}')" style="font-size:15px;color:var(--muted2);background:none;border:none;cursor:pointer;padding:4px" title="Eliminar">×</button>
       </div>
     </div>
@@ -2544,100 +2545,71 @@ function renderHeatmap(){
     el.innerHTML='<div style="font-size:12px;color:var(--muted2);text-align:center;padding:16px 0">Agregá hábitos para ver el mapa</div>';
     return;
   }
-
   const today=new Date();
+  const year=today.getFullYear(),month=today.getMonth();
   const monthNames=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-  if(lbl) lbl.textContent=monthNames[today.getMonth()]+' '+today.getFullYear();
+  if(lbl) lbl.textContent=monthNames[month]+' '+year;
 
-  // ── Construir días del mes actual ──
-  const year=today.getFullYear();
-  const month=today.getMonth();
   const daysInMonth=new Date(year,month+1,0).getDate();
+  const habits=state.habits;
 
-  // Todas las fechas del mes
-  const monthDates=[];
-  for(let d=1;d<=daysInMonth;d++) monthDates.push(new Date(year,month,d));
-
-  // ── Helper: buscar en log ──
-  function isDoneOnDate(h,date){
+  function isDone(h,date){
     if(!h.log) return false;
     const key=date.toDateString();
     if(h.log[key]) return true;
-    // Fallback: comparar timestamps
     return Object.values(h.log).some(v=>v&&new Date(v).toDateString()===key);
   }
 
-  // ── Columnas = semanas (lun-dom), filas = hábitos ──
-  // Cabecera: números de día del mes, agrupados por semana
-  // Usamos una grilla de 7 columnas por semana
-
-  // Calcular offset del primer día (lunes=0)
-  const firstDow=(monthDates[0].getDay()+6)%7; // 0=lun
-
-  // Total celdas = offset + días del mes, redondeado a múltiplo de 7
-  const totalCells=Math.ceil((firstDow+daysInMonth)/7)*7;
-
-  // Labels días de semana
-  const dowLabels=['L','M','X','J','V','S','D'];
-
-  // ── Renderizar por hábito: una fila de nombre + mini-grilla mensual ──
-  const habitsHTML=state.habits.map(h=>{
-    const m=CATS[h.cat]||{color:'#7c3aed',bg:'#f5f2ff'};
-
-    // Construir celdas del mes
-    const cells=[];
-    for(let i=0;i<totalCells;i++){
-      const dayIdx=i-firstDow;
-      if(dayIdx<0||dayIdx>=daysInMonth){
-        cells.push(`<div></div>`); // vacío
-        continue;
-      }
-      const date=monthDates[dayIdx];
-      const isToday=date.toDateString()===today.toDateString();
-      const isFuture=date>today;
-      const scheduled=shouldShowHabitOnDay(h,date);
-      const done=isDoneOnDate(h,date);
-
-      let bg,border='';
-      if(isFuture){
-        bg=scheduled?'var(--bg3)':'transparent';
-        border=scheduled?'border:1px dashed var(--border)':'';
-      } else if(!scheduled){
-        bg='transparent';
-      } else if(done){
-        bg=m.color;
-      } else {
-        bg='var(--bg3)';
-        border='border:1px solid var(--border2)';
-      }
-      if(isToday&&scheduled) border=`outline:2px solid ${m.color};outline-offset:1px`;
-
-      cells.push(`<div title="${date.getDate()} ${monthNames[month]}${done?' ✓':''}" style="aspect-ratio:1;border-radius:3px;background:${bg};${border}"></div>`);
-    }
-
-    const weeksCount=totalCells/7;
-
-    return `<div style="margin-bottom:10px">
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
-        <span style="font-size:14px">${h.emoji}</span>
-        <span style="font-size:10px;font-weight:500;color:var(--text)">${esc(h.name)}</span>
-        <span style="font-size:9px;color:var(--muted2);background:var(--bg3);border-radius:10px;padding:1px 7px;margin-left:auto">${m.color===CATS[h.cat]?.color?h.cat:h.cat}</span>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">
-        ${dowLabels.map(d=>`<div style="text-align:center;font-size:7px;color:var(--muted2);font-weight:500;padding-bottom:2px">${d}</div>`).join('')}
-        ${cells.join('')}
-      </div>
+  // Header: nombre de hábito por columna
+  const headerCols=habits.map(h=>{
+    const m=CATS[h.cat]||{color:'#7c3aed'};
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 2px">
+      <span style="font-size:14px">${h.emoji}</span>
+      <div style="width:100%;height:3px;border-radius:2px;background:${m.color};opacity:0.6"></div>
     </div>`;
   }).join('');
 
-  el.innerHTML=`
-    <div>
-      ${habitsHTML}
-      <div style="display:flex;justify-content:space-between;margin-top:4px">
-        <span style="font-size:9px;color:var(--muted2)">1 ${monthNames[month]}</span>
-        <span style="font-size:9px;color:var(--muted2)">${daysInMonth} ${monthNames[month]}</span>
+  // Rows: one per day of month
+  const rows=[];
+  for(let day=1;day<=daysInMonth;day++){
+    const date=new Date(year,month,day);
+    const isToday=date.toDateString()===today.toDateString();
+    const isFuture=date>today;
+    const dow=['D','L','M','X','J','V','S'][date.getDay()];
+
+    const cells=habits.map(h=>{
+      const m=CATS[h.cat]||{color:'#7c3aed'};
+      const scheduled=shouldShowHabitOnDay(h,date);
+      const done=!isFuture&&isDone(h,date);
+      let bg='transparent',border='';
+      if(!scheduled){ bg='transparent'; }
+      else if(isFuture){ bg='var(--bg3)'; border='border:1px dashed var(--border)'; }
+      else if(done){ bg=m.color; }
+      else{ bg='var(--bg3)'; border='border:1px solid var(--border2)'; }
+      return `<div style="aspect-ratio:1;border-radius:4px;background:${bg};${border}${isToday&&scheduled?';outline:2px solid '+m.color+';outline-offset:1px':''}"></div>`;
+    }).join('');
+
+    rows.push(`<div style="display:contents">
+      <div style="display:flex;align-items:center;gap:4px;padding-right:6px">
+        <span style="font-size:9px;color:${isToday?'var(--violet)':'var(--muted2)'};font-weight:${isToday?'600':'400'};min-width:16px;text-align:right">${day}</span>
+        <span style="font-size:8px;color:${isToday?'var(--violet)':'var(--muted2)'};opacity:0.7">${dow}</span>
       </div>
-    </div>`;
+      ${cells}
+    </div>`);
+  }
+
+  const cols=`38px repeat(${habits.length},1fr)`;
+
+  el.innerHTML=`<div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+    <div style="min-width:${Math.max(220, habits.length*36+40)}px">
+      <div style="display:grid;grid-template-columns:${cols};gap:3px;margin-bottom:4px">
+        <div></div>${headerCols}
+      </div>
+      <div style="display:grid;grid-template-columns:${cols};gap:3px">
+        ${rows.join('')}
+      </div>
+    </div>
+  </div>`;
 }
 
 function toggleHabit(id){
@@ -2721,6 +2693,67 @@ function selectHabitFreq(freq){_newHabitFreq=freq;document.querySelectorAll('.ha
 function toggleHabitDay(btn,day){if(_newHabitDays.includes(day)){_newHabitDays=_newHabitDays.filter(d=>d!==day);btn.style.background='var(--white)';btn.style.borderColor='var(--border2)';btn.style.color='var(--text)';}else{_newHabitDays.push(day);btn.style.background='var(--text)';btn.style.borderColor='var(--text)';btn.style.color='#fff';}}
 function changeHabitTimes(delta){_newHabitTimes=Math.max(1,Math.min(7,_newHabitTimes+delta));ge('habit-times-n').textContent=_newHabitTimes;}
 function changeHabitXP(delta){_newHabitXP=Math.max(5,Math.min(100,_newHabitXP+delta));ge('habit-xp-n').textContent=_newHabitXP;}
+
+function openEditHabit(id){
+  const h=state.habits.find(x=>x.id===id);if(!h)return;
+  const cats=getAllCategories();
+  const overlay=document.createElement('div');
+  overlay.id='habit-edit-overlay';
+  overlay.style.cssText='position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.4);display:flex;align-items:flex-end;justify-content:center';
+  const emojiBtns=HABIT_EMOJIS.map(e=>`<button onclick="this.parentNode.querySelectorAll('button').forEach(b=>{b.style.borderColor='var(--border)';b.style.background='var(--white)'});this.style.borderColor='var(--violet)';this.style.background='var(--vi-bg)';document.getElementById('edit-habit-emoji-val').value='${e}'" style="width:36px;height:36px;border-radius:9px;border:1.5px solid ${e===h.emoji?'var(--violet)':'var(--border)'};background:${e===h.emoji?'var(--vi-bg)':'var(--white)'};font-size:18px;cursor:pointer">${e}</button>`).join('');
+  const catBtns=cats.map(c=>`<button onclick="this.parentNode.querySelectorAll('button').forEach(b=>{b.style.borderColor='var(--border)';b.style.background='var(--white)'});this.style.borderColor='var(--violet)';this.style.background='var(--vi-bg)';document.getElementById('edit-habit-cat-val').value='${c.id}'" style="display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;border:1px solid ${c.id===h.cat?'var(--violet)':'var(--border)'};background:${c.id===h.cat?'var(--vi-bg)':'var(--white)'};font-size:12px;font-family:Geist,sans-serif;cursor:pointer;color:var(--text)">${c.emoji} ${c.name}</button>`).join('');
+  const DAYS_EDIT=[{d:1,l:'L'},{d:2,l:'M'},{d:3,l:'X'},{d:4,l:'J'},{d:5,l:'V'},{d:6,l:'S'},{d:0,l:'D'}];
+  const dayBtns=DAYS_EDIT.map(wd=>{
+    const sel=(h.days||[]).includes(wd.d);
+    return `<button onclick="this.classList.toggle('hd-sel');this.style.background=this.classList.contains('hd-sel')?'var(--text)':'var(--white)';this.style.color=this.classList.contains('hd-sel')?'#fff':'var(--text)';" data-day="${wd.d}" style="width:36px;height:36px;border-radius:50%;border:1px solid var(--border2);background:${sel?'var(--text)':'var(--white)'};font-size:12px;font-family:Geist,sans-serif;cursor:pointer;color:${sel?'#fff':'var(--text)'};${sel?'':''}${sel?'class="hd-sel"':''}" ${sel?'class="hd-sel"':''}>${wd.l}</button>`;
+  }).join('');
+  const div=document.createElement('div');
+  div.style.cssText='background:var(--white);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;font-family:Geist,sans-serif';
+  div.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div style="font-size:17px;font-weight:500;color:var(--text)">Editar hábito</div>
+      <button onclick="document.getElementById('habit-edit-overlay').remove()" style="width:28px;height:28px;border-radius:50%;background:var(--bg3);border:none;cursor:pointer;font-size:14px;color:var(--muted)">✕</button>
+    </div>
+    <input type="hidden" id="edit-habit-emoji-val" value="${h.emoji}">
+    <input type="hidden" id="edit-habit-cat-val" value="${h.cat}">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Nombre</div>
+    <input id="edit-habit-name" value="${esc(h.name)}" maxlength="40"
+      style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:10px 13px;font-size:13px;font-family:Geist,sans-serif;font-weight:300;outline:none;margin-bottom:16px"
+      onfocus="this.style.borderColor='var(--violet)'" onblur="this.style.borderColor='var(--border2)'">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Emoji</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">${emojiBtns}</div>
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Categoría</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">${catBtns}</div>
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Días de la semana</div>
+    <div style="display:flex;gap:6px;margin-bottom:8px">${dayBtns}</div>
+    <div style="font-size:9px;color:var(--muted2);margin-bottom:16px">Si no elegís días → diario</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+      <span style="font-size:13px;color:var(--muted)">XP:</span>
+      <button onclick="const n=document.getElementById('edit-habit-xp');n.value=Math.max(5,parseInt(n.value)-5)" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--border2);background:var(--white);font-size:16px;cursor:pointer">−</button>
+      <input id="edit-habit-xp" type="number" value="${h.xp}" min="5" max="100" style="width:50px;text-align:center;border:1px solid var(--border2);border-radius:8px;padding:4px;font-size:16px;font-family:Geist,sans-serif">
+      <button onclick="const n=document.getElementById('edit-habit-xp');n.value=Math.min(100,parseInt(n.value)+5)" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--border2);background:var(--white);font-size:16px;cursor:pointer">+</button>
+    </div>
+    <button onclick="saveEditHabit('${id}')" style="width:100%;padding:13px;background:var(--text);color:#fff;border:none;border-radius:12px;font-size:14px;font-family:Geist,sans-serif;font-weight:400;cursor:pointer">Guardar cambios</button>
+  `;
+  overlay.appendChild(div);
+  document.body.appendChild(overlay);
+  overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+}
+
+function saveEditHabit(id){
+  const h=state.habits.find(x=>x.id===id);if(!h)return;
+  const name=ge('edit-habit-name').value.trim();
+  if(!name)return;
+  const selectedDays=[...document.querySelectorAll('#habit-edit-overlay .hd-sel')].map(b=>parseInt(b.dataset.day));
+  h.name=name;
+  h.emoji=ge('edit-habit-emoji-val').value;
+  h.cat=ge('edit-habit-cat-val').value;
+  h.xp=Math.max(5,parseInt(ge('edit-habit-xp').value)||10);
+  if(selectedDays.length>0){h.freq='weekly';h.days=selectedDays;}
+  else{h.freq='daily';h.days=[];}
+  save();renderHabits();render();
+  ge('habit-edit-overlay').remove();
+}
 
 function saveNewHabit(){
   const name=ge('new-habit-name').value.trim();
