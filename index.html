@@ -3826,21 +3826,23 @@ function openAPIKeySetup(callback){
       </div>
       <div style="background:var(--vi-bg);border-radius:12px;padding:12px 14px;margin-bottom:16px;border:1px solid rgba(124,58,237,0.15)">
         <div style="font-size:11px;color:var(--vi-tc);line-height:1.6">
-          1. Entrá a <strong>console.anthropic.com</strong><br>
-          2. API Keys → Create Key<br>
-          3. Copiá la key (empieza con <code style="font-family:monospace;font-size:10px">sk-ant-</code>)<br>
-          4. La key se guarda solo en este dispositivo
+          <strong>Hugging Face (gratis)</strong><br>
+          huggingface.co → Settings → Access Tokens → New Token → Read<br>
+          Token empieza con <code style="font-family:monospace;font-size:10px">hf_</code><br><br>
+          <strong>Anthropic Claude (pago)</strong><br>
+          console.anthropic.com → API Keys → Create Key<br>
+          Key empieza con <code style="font-family:monospace;font-size:10px">sk-ant-</code>
         </div>
       </div>
       <div style="position:relative;margin-bottom:12px">
-        <input type="password" id="apikey-input" placeholder="sk-ant-api03-..." value="${existing}"
+        <input type="password" id="apikey-input" placeholder="hf_..." value="${existing}"
           style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:11px 40px 11px 12px;font-size:13px;font-family:monospace;outline:none;box-sizing:border-box">
         <button onclick="const i=ge('apikey-input');i.type=i.type==='password'?'text':'password'" 
           style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:var(--muted)">👁</button>
       </div>
       <button onclick="
         const k=ge('apikey-input').value.trim();
-        if(!k.startsWith('sk-ant-')){alert('La key debe empezar con sk-ant-');return;}
+        if(!k.startsWith('hf_')&&!k.startsWith('sk-ant-')){alert('El token debe empezar con hf_ o sk-ant-');return;}
         setAIKey(k);
         document.getElementById('apikey-overlay').remove();
         refreshAIStatus();
@@ -3973,7 +3975,31 @@ Tono: directo, cálido, español rioplatense. Sin markdown.`;
 
 async function _callClaude(system,messages){
   const key=getAIKey();
-  if(!key)throw new Error('No hay API key. Tocá 🔑 para configurarla.');
+  if(!key)throw new Error('No hay token. Configuralo en Perfil → Integraciones IA.');
+
+  // Hugging Face Inference API (token hf_...)
+  if(key.startsWith('hf_')){
+    const hfMessages=[{role:'system',content:system},...messages];
+    const resp=await fetch('https://router.huggingface.co/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body:JSON.stringify({
+        model:'microsoft/Phi-3-mini-4k-instruct',
+        max_tokens:1200,
+        messages:hfMessages
+      })
+    });
+    if(!resp.ok){
+      const e=await resp.json().catch(()=>({}));
+      if(resp.status===401)throw new Error('Token inválido. Revisalo en Perfil.');
+      if(resp.status===429)throw new Error('Límite alcanzado. Esperá un momento.');
+      throw new Error(e.error?.message||`HTTP ${resp.status}`);
+    }
+    const data=await resp.json();
+    return data.choices?.[0]?.message?.content||'';
+  }
+
+  // Anthropic API (key sk-ant-...)
   const resp=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
     headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
@@ -3981,7 +4007,7 @@ async function _callClaude(system,messages){
   });
   if(!resp.ok){
     const e=await resp.json().catch(()=>({}));
-    if(resp.status===401)throw new Error('API key inválida. Tocá 🔑 para corregirla.');
+    if(resp.status===401)throw new Error('API key inválida. Revisala en Perfil.');
     if(resp.status===429)throw new Error('Límite de requests. Esperá un momento.');
     throw new Error(e.error?.message||`HTTP ${resp.status}`);
   }
