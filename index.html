@@ -366,7 +366,19 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 .task-group{margin-bottom:18px;}
 .tg-hdr{display:flex;align-items:center;gap:6px;font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);margin-bottom:10px;font-weight:500;}
 .tg-line{flex:1;height:1px;background:var(--border);}
-.swipe-wrap{position:relative;margin-bottom:7px;border-radius:14px;overflow:hidden;}
+.plan-overlay{position:fixed;inset:0;z-index:700;background:rgba(0,0,0,0.45);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .2s ease}
+.plan-sheet{background:var(--white);border-radius:24px 24px 0 0;padding:28px 20px 36px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;animation:slideUp .3s cubic-bezier(.32,1,.5,1)}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.plan-pill-row{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}
+.plan-pill{padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--white);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;color:var(--muted);transition:all .15s}
+.plan-pill.active{background:var(--text);color:#fff;border-color:var(--text)}
+.plan-step{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--bg3);border-radius:10px;margin-bottom:6px}
+.plan-step-num{width:22px;height:22px;border-radius:50%;background:var(--violet);color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.plan-step-check{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;cursor:pointer;transition:all .15s}
+.plan-step-check.done{background:var(--violet);border-color:var(--violet)}
+.complexity-bar{height:6px;border-radius:3px;background:var(--bg4);overflow:hidden;margin:6px 0 2px}
+.complexity-fill{height:100%;border-radius:3px;transition:width .5s ease}
+
 .swipe-del-bg{position:absolute;right:0;top:0;bottom:0;width:80px;background:#e11d48;display:flex;align-items:center;justify-content:center;border-radius:14px;pointer-events:none;}
 .swipe-del-bg svg{opacity:.9;}
 .task-card{display:flex;align-items:center;gap:11px;background:var(--white);border:1px solid var(--border);border-radius:14px;padding:13px 15px;margin-bottom:0;cursor:pointer;transition:box-shadow .18s,border-color .18s;user-select:none;box-shadow:0 1px 4px rgba(0,0,0,0.04);position:relative;z-index:1;touch-action:pan-y;}
@@ -1000,7 +1012,7 @@ const DEFAULT_CATS=[
             <div style="font-size:14px;animation:hintBounce 1.8s ease-in-out infinite">↑</div>
             <div style="font-size:10px;color:var(--muted2);letter-spacing:.5px">Swipe para ver más</div>
           </div>
-          <button onclick="createNewCat()" style="display:flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--border2);border-radius:20px;padding:8px 18px;cursor:pointer;font-family:'Geist',sans-serif;font-size:12px;color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.08);font-weight:400">
+          <button onclick="openCatManager()" style="display:flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--border2);border-radius:20px;padding:8px 18px;cursor:pointer;font-family:'Geist',sans-serif;font-size:12px;color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.08);font-weight:400">
             <span style="font-size:16px;line-height:1;color:var(--violet)">✦</span> Crear categoría
           </button>
           <button onclick="openStackAddMenu()" style="display:flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--border2);border-radius:20px;padding:8px 18px;cursor:pointer;font-family:'Geist',sans-serif;font-size:12px;color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.08);font-weight:400">
@@ -1269,10 +1281,19 @@ const DEFAULT_CATS=[
               <option value="weekly">📅 Semanal</option>
               <option value="monthly">🗓 Mensual</option>
             </select>
+            <select class="inp inp-sel" id="task-priority" style="width:80px;font-size:12px" title="Prioridad">
+              <option value="1">🟢 Baja</option>
+              <option value="2" selected>🟡 Media</option>
+              <option value="3">🔴 Alta</option>
+            </select>
             <input class="inp" type="date" id="task-due" style="flex:1;font-size:12px" title="Fecha límite">
             <button class="btn-sm" onclick="exportData()" title="Exportar">↓</button>
             <label class="btn-sm" style="cursor:pointer" title="Importar">↑<input type="file" accept=".json" onchange="importData(event)" style="display:none"></label>
           </div>
+          <!-- Botón planificador IA -->
+          <button onclick="openPlanner()" style="margin-top:8px;width:100%;padding:9px;background:linear-gradient(135deg,var(--violet),#a855f7);color:#fff;border:none;border-radius:10px;font-size:12px;font-family:'Geist',sans-serif;font-weight:400;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity .15s" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
+            <span style="font-size:15px">✦</span> Planificar con IA — dividir en pasos y estimar tiempo
+          </button>
           <!-- hidden select kept for JS compatibility -->
           <select id="task-cat" style="display:none"></select>
         </div>
@@ -2315,15 +2336,16 @@ function addTask(){
   if(!title){inp.focus();return;}
   const recur=ge('task-recur')?ge('task-recur').value:'none';
   const due=ge('task-due')?ge('task-due').value:'';
-  state.tasks.push({id:state.nextId++,title,cat,pts,done:false,completions:0,createdAt:Date.now(),recur,due});
+  const priority=parseInt(ge('task-priority')?ge('task-priority').value:'2')||2;
+  state.tasks.push({id:state.nextId++,title,cat,pts,done:false,completions:0,createdAt:Date.now(),recur,due,priority,subtasks:[]});
   inp.value='';
   // Crear evento en Google Calendar
   const taskDateStr = due || new Date().toISOString().slice(0,10);
   if(window.createGcalEvent) window.createGcalEvent('✦ '+title+' ('+cat+')', taskDateStr, 'Tarea LevelUp Life · '+pts+' XP');
   if(ge('task-due'))ge('task-due').value='';
   if(ge('task-recur'))ge('task-recur').value='none';
+  if(ge('task-priority'))ge('task-priority').value='2';
   save();render();
-  // Spawn recurrent tasks for today if needed
   spawnRecurrentTasks();
 }
 
@@ -3127,8 +3149,21 @@ function renderTaskList(){
         <div style="flex:1;min-width:0">
           <div class="task-title">${esc(t.title)}</div>
           ${t.due||t.recur&&t.recur!=='none'?`<div style="display:flex;gap:8px;margin-top:3px;flex-wrap:wrap">${dueStr}${recurStr}</div>`:''}
+          ${t.subtasks&&t.subtasks.length?`<div style="margin-top:7px;display:flex;flex-direction:column;gap:4px">
+            ${t.subtasks.slice(0,3).map((s,i)=>`<div style="display:flex;align-items:center;gap:7px">
+              <div class="plan-step-check${s.done?' done':''}" onclick="event.stopPropagation();toggleSubtask(${t.id},${s.id})" style="width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border2);background:${s.done?'var(--violet)':'var(--white)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer">${s.done?'<svg width="8" height="6" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3 5.5L8 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>':''}</div>
+              <span style="font-size:11px;color:${s.done?'var(--muted2)':'var(--text)'};${s.done?'text-decoration:line-through':''};">${esc(s.title)}</span>
+              <span style="font-size:9px;color:var(--muted2);margin-left:auto;white-space:nowrap">${s.duracion}m</span>
+            </div>`).join('')}
+            ${t.subtasks.length>3?`<span style="font-size:10px;color:var(--muted2)">+${t.subtasks.length-3} pasos más</span>`:''}
+          </div>`:''}
+          ${t.complexity?`<div style="margin-top:6px;display:flex;align-items:center;gap:6px">
+            <div style="flex:1;height:3px;border-radius:2px;background:var(--bg4)"><div style="width:${t.complexity*10}%;height:100%;border-radius:2px;background:${t.complexity<=3?'#15803d':t.complexity<=6?'#b45309':'#be185d'}"></div></div>
+            <span style="font-size:9px;color:var(--muted2)">complejidad ${t.complexity}/10</span>
+          </div>`:''}
         </div>
         <span class="task-state" style="background:${sc.bg};color:${sc.c};border-color:${sc.b}">${nsL[ns]}</span>
+        <span title="Prioridad" style="font-size:11px">${['','🟢','🟡','🔴'][t.priority||2]}</span>
         <span class="task-reps" title="Veces completada">${t.completions||0}×</span>
         <span class="task-xp" style="background:${m.bg};color:${m.tc}">+${t.pts}</span>
         <span class="task-del" onclick="deleteTask(${t.id},event)" title="Eliminar tarea">×</span>
@@ -3666,6 +3701,239 @@ function saveNote(d){
   const btn=ge('cal-note-save');
   btn.textContent='✓ Guardado';btn.style.background='var(--teal)';
   setTimeout(()=>{btn.textContent='Guardar nota';btn.style.background='var(--text)';},1200);
+}
+
+/* ══════════════════════════════
+   PLANIFICADOR IA
+══════════════════════════════ */
+let _plannerTaskId=null;
+
+function openPlanner(){
+  const pending=state.tasks.filter(t=>!t.done);
+  if(!pending.length){alert('No hay tareas pendientes para planificar.');return;}
+  const dailyHours=(state.profile&&state.profile.dailyHours)||2;
+  const overlay=document.createElement('div');
+  overlay.id='planner-overlay';
+  overlay.className='plan-overlay';
+  overlay.innerHTML=`
+    <div class="plan-sheet">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div>
+          <div style="font-size:18px;font-family:'Instrument Serif',serif;font-style:italic;color:var(--text)">Planificar con IA</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">Seleccioná una tarea y definí tu disponibilidad</div>
+        </div>
+        <button onclick="document.getElementById('planner-overlay').remove()" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--border2);background:var(--bg3);font-size:16px;cursor:pointer;color:var(--muted)">×</button>
+      </div>
+
+      <!-- Selector de tarea -->
+      <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">¿Qué tarea querés planificar?</div>
+      <select id="plan-task-sel" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:10px 12px;font-size:13px;font-family:'Geist',sans-serif;outline:none;margin-bottom:14px">
+        ${pending.map(t=>`<option value="${t.id}">${['','🟢','🟡','🔴'][t.priority||2]} ${t.title} (${t.cat})</option>`).join('')}
+      </select>
+
+      <!-- Horas disponibles -->
+      <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Horas disponibles por día</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <input type="range" id="plan-hours" min="0.5" max="8" step="0.5" value="${dailyHours}" style="flex:1;accent-color:var(--violet)" oninput="ge('plan-hours-lbl').textContent=this.value+'h'">
+        <span id="plan-hours-lbl" style="font-size:14px;font-weight:500;color:var(--violet);min-width:32px">${dailyHours}h</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <label style="font-size:11px;color:var(--muted2);display:flex;align-items:center;gap:4px"><input type="checkbox" id="plan-save-default" style="accent-color:var(--violet)"> Guardar como mi default</label>
+      </div>
+
+      <!-- Días disponibles -->
+      <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Días disponibles</div>
+      <div class="plan-pill-row" id="plan-days-row">
+        ${['L','M','X','J','V','S','D'].map((d,i)=>`<button class="plan-pill${i<5?' active':''}" data-day="${i}" onclick="this.classList.toggle('active')">${d}</button>`).join('')}
+      </div>
+
+      <!-- Botón planificar -->
+      <button id="plan-go-btn" onclick="runPlanner()" style="width:100%;margin-top:16px;padding:12px;background:linear-gradient(135deg,var(--violet),#a855f7);color:#fff;border:none;border-radius:11px;font-size:13px;font-family:'Geist',sans-serif;font-weight:400;cursor:pointer;transition:opacity .15s">
+        ✦ Analizar y planificar
+      </button>
+
+      <!-- Resultado -->
+      <div id="plan-result" style="margin-top:20px;display:none"></div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+async function runPlanner(){
+  const taskId=parseInt(ge('plan-task-sel').value);
+  const task=state.tasks.find(t=>t.id===taskId);
+  if(!task)return;
+  const hours=parseFloat(ge('plan-hours').value)||2;
+  const saveDef=ge('plan-save-default').checked;
+  const activeDays=[...document.querySelectorAll('#plan-days-row .plan-pill.active')].map(b=>b.dataset.day);
+
+  if(saveDef){
+    if(!state.profile)state.profile={};
+    state.profile.dailyHours=hours;
+    save();
+  }
+
+  const btn=ge('plan-go-btn');
+  btn.textContent='Analizando...';btn.disabled=true;btn.style.opacity='0.7';
+
+  const prioLabel=['','baja','media','alta'][task.priority||2];
+  const catName=task.cat;
+  const prompt=`Sos un coach de productividad. El usuario tiene la siguiente tarea:
+
+Tarea: "${task.title}"
+Categoría: ${catName}
+Prioridad: ${prioLabel}
+Horas disponibles por día: ${hours}h
+Días disponibles por semana: ${activeDays.length} días
+
+Tu trabajo es:
+1. Evaluar la complejidad real de la tarea (1-10)
+2. Estimar el tiempo total en horas
+3. Dividirla en pasos concretos y accionables (entre 3 y 7 pasos)
+4. Proponer un cronograma realista en días
+
+Respondé ÚNICAMENTE con este JSON (sin markdown, sin texto extra):
+{
+  "complejidad": 7,
+  "tiempo_total_horas": 4.5,
+  "dias_estimados": 3,
+  "resumen": "Frase corta describiendo qué implica esta tarea",
+  "pasos": [
+    {"titulo": "Paso concreto 1", "duracion_min": 30, "descripcion": "Qué hacer exactamente"},
+    {"titulo": "Paso concreto 2", "duracion_min": 45, "descripcion": "Qué hacer exactamente"}
+  ],
+  "cronograma": [
+    {"dia": 1, "pasos_idx": [0, 1], "descripcion": "Qué hacer el día 1"},
+    {"dia": 2, "pasos_idx": [2, 3], "descripcion": "Qué hacer el día 2"}
+  ],
+  "consejo": "Un consejo personalizado y motivador para arrancar"
+}`;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data=await resp.json();
+    const text=data.content.map(i=>i.text||'').join('');
+    const clean=text.replace(/```json|```/g,'').trim();
+    const plan=JSON.parse(clean);
+
+    // Mostrar resultado
+    _plannerTaskId=taskId;
+    const compColor=plan.complejidad<=3?'#15803d':plan.complejidad<=6?'#b45309':'#be185d';
+    const compPct=plan.complejidad*10;
+    const resultEl=ge('plan-result');
+    resultEl.style.display='block';
+    resultEl.innerHTML=`
+      <div style="border-top:1px solid var(--border);padding-top:18px">
+        <!-- Complejidad -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:11px;color:var(--muted2);font-weight:500;text-transform:uppercase;letter-spacing:.8px">Complejidad</span>
+          <span style="font-size:13px;font-weight:500;color:${compColor}">${plan.complejidad}/10</span>
+        </div>
+        <div class="complexity-bar"><div class="complexity-fill" style="width:${compPct}%;background:${compColor}"></div></div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:16px">${plan.resumen}</div>
+
+        <!-- Stats -->
+        <div style="display:flex;gap:10px;margin-bottom:16px">
+          <div style="flex:1;background:var(--vi-bg);border-radius:10px;padding:10px;text-align:center">
+            <div style="font-size:18px;font-weight:500;color:var(--violet)">${plan.tiempo_total_horas}h</div>
+            <div style="font-size:10px;color:var(--vi-tc)">Tiempo total</div>
+          </div>
+          <div style="flex:1;background:var(--bg3);border-radius:10px;padding:10px;text-align:center">
+            <div style="font-size:18px;font-weight:500;color:var(--text)">${plan.dias_estimados}</div>
+            <div style="font-size:10px;color:var(--muted2)">Días estimados</div>
+          </div>
+          <div style="flex:1;background:var(--bg3);border-radius:10px;padding:10px;text-align:center">
+            <div style="font-size:18px;font-weight:500;color:var(--text)">${plan.pasos.length}</div>
+            <div style="font-size:10px;color:var(--muted2)">Pasos</div>
+          </div>
+        </div>
+
+        <!-- Pasos -->
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:10px">Plan de acción</div>
+        <div id="plan-steps-list">
+          ${plan.pasos.map((p,i)=>`
+            <div class="plan-step" id="pstep-${i}">
+              <div class="plan-step-num">${i+1}</div>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:400;color:var(--text)">${p.titulo}</div>
+                <div style="font-size:11px;color:var(--muted);margin-top:2px">${p.descripcion}</div>
+                <div style="font-size:10px;color:var(--muted2);margin-top:3px">⏱ ${p.duracion_min} min</div>
+              </div>
+            </div>`).join('')}
+        </div>
+
+        <!-- Cronograma -->
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin:14px 0 10px">Cronograma sugerido</div>
+        ${plan.cronograma.map(d=>`
+          <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px">
+            <div style="width:36px;height:36px;border-radius:10px;background:var(--vi-bg);color:var(--violet);font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0">D${d.dia}</div>
+            <div>
+              <div style="font-size:12px;color:var(--text);font-weight:400">${d.descripcion}</div>
+              <div style="font-size:10px;color:var(--muted2);margin-top:2px">${d.pasos_idx.map(i=>'Paso '+(i+1)).join(' · ')}</div>
+            </div>
+          </div>`).join('')}
+
+        <!-- Consejo -->
+        <div style="background:linear-gradient(135deg,rgba(124,58,237,0.06),rgba(168,85,247,0.06));border:1px solid rgba(124,58,237,0.15);border-radius:12px;padding:12px 14px;margin:14px 0">
+          <div style="font-size:10px;color:var(--violet);font-weight:500;margin-bottom:4px">✦ Consejo</div>
+          <div style="font-size:12px;color:var(--text);line-height:1.55;font-family:'Instrument Serif',serif;font-style:italic">${plan.consejo}</div>
+        </div>
+
+        <!-- Botón guardar subtareas -->
+        <button onclick="savePlanAsSubtasks(${JSON.stringify(plan).replace(/"/g,'&quot;')})" style="width:100%;padding:12px;background:var(--text);color:#fff;border:none;border-radius:11px;font-size:13px;font-family:'Geist',sans-serif;font-weight:400;cursor:pointer;margin-top:4px">
+          ✓ Convertir en sub-tareas
+        </button>
+        <button onclick="document.getElementById('planner-overlay').remove()" style="width:100%;padding:10px;background:transparent;color:var(--muted);border:none;font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;margin-top:4px">
+          Cerrar sin guardar
+        </button>
+      </div>`;
+
+    btn.textContent='✓ Plan listo';btn.style.background='var(--teal)';btn.style.opacity='1';
+    setTimeout(()=>{btn.textContent='✦ Analizar y planificar';btn.style.background='linear-gradient(135deg,var(--violet),#a855f7)';btn.disabled=false;},2000);
+  }catch(err){
+    btn.textContent='✦ Analizar y planificar';btn.style.opacity='1';btn.disabled=false;
+    const resultEl=ge('plan-result');
+    resultEl.style.display='block';
+    resultEl.innerHTML=`<div style="text-align:center;padding:16px;color:var(--rose);font-size:13px">Error al conectar con la IA. Verificá tu conexión e intentá de nuevo.<br><span style="font-size:10px;color:var(--muted2);margin-top:4px;display:block">${err.message}</span></div>`;
+  }
+}
+
+function savePlanAsSubtasks(plan){
+  const task=state.tasks.find(t=>t.id===_plannerTaskId);
+  if(!task)return;
+  // Guardar complejidad en la tarea
+  task.complexity=plan.complejidad;
+  task.estimatedHours=plan.tiempo_total_horas;
+  // Crear sub-tareas como objetos en la tarea
+  task.subtasks=plan.pasos.map((p,i)=>({
+    id:i,
+    title:p.titulo,
+    description:p.descripcion,
+    duracion:p.duracion_min,
+    done:false
+  }));
+  save();
+  renderTasks();
+  document.getElementById('planner-overlay').remove();
+  // Feedback
+  setTimeout(()=>{
+    const taskEl=document.getElementById('task-'+_plannerTaskId);
+    if(taskEl){taskEl.style.transition='background .4s';taskEl.style.background='rgba(124,58,237,0.07)';setTimeout(()=>{taskEl.style.background='';},800);}
+  },100);
+}
+
+function toggleSubtask(taskId,subIdx){
+  const task=state.tasks.find(t=>t.id===taskId);
+  if(!task||!task.subtasks)return;
+  task.subtasks[subIdx].done=!task.subtasks[subIdx].done;
+  save();renderTasks();
 }
 
 /* ── RESET ── */
