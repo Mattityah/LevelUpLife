@@ -3557,22 +3557,24 @@ function buildNeural_v2(){
   const nodeMap=new Map(nodes.map(n=>[n.id,n]));
   const simLinks=links.map(l=>({source:nodeMap.get(l.source),target:nodeMap.get(l.target),type:l.type})).filter(l=>l.source&&l.target);
 
+  // Distancias proporcionales al canvas para que llene la pantalla
+  const minDim=Math.min(W,H);
   _v2sim=d3.forceSimulation(nodes)
     .force('link',d3.forceLink(simLinks).id(d=>d.id).distance(d=>{
-      if(d.type==='root')return Math.min(W,H)*0.22;
-      if(d.type==='cat-task')return Math.min(W,H)*0.12;
-      return Math.min(W,H)*0.06;
-    }).strength(d=>d.type==='root'?0.8:0.5))
+      if(d.type==='root')return minDim*0.28;
+      if(d.type==='cat-task')return minDim*0.13;
+      return minDim*0.07;
+    }).strength(d=>d.type==='root'?1:d.type==='cat-task'?0.7:0.5))
     .force('charge',d3.forceManyBody().strength(d=>{
-      if(d.type==='center')return -400;
-      if(d.type==='cat')return -200;
-      if(d.type==='task')return -80;
-      return -30;
+      if(d.type==='center')return -600;
+      if(d.type==='cat')return -300;
+      if(d.type==='task')return -100;
+      return -40;
     }))
-    .force('collision',d3.forceCollide(d=>d.r*2+4))
-    .force('x',d3.forceX(W/2).strength(0.04))
-    .force('y',d3.forceY(H/2).strength(0.04))
-    .alphaDecay(0.025)
+    .force('collision',d3.forceCollide(d=>d.r*2.5+5))
+    .force('x',d3.forceX(W/2).strength(0.12))
+    .force('y',d3.forceY(H/2).strength(0.12))
+    .alphaDecay(0.018)
     .on('tick',draw);
 
   // ── Zoom & Pan ───────────────────────────────────
@@ -3588,7 +3590,7 @@ function buildNeural_v2(){
     nodes.forEach(n=>{
       if(!n.x)return;
       const d=Math.sqrt((n.x-ix)**2+(n.y-iy)**2);
-      const hit=n.r+8;
+      const hit=n.r+10;
       if(d<hit&&d<bd){bd=d;best=n;}
     });
     return best;
@@ -3597,13 +3599,16 @@ function buildNeural_v2(){
   // Tooltip
   let tipEl=ge('ntip');
   function showTip(n,mx,my){
-    if(!n||n.type==='center'||n.type==='sub'){tipEl.style.opacity='0';return;}
+    if(!n||n.type==='center'){tipEl.style.opacity='0';return;}
     let html='';
     if(n.type==='cat'){
       html=`<div style="font-weight:500;font-size:13px;color:#fff;margin-bottom:3px">${n.emoji} ${n.label}</div><div style="font-size:11px;color:rgba(255,255,255,0.5)">${n.xp} XP acumulado</div>`;
     } else if(n.type==='task'){
       const nsL={pending:'Pendiente',forming:'En formación',active:'Activo',myelin:'Mielinizado ✦'};
       html=`<div style="font-weight:500;font-size:13px;color:#fff;margin-bottom:2px">${n.label.length>35?n.label.slice(0,35)+'…':n.label}</div><div style="font-size:11px;color:${n.color};margin-bottom:2px">${nsL[n.ns]||''}</div><div style="font-size:10px;color:rgba(255,255,255,0.4)">${n.task.completions||0}× · +${n.task.pts} XP</div>`;
+    } else if(n.type==='sub'){
+      const done=n.sub.done;
+      html=`<div style="font-weight:500;font-size:12px;color:#fff;margin-bottom:2px">${n.label.length>35?n.label.slice(0,35)+'…':n.label}</div><div style="font-size:10px;color:${done?n.color:'rgba(255,255,255,0.4)'}">${done?'✓ Completado':'Pendiente'} · subtarea</div>`;
     }
     tipEl.innerHTML=html;
     tipEl.style.opacity='1';
@@ -3620,31 +3625,38 @@ function buildNeural_v2(){
     const n=getNodeAt(mx,my);
     hovNode=n;
     showTip(n,mx,my);
-    canvas.style.cursor=n?'pointer':'grab';
+    canvas.style.cursor=n&&n.type!=='center'?'pointer':'grab';
     draw();
   };
   canvas.onmouseleave=()=>{hovNode=null;tipEl.style.opacity='0';draw();};
 
-  canvas.onclick=e=>{
-    const r=canvas.getBoundingClientRect(),n=getNodeAt(e.clientX-r.left,e.clientY-r.top);
-    if(!n){_v2selected=null;draw();return;}
-    if(n.type==='cat'||n.type==='task'){
-      _v2selected=_v2selected===n.id?null:n.id;draw();
-    }
-    if(n.type==='task'){
-      // Navegar a la tarea
+  // Click/tap: highlight red del nodo. Solo doble tap en tarea navega.
+  let _lastTap=0,_lastTapId=null;
+  function handleTap(n){
+    if(!n||n.type==='center'){_v2selected=null;draw();return;}
+    // Seleccionar / deseleccionar → highlight subred
+    _v2selected=_v2selected===n.id?null:n.id;
+    draw();
+    // Doble tap en tarea → navegar
+    const now=Date.now();
+    if(n.type==='task'&&_lastTapId===n.id&&now-_lastTap<400){
+      _v2selected=null;
       setTimeout(()=>{sw('tareas');setTimeout(()=>{const el=ge('task-'+n.task.id);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.boxShadow=`0 0 0 2px ${n.color},0 4px 16px ${n.color}44`;setTimeout(()=>el.style.boxShadow='',1400);}},120);},50);
     }
+    _lastTap=now;_lastTapId=n.id;
+  }
+
+  canvas.onclick=e=>{
+    const r=canvas.getBoundingClientRect(),n=getNodeAt(e.clientX-r.left,e.clientY-r.top);
+    handleTap(n);
   };
 
   canvas.addEventListener('touchend',e=>{
     if(e.changedTouches.length!==1)return;
     const t=e.changedTouches[0],r=canvas.getBoundingClientRect();
     const n=getNodeAt(t.clientX-r.left,t.clientY-r.top);
-    if(n){
-      _v2selected=_v2selected===n.id?null:n.id;draw();
-      if(n.type==='task'){e.preventDefault();setTimeout(()=>{sw('tareas');setTimeout(()=>{const el=ge('task-'+n.task.id);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});}},120);},50);}
-    } else {_v2selected=null;draw();}
+    if(n)e.preventDefault();
+    handleTap(n);
   },{passive:false});
 
   // ── Draw ─────────────────────────────────────────
