@@ -867,7 +867,10 @@ const DEFAULT_CATS=[
     </div>
     <div class="nav-section-label" id="sb-nav-label" style="display:none">Navegación</div>
 
-    <!-- Mobile: 2 | CENTER | 2 layout -->
+    <!-- Mobile: 3 | CENTER | 3 -->
+    <button class="nav-btn" data-pane="calendario" onclick="sw('calendario')">
+      <span class="nav-ico">📅</span><span class="nav-lbl">Calendario</span>
+    </button>
     <button class="nav-btn active" data-pane="inicio" onclick="sw('inicio')">
       <span class="nav-ico">🏠</span><span class="nav-lbl">Inicio</span>
     </button>
@@ -882,8 +885,8 @@ const DEFAULT_CATS=[
     <button class="nav-btn" data-pane="habitos" onclick="sw('habitos')">
       <span class="nav-ico">🔗</span><span class="nav-lbl">Hábitos</span>
     </button>
-    <button class="nav-btn" data-pane="calendario" onclick="sw('calendario')">
-      <span class="nav-ico">📅</span><span class="nav-lbl">Calendario</span>
+    <button class="nav-btn" data-pane="bitacora" onclick="sw('bitacora')">
+      <span class="nav-ico">✎</span><span class="nav-lbl">Bitácora</span>
     </button>
     <button class="nav-btn" data-pane="perfil" onclick="sw('perfil')">
       <span class="nav-ico">👤</span><span class="nav-lbl">Perfil</span>
@@ -950,10 +953,10 @@ const DEFAULT_CATS=[
               <div style="font-family:'Instrument Serif',serif;font-size:17px;font-style:italic;color:#fff;line-height:1.35;letter-spacing:-.1px" id="stack-quote">Tu mejor versión, cada día.</div>
             </div>
             <!-- Streak box -->
-            <div id="stack-streak-box" style="flex-shrink:0;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.18);border-radius:16px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:62px;backdrop-filter:blur(8px)">
+            <div id="stack-streak-box" style="flex-shrink:0;background:#ffffff;border-radius:16px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:64px;box-shadow:0 2px 12px rgba(0,0,0,0.15)">
               <span style="font-size:22px;line-height:1">🔥</span>
-              <span style="font-family:'Instrument Serif',serif;font-size:22px;font-weight:400;color:#fff;line-height:1" id="stack-streak-n">0</span>
-              <span style="font-size:8px;color:rgba(255,255,255,0.5);letter-spacing:.8px;text-transform:uppercase">días</span>
+              <span style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;color:#1a1814;line-height:1" id="stack-streak-n">0</span>
+              <span style="font-size:8px;color:#8a8680;letter-spacing:.8px;text-transform:uppercase">días</span>
             </div>
           </div>
           <div style="position:relative;z-index:1">
@@ -2405,77 +2408,69 @@ function habitCardHTML(h,showCheck){
 function renderHeatmap(){
   const el=ge('habit-heatmap');
   const lbl=ge('heatmap-month-label');
-  if(!el||!state.habits||!state.habits.length){if(el)el.innerHTML='<div style="font-size:12px;color:var(--muted2);text-align:center;padding:12px 0">Agregá hábitos para ver el mapa</div>';return;}
+  if(!el) return;
+  if(!state.habits||!state.habits.length){
+    el.innerHTML='<div style="font-size:12px;color:var(--muted2);text-align:center;padding:12px 0">Agregá hábitos para ver el mapa</div>';
+    return;
+  }
 
   const today=new Date();
+  const ms=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
   const monthNames=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   if(lbl) lbl.textContent=monthNames[today.getMonth()]+' '+today.getFullYear();
 
-  // Últimos 35 días (5 semanas)
-  const DAYS=35;
+  // Últimos 21 días — columnas
+  const DAYS=21;
   const dates=[];
   for(let i=DAYS-1;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);dates.push(d);}
 
-  // Día de semana del primer día para alinear a la grilla (lun=0)
-  const firstDay=dates[0];
-  const firstDow=(firstDay.getDay()+6)%7; // 0=lun
-
-  // Leyenda de hábitos
-  const legendHTML=state.habits.map(h=>{
-    const m=CATS[h.cat]||{color:'#7c3aed'};
-    return `<div style="display:flex;align-items:center;gap:5px">
-      <div style="width:10px;height:10px;border-radius:3px;background:${m.color};flex-shrink:0"></div>
-      <span style="font-size:10px;color:var(--muted2);white-space:nowrap">${h.emoji} ${esc(h.name)}</span>
+  // Cabecera de fechas
+  const dayLetters=['D','L','M','X','J','V','S'];
+  const headerCells=dates.map((d,i)=>{
+    const isToday=i===DAYS-1;
+    const isMon=(d.getDay()===1)||i===0;
+    return `<div style="text-align:center;padding:0 1px">
+      <div style="font-size:7px;color:${isToday?'var(--violet)':'var(--muted2)'};font-weight:${isToday?'600':'400'}">${dayLetters[d.getDay()]}</div>
+      <div style="font-size:8px;color:${isToday?'var(--violet)':'var(--muted2)'};font-weight:${isToday?'600':'400'};margin-top:1px">${isMon||isToday?d.getDate():''}</div>
     </div>`;
   }).join('');
 
-  // Headers días de semana
-  const dowLabels=['L','M','X','J','V','S','D'];
-  const headerHTML=dowLabels.map(d=>`<div style="font-size:8px;color:var(--muted2);text-align:center;font-weight:500;padding-bottom:3px">${d}</div>`).join('');
+  // Filas por hábito
+  const rowsHTML=state.habits.map(h=>{
+    const m=CATS[h.cat]||{color:'#7c3aed',bg:'#f5f2ff'};
+    const cells=dates.map((d,i)=>{
+      const key=d.toDateString();
+      const isToday=i===DAYS-1;
+      const scheduled=shouldShowHabitOnDay(h,d);
+      const done=habitDoneOn(h,key);
+      let bg,border='';
+      if(!scheduled){bg='transparent';}
+      else if(done){bg=m.color;}
+      else{bg='var(--bg3)';border=`border:1px solid var(--border2)`;}
+      if(isToday&&scheduled) border=`outline:2px solid ${m.color};outline-offset:1px;`;
+      return `<div title="${d.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'})}${done?' ✓':''}" style="aspect-ratio:1;border-radius:4px;background:${bg};${border}"></div>`;
+    }).join('');
 
-  // Celdas — cada día puede tener múltiples hábitos completados
-  // Mostramos el color del primero completado; si hay varios, usamos un gradiente
-  const cellsHTML=[];
-  // Padding para alinear al día de semana correcto
-  for(let p=0;p<firstDow;p++) cellsHTML.push(`<div></div>`);
+    return `<div style="display:contents">
+      <div style="display:flex;align-items:center;gap:6px;padding-right:8px;min-width:0">
+        <span style="font-size:14px;line-height:1;flex-shrink:0">${h.emoji}</span>
+        <span style="font-size:9px;color:var(--muted2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:52px">${esc(h.name)}</span>
+      </div>
+      ${cells}
+    </div>`;
+  }).join('');
 
-  dates.forEach(d=>{
-    const key=d.toDateString();
-    const isToday=d.toDateString()===today.toDateString();
-    const isFuture=d>today;
-    const doneHabits=state.habits.filter(h=>habitDoneOn(h,key));
-    const totalScheduled=state.habits.filter(h=>shouldShowHabitOnDay(h,d)).length;
-
-    let bg='var(--bg3)';
-    let opacity=1;
-    if(isFuture){bg='transparent';opacity=0.3;}
-    else if(doneHabits.length===0){bg='var(--bg3)';}
-    else if(doneHabits.length===1){
-      const m=CATS[doneHabits[0].cat]||{color:'#7c3aed'};
-      bg=m.color+'cc';
-    } else {
-      // Múltiples: dividir la celda con gradiente de los colores
-      const colors=doneHabits.map(h=>(CATS[h.cat]||{color:'#7c3aed'}).color);
-      const step=100/colors.length;
-      const stops=colors.map((c,i)=>`${c} ${i*step}%, ${c} ${(i+1)*step}%`).join(', ');
-      bg=`linear-gradient(135deg, ${stops})`;
-    }
-
-    const pct=totalScheduled>0?Math.round(doneHabits.filter(h=>shouldShowHabitOnDay(h,d)).length/totalScheduled*100):0;
-    const titleStr=`${d.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'})}: ${doneHabits.length} completados`;
-
-    cellsHTML.push(`<div title="${titleStr}" style="aspect-ratio:1;border-radius:4px;background:${bg};opacity:${opacity};${isToday?'outline:2px solid var(--violet);outline-offset:1px':''}"></div>`);
-  });
+  const colDef=`70px repeat(${DAYS},1fr)`;
 
   el.innerHTML=`
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">${legendHTML}</div>
-    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">
-      ${headerHTML}
-      ${cellsHTML.join('')}
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+      <div style="display:grid;grid-template-columns:${colDef};gap:3px;min-width:360px">
+        <div></div>${headerCells}
+        ${rowsHTML}
+      </div>
     </div>
-    <div style="display:flex;justify-content:space-between;margin-top:6px">
-      <span style="font-size:9px;color:var(--muted2)">${dates[0].getDate()} ${['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'][dates[0].getMonth()]}</span>
-      <span style="font-size:9px;color:var(--muted2)">hoy</span>
+    <div style="display:flex;justify-content:flex-end;margin-top:8px">
+      <span style="font-size:9px;color:var(--muted2)">últimos ${DAYS} días</span>
     </div>`;
 }
 
@@ -3864,18 +3859,13 @@ function renderStack(){
   if(ge('stack-xp-lbl'))  ge('stack-xp-lbl').textContent=xp+' / '+nextXp+' XP';
   if(ge('stack-xp-pct'))  ge('stack-xp-pct').textContent=pct+'%';
   const streakVal=state.streak||0;
-  if(ge('stack-streak-n'))ge('stack-streak-n').textContent=streakVal;
-  // Color the streak box — orange glow when active
-  const sbox=ge('stack-streak-box');
-  if(sbox){
-    if(streakVal>=2){
-      sbox.style.background='rgba(251,146,60,0.18)';
-      sbox.style.borderColor='rgba(251,146,60,0.35)';
-    } else {
-      sbox.style.background='rgba(255,255,255,0.10)';
-      sbox.style.borderColor='rgba(255,255,255,0.15)';
-    }
+  if(ge('stack-streak-n')){
+    ge('stack-streak-n').textContent=streakVal;
+    ge('stack-streak-n').style.color=streakVal>=2?'#ea580c':'#1a1814';
   }
+  // Box stays white always
+  const sbox=ge('stack-streak-box');
+  if(sbox){sbox.style.background='#ffffff';}
 
   // Calendar banner
   const dayNames=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
