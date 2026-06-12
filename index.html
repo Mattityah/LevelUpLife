@@ -3840,20 +3840,36 @@ function openAPIKeySetup(callback){
         <button onclick="const i=ge('apikey-input');i.type=i.type==='password'?'text':'password'" 
           style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:var(--muted)">👁</button>
       </div>
-      <button onclick="
-        const k=ge('apikey-input').value.trim();
-        if(!k.startsWith('hf_')&&!k.startsWith('sk-ant-')){alert('El token debe empezar con hf_ o sk-ant-');return;}
-        setAIKey(k);
-        document.getElementById('apikey-overlay').remove();
-        refreshAIStatus();
-        ${callback?`try{if(typeof ${callback}==='function'){${callback}();}else{eval('('+${JSON.stringify(callback)}+')')();}}catch(e){}`:''}
-      " style="width:100%;padding:12px;background:var(--violet);color:#fff;border:none;border-radius:11px;font-size:13px;font-family:'Geist',sans-serif;cursor:pointer">
+      <button onclick="_saveAIKey()" style="width:100%;padding:12px;background:var(--violet);color:#fff;border:none;border-radius:11px;font-size:13px;font-family:'Geist',sans-serif;cursor:pointer">
         Guardar y continuar
       </button>
-      ${existing?`<button onclick="setAIKey('');ge('apikey-input').value='';refreshAIStatus();showToast('Key eliminada');document.getElementById('apikey-overlay').remove()" style="width:100%;padding:9px;background:transparent;color:var(--rose);border:none;font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;margin-top:4px">Eliminar key guardada</button>`:''}
+      ${existing?`<button onclick="setAIKey('');refreshAIStatus();showToast('Token eliminado');document.getElementById('apikey-overlay').remove()" style="width:100%;padding:9px;background:transparent;color:var(--rose);border:none;font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;margin-top:4px">Eliminar token guardado</button>`:''}
     </div>`;
   document.body.appendChild(ov);
-  setTimeout(()=>ge('apikey-input').focus(),300);
+  window._apikeyCallback=callback||null;
+  setTimeout(()=>{const i=ge('apikey-input');if(i)i.focus();},300);
+}
+
+function _saveAIKey(){
+  const i=ge('apikey-input');
+  if(!i)return;
+  const k=i.value.trim();
+  if(!k.startsWith('hf_')&&!k.startsWith('sk-ant-')){
+    alert('El token debe empezar con hf_ o sk-ant-');
+    return;
+  }
+  setAIKey(k);
+  const ov=document.getElementById('apikey-overlay');
+  if(ov)ov.remove();
+  refreshAIStatus();
+  showToast('Token guardado ✓');
+  // Ejecutar callback si hay uno
+  const cb=window._apikeyCallback;
+  window._apikeyCallback=null;
+  if(cb){
+    if(typeof cb==='function'){cb();}
+    else if(typeof cb==='string'&&window[cb]){window[cb]();}
+  }
 }
 
 
