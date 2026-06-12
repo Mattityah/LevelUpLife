@@ -1293,14 +1293,29 @@ const DEFAULT_CATS=[
             <button class="cat-pill" data-cat="Relaciones" style="background:#fdf2f8;color:#9d174d" onclick="selectCatPill(this,'Relaciones')">🤝 Relaciones</button>
             <button class="cat-pill" data-cat="Trabajo" style="background:#f0f9ff;color:#075985" onclick="selectCatPill(this,'Trabajo')">💼 Trabajo</button>
           </div>
-          <!-- Recurrence + date in collapsed row -->
+          <!-- Recurrencia visual -->
+          <div style="margin-top:8px">
+            <div style="display:flex;gap:6px;margin-bottom:6px" id="task-recur-btns">
+              <button class="task-recur-btn active" id="trb-none" onclick="selectTaskRecur('none')"
+                style="flex:1;padding:7px 4px;border-radius:20px;border:1px solid var(--border2);background:var(--text);color:#fff;font-size:11px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s">Sin recurrencia</button>
+              <button class="task-recur-btn" id="trb-daily" onclick="selectTaskRecur('daily')"
+                style="flex:1;padding:7px 4px;border-radius:20px;border:1px solid var(--border2);background:var(--white);color:var(--text);font-size:11px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s">🔁 Diario</button>
+              <button class="task-recur-btn" id="trb-weekly" onclick="selectTaskRecur('weekly')"
+                style="flex:1;padding:7px 4px;border-radius:20px;border:1px solid var(--border2);background:var(--white);color:var(--text);font-size:11px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s">📅 Días</button>
+              <button class="task-recur-btn" id="trb-monthly" onclick="selectTaskRecur('monthly')"
+                style="flex:1;padding:7px 4px;border-radius:20px;border:1px solid var(--border2);background:var(--white);color:var(--text);font-size:11px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s">🗓 Mensual</button>
+            </div>
+            <!-- Selector de días (solo para "Días") -->
+            <div id="task-days-picker" style="display:none;gap:6px;justify-content:center;margin-bottom:6px">
+              ${['L','M','X','J','V','S','D'].map((d,i)=>`<button class="task-day-btn" data-day="${i+1===7?0:i+1}" onclick="toggleTaskDay(this,${i+1===7?0:i+1})"
+                style="width:34px;height:34px;border-radius:50%;border:1px solid var(--border2);background:var(--white);color:var(--text);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s;flex-shrink:0">${d}</button>`).join('')}
+            </div>
+          </div>
+          <!-- Input oculto para compatibilidad con addTask -->
+          <input type="hidden" id="task-recur" value="none">
+          <input type="hidden" id="task-recur-days" value="">
+
           <div class="input-row" style="margin-top:6px;gap:7px">
-            <select class="inp inp-sel" id="task-recur" style="flex:1;font-size:12px">
-              <option value="none">Sin recurrencia</option>
-              <option value="daily">🔁 Todos los días</option>
-              <option value="weekly">📅 Semanal</option>
-              <option value="monthly">🗓 Mensual</option>
-            </select>
             <select class="inp inp-sel" id="task-priority" style="width:80px;font-size:12px" title="Prioridad">
               <option value="1">🟢 Baja</option>
               <option value="2" selected>🟡 Media</option>
@@ -2377,25 +2392,57 @@ function updateStreak(){
   save();
 }
 
+let _taskRecurDays=[];
+function selectTaskRecur(freq){
+  // Update hidden input
+  const inp=ge('task-recur');if(inp)inp.value=freq;
+  // Update buttons
+  document.querySelectorAll('.task-recur-btn').forEach(b=>{
+    const isActive=b.id==='trb-'+freq;
+    b.style.background=isActive?'var(--text)':'var(--white)';
+    b.style.color=isActive?'#fff':'var(--text)';
+    b.style.borderColor=isActive?'var(--text)':'var(--border2)';
+  });
+  // Show/hide day picker
+  const picker=ge('task-days-picker');
+  if(picker)picker.style.display=freq==='weekly'?'flex':'none';
+  // Reset days if not weekly
+  if(freq!=='weekly'){_taskRecurDays=[];const di=ge('task-recur-days');if(di)di.value='';}
+}
+function toggleTaskDay(btn,day){
+  if(_taskRecurDays.includes(day)){
+    _taskRecurDays=_taskRecurDays.filter(d=>d!==day);
+    btn.style.background='var(--white)';btn.style.borderColor='var(--border2)';btn.style.color='var(--text)';
+  } else {
+    _taskRecurDays.push(day);
+    btn.style.background='var(--text)';btn.style.borderColor='var(--text)';btn.style.color='#fff';
+  }
+  const di=ge('task-recur-days');if(di)di.value=_taskRecurDays.join(',');
+}
+
 function addTask(){
   const inp=ge('task-input'),cat=ge('task-cat').value;
   const pts=parseInt(ge('task-pts').value)||10,title=inp.value.trim();
   if(!title){inp.focus();return;}
   const recur=ge('task-recur')?ge('task-recur').value:'none';
+  // Validar días si es semanal
+  if(recur==='weekly'&&_taskRecurDays.length===0){alert('Elegí al menos un día.');return;}
+  const recurDays=[..._taskRecurDays];
   const due=ge('task-due')?ge('task-due').value:'';
   const priority=parseInt(ge('task-priority')?ge('task-priority').value:'2')||2;
-  // Horas: manual si se completó, fallback por XP (10 XP ≈ 0.5h)
   const hoursInput=ge('task-hours');
   const hoursManual=hoursInput&&hoursInput.value?parseFloat(hoursInput.value):null;
   const hoursEst=hoursManual!==null?hoursManual:Math.max(0.5,Math.round(pts/10*2)/2);
-  state.tasks.push({id:state.nextId++,title,cat,pts,done:false,completions:0,createdAt:Date.now(),recur,due,priority,subtasks:[],hoursEst,hoursManual});
+  state.tasks.push({id:state.nextId++,title,cat,pts,done:false,completions:0,createdAt:Date.now(),recur,recurDays,due,priority,subtasks:[],hoursEst,hoursManual});
   inp.value='';
   const taskDateStr = due || new Date().toISOString().slice(0,10);
   if(window.createGcalEvent) window.createGcalEvent('✦ '+title+' ('+cat+')', taskDateStr, 'Tarea LevelUp Life · '+pts+' XP');
   if(ge('task-due'))ge('task-due').value='';
-  if(ge('task-recur'))ge('task-recur').value='none';
   if(ge('task-priority'))ge('task-priority').value='2';
   if(ge('task-hours'))ge('task-hours').value='';
+  // Reset recurrencia UI
+  _taskRecurDays=[];selectTaskRecur('none');
+  document.querySelectorAll('.task-day-btn').forEach(b=>{b.style.background='var(--white)';b.style.borderColor='var(--border2)';b.style.color='var(--text)';});
   save();render();
   spawnRecurrentTasks();
 }
@@ -2882,6 +2929,11 @@ function checkRecurReset(t){
   if(t.lastReset===today)return false;
   if(t.recur==='daily')return true;
   if(t.recur==='weekly'){
+    // Si tiene días específicos, solo resetear en esos días
+    if(t.recurDays&&t.recurDays.length>0){
+      return t.recurDays.includes(now.getDay());
+    }
+    // Fallback: cada 7 días
     const lastR=t.lastReset?new Date(t.lastReset):new Date(t.createdAt);
     const diff=(now-lastR)/(1000*60*60*24);
     return diff>=7;
@@ -3305,7 +3357,7 @@ function renderTaskList(){
       const dueColor=isPastDue(t.due)?'var(--rose)':isDueToday(t.due)?'var(--rose)':isDueSoon(t.due)?'var(--amber)':'var(--muted2)';
       const dueIcon=isPastDue(t.due)?'⚠️':isDueToday(t.due)?'❗':isDueSoon(t.due)?'⚡':'📅';
       const dueStr=t.due?`<span style="font-size:10px;color:${dueColor};white-space:nowrap">${dueIcon} ${formatDue(t.due)}</span>`:'';
-      const recurStr=t.recur&&t.recur!=='none'?`<span style="font-size:10px;color:var(--teal);white-space:nowrap">${{daily:'🔁',weekly:'📅',monthly:'🗓'}[t.recur]}</span>`:'';
+      const recurStr=t.recur&&t.recur!=='none'?`<span style="font-size:10px;color:var(--teal);white-space:nowrap">${t.recur==='daily'?'🔁':t.recur==='monthly'?'🗓':'📅'} ${t.recur==='weekly'&&t.recurDays&&t.recurDays.length?['D','L','M','X','J','V','S'].filter((_,i)=>t.recurDays.includes(i)).join(' '):t.recur==='daily'?'Diario':t.recur==='monthly'?'Mensual':'Semanal'}</span>`:'';
       return`<div class="swipe-wrap" id="swipe-${t.id}">
         <div class="swipe-del-bg"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></div>
         <div class="task-card" id="task-${t.id}" style="${isDueToday(t.due)?'border-color:rgba(190,24,93,0.25)':''}">
