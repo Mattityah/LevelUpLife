@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>LevelUp Life</title>
+<script>if(localStorage.getItem('_v')!=='2.2'){localStorage.setItem('_v','2.2');location.reload(true);}</script>
 <link rel="manifest" href="data:application/json,{
   &quot;name&quot;: &quot;LevelUp Life&quot;,
   &quot;short_name&quot;: &quot;LevelUp&quot;,
@@ -867,7 +868,10 @@ const DEFAULT_CATS=[
     </div>
     <div class="nav-section-label" id="sb-nav-label" style="display:none">Navegación</div>
 
-    <!-- Mobile: 2 | CENTER | 2 layout -->
+    <!-- Mobile: 3 | CENTER | 3 layout -->
+    <button class="nav-btn" data-pane="calendario" onclick="sw('calendario')">
+      <span class="nav-ico">📅</span><span class="nav-lbl">Calendario</span>
+    </button>
     <button class="nav-btn active" data-pane="inicio" onclick="sw('inicio')">
       <span class="nav-ico">🏠</span><span class="nav-lbl">Inicio</span>
     </button>
@@ -882,8 +886,8 @@ const DEFAULT_CATS=[
     <button class="nav-btn" data-pane="habitos" onclick="sw('habitos')">
       <span class="nav-ico">🔗</span><span class="nav-lbl">Hábitos</span>
     </button>
-    <button class="nav-btn" data-pane="calendario" onclick="sw('calendario')">
-      <span class="nav-ico">📅</span><span class="nav-lbl">Calendario</span>
+    <button class="nav-btn" data-pane="bitacora" onclick="sw('bitacora')">
+      <span class="nav-ico">✎</span><span class="nav-lbl">Bitácora</span>
     </button>
     <button class="nav-btn" data-pane="perfil" onclick="sw('perfil')">
       <span class="nav-ico">👤</span><span class="nav-lbl">Perfil</span>
@@ -950,10 +954,10 @@ const DEFAULT_CATS=[
               <div style="font-family:'Instrument Serif',serif;font-size:17px;font-style:italic;color:#fff;line-height:1.35;letter-spacing:-.1px" id="stack-quote">Tu mejor versión, cada día.</div>
             </div>
             <!-- Streak box -->
-            <div id="stack-streak-box" style="flex-shrink:0;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.18);border-radius:16px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:62px;backdrop-filter:blur(8px)">
+            <div id="stack-streak-box" style="flex-shrink:0;background:#fff;border-radius:16px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:64px;box-shadow:0 2px 12px rgba(0,0,0,0.18)">
               <span style="font-size:22px;line-height:1">🔥</span>
-              <span style="font-family:'Instrument Serif',serif;font-size:22px;font-weight:400;color:#fff;line-height:1" id="stack-streak-n">0</span>
-              <span style="font-size:8px;color:rgba(255,255,255,0.5);letter-spacing:.8px;text-transform:uppercase">días</span>
+              <span style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;color:#1a1814;line-height:1" id="stack-streak-n">0</span>
+              <span style="font-size:8px;color:#8a8680;letter-spacing:.8px;text-transform:uppercase">días</span>
             </div>
           </div>
           <div style="position:relative;z-index:1">
@@ -967,9 +971,9 @@ const DEFAULT_CATS=[
           </div>
         </div>
         <!-- Stack container -->
-        <div id="stack-cards-container" style="position:relative;margin:0 10px;height:min(44vh,340px);flex-shrink:0"></div>
+        <div id="stack-cards-container" style="position:relative;margin:0 10px;height:min(38vh,280px);flex-shrink:0"></div>
         <!-- Swipe hint + add button -->
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px 10px;flex-shrink:0">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 14px 12px;flex-shrink:0">
           <div id="stack-hint" style="display:flex;align-items:center;gap:5px;opacity:0.4">
             <div style="font-size:14px;animation:hintBounce 1.8s ease-in-out infinite">↑</div>
             <div style="font-size:10px;color:var(--muted2);letter-spacing:.5px">Swipe para ver más</div>
@@ -3539,11 +3543,12 @@ function buildCategoryCard(catId){
   const div=document.createElement('div');
   div.className='stack-card active-card';
   div.style.background=bg;
-  div.innerHTML=`<div class="sc-category" style="position:relative"><button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
-    <div class="sc-cat-header">
-      <div>
-        <div class="sc-cat-emoji">${cat.emoji}</div>
-        <div style="display:flex;align-items:baseline;gap:3px;margin-top:8px">
+  div.innerHTML=`<div class="sc-category" style="position:relative">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:auto">
+      <div class="sc-cat-emoji">${cat.emoji}</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <button onclick="event.stopPropagation();stackSkipCard()" style="width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center">×</button>
+        <div style="display:flex;align-items:baseline;gap:3px">
           <div class="sc-cat-xp">${catXP}</div>
           <div style="font-size:11px;color:rgba(255,255,255,0.5)">XP</div>
         </div>
@@ -3585,12 +3590,15 @@ function buildHabitsCard(){
   const div=document.createElement('div');
   div.className='stack-card active-card';
   div.style.background='linear-gradient(150deg,#1e1040,#3b1f8c,#5b21b6)';
-  div.innerHTML=`<div class="sc-category" style="position:relative"><button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
-    <div class="sc-cat-header">
+  div.innerHTML=`<div class="sc-category" style="position:relative">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:auto">
       <div class="sc-cat-emoji">🔗</div>
-      <div style="text-align:right">
-        <div class="sc-cat-xp">${done}/${todayHabits.length}</div>
-        <div style="font-size:10px;color:rgba(255,255,255,0.5)">hoy</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <button onclick="event.stopPropagation();stackSkipCard()" style="width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center">×</button>
+        <div style="text-align:right">
+          <div class="sc-cat-xp">${done}/${todayHabits.length}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.5)">hoy</div>
+        </div>
       </div>
     </div>
     <div class="sc-cat-name">Hábitos</div>
@@ -3621,12 +3629,15 @@ function buildBitacoraCard(){
   const div=document.createElement('div');
   div.className='stack-card active-card';
   div.style.background='linear-gradient(150deg,#1a1814,#2d2520,#1a1814)';
-  div.innerHTML=`<div class="sc-category" style="position:relative"><button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
-    <div class="sc-cat-header">
+  div.innerHTML=`<div class="sc-category" style="position:relative">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:auto">
       <div class="sc-cat-emoji">✎</div>
-      <div style="text-align:right">
-        <div class="sc-cat-xp">${lines.length}</div>
-        <div style="font-size:10px;color:rgba(255,255,255,0.5)">notas</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <button onclick="event.stopPropagation();stackSkipCard()" style="width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center">×</button>
+        <div style="text-align:right">
+          <div class="sc-cat-xp">${lines.length}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.5)">notas</div>
+        </div>
       </div>
     </div>
     <div class="sc-cat-name">Bitácora</div>
@@ -3774,16 +3785,12 @@ function renderStack(){
   if(ge('stack-xp-pct'))  ge('stack-xp-pct').textContent=pct+'%';
   const streakVal=state.streak||0;
   if(ge('stack-streak-n'))ge('stack-streak-n').textContent=streakVal;
-  // Color the streak box — orange glow when active
+  // Keep white box, tint number orange when streak active
   const sbox=ge('stack-streak-box');
   if(sbox){
-    if(streakVal>=2){
-      sbox.style.background='rgba(251,146,60,0.18)';
-      sbox.style.borderColor='rgba(251,146,60,0.35)';
-    } else {
-      sbox.style.background='rgba(255,255,255,0.10)';
-      sbox.style.borderColor='rgba(255,255,255,0.15)';
-    }
+    const nEl=ge('stack-streak-n');
+    if(streakVal>=2 && nEl) nEl.style.color='#ea580c';
+    else if(nEl) nEl.style.color='#1a1814';
   }
 
   // Calendar banner
