@@ -2926,6 +2926,103 @@ function deleteTask(id,e){
   save();render();if(curTab==='red')drawNeural();
 }
 
+function openEditTask(id){
+  const t=state.tasks.find(x=>x.id===id);if(!t)return;
+  const cats=getAllCategories();
+  const ov=document.createElement('div');
+  ov.id='edit-task-overlay';
+  ov.style.cssText='position:fixed;inset:0;z-index:700;background:rgba(0,0,0,0.45);display:flex;align-items:flex-end;justify-content:center';
+  ov.innerHTML=`
+    <div style="background:var(--white);border-radius:24px 24px 0 0;padding:26px 20px 44px;width:100%;max-width:520px;animation:slideUp .3s cubic-bezier(.32,1,.5,1)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div style="font-size:17px;font-family:'Instrument Serif',serif;font-style:italic">Editar tarea</div>
+        <button onclick="document.getElementById('edit-task-overlay').remove()" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--border2);background:var(--bg3);font-size:16px;cursor:pointer;color:var(--muted)">×</button>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <!-- Título -->
+        <div>
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:6px">Título</div>
+          <input id="et-title" type="text" value="${esc(t.title)}"
+            style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:10px 12px;font-size:14px;font-family:'Geist',sans-serif;outline:none;box-sizing:border-box">
+        </div>
+
+        <!-- Categoría -->
+        <div>
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:6px">Categoría</div>
+          <select id="et-cat" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:10px 12px;font-size:13px;font-family:'Geist',sans-serif;outline:none">
+            ${cats.map(c=>`<option value="${c.id}"${c.id===t.cat?' selected':''}>${c.emoji} ${c.name}</option>`).join('')}
+          </select>
+        </div>
+
+        <!-- XP y Horas en fila -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div>
+            <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:6px">XP</div>
+            <input id="et-pts" type="number" min="1" max="1000" value="${t.pts}"
+              style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:10px 12px;font-size:13px;font-family:'Geist',sans-serif;outline:none;box-sizing:border-box">
+          </div>
+          <div>
+            <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:6px">Horas estimadas <span style="color:var(--muted2);font-size:8px">(vacío = auto)</span></div>
+            <input id="et-hours" type="number" min="0.5" max="200" step="0.5" value="${t.hoursManual!==null&&t.hoursManual!==undefined?t.hoursManual:''}" placeholder="Auto"
+              style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:10px 12px;font-size:13px;font-family:'Geist',sans-serif;outline:none;box-sizing:border-box">
+          </div>
+        </div>
+
+        <!-- Prioridad -->
+        <div>
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:6px">Prioridad</div>
+          <div style="display:flex;gap:8px">
+            ${[{v:1,l:'🟢 Baja'},{v:2,l:'🟡 Media'},{v:3,l:'🔴 Alta'}].map(p=>`
+              <button onclick="document.querySelectorAll('.et-prio-btn').forEach(b=>b.style.background='var(--bg3)');this.style.background='var(--vi-bg)';document.getElementById('et-prio-val').value=${p.v}" class="et-prio-btn"
+                style="flex:1;padding:8px;border-radius:9px;border:1px solid var(--border2);background:${(t.priority||2)===p.v?'var(--vi-bg)':'var(--bg3)'};font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;color:var(--text)">
+                ${p.l}
+              </button>`).join('')}
+          </div>
+          <input type="hidden" id="et-prio-val" value="${t.priority||2}">
+        </div>
+
+        <!-- Fecha -->
+        <div>
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:6px">Fecha límite</div>
+          <input id="et-due" type="date" value="${t.due||''}"
+            style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:10px 12px;font-size:13px;font-family:'Geist',sans-serif;outline:none;box-sizing:border-box">
+        </div>
+
+        <!-- Guardar -->
+        <button onclick="saveEditTask(${id})"
+          style="width:100%;padding:13px;background:var(--text);color:#fff;border:none;border-radius:12px;font-size:13px;font-family:'Geist',sans-serif;cursor:pointer;margin-top:4px">
+          Guardar cambios
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(ov);
+  // Cerrar al tocar el fondo
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+  setTimeout(()=>ge('et-title').focus(),300);
+}
+
+function saveEditTask(id){
+  const t=state.tasks.find(x=>x.id===id);if(!t)return;
+  const title=ge('et-title').value.trim();
+  if(!title){ge('et-title').focus();return;}
+  const pts=parseInt(ge('et-pts').value)||t.pts;
+  const hoursInput=ge('et-hours').value;
+  const hoursManual=hoursInput?parseFloat(hoursInput):null;
+  const hoursEst=hoursManual!==null?hoursManual:Math.max(0.5,Math.round(pts/10*2)/2);
+  t.title=title;
+  t.cat=ge('et-cat').value;
+  t.pts=pts;
+  t.hoursManual=hoursManual;
+  t.hoursEst=hoursEst;
+  t.priority=parseInt(ge('et-prio-val').value)||2;
+  t.due=ge('et-due').value||'';
+  save();render();
+  document.getElementById('edit-task-overlay').remove();
+  showToast('Tarea actualizada');
+  if(curTab==='red')drawNeural();
+}
+
 function showXPBurst(pts,cat,cardEl){
   const m=CATS[cat]||{color:'#7c3aed'};
   // XP float
@@ -3214,7 +3311,7 @@ function renderTaskList(){
         <div class="task-card" id="task-${t.id}" style="${isDueToday(t.due)?'border-color:rgba(190,24,93,0.25)':''}">
         <div class="check" onclick="completeTask(${t.id},event)" title="Marcar completada" style="cursor:pointer"></div>
         <div style="flex:1;min-width:0">
-          <div class="task-title">${esc(t.title)}</div>
+          <div class="task-title" onclick="openEditTask(${t.id})" style="cursor:pointer" title="Editar tarea">${esc(t.title)}</div>
           ${t.due||t.recur&&t.recur!=='none'?`<div style="display:flex;gap:8px;margin-top:3px;flex-wrap:wrap">${dueStr}${recurStr}</div>`:''}
           ${t.subtasks&&t.subtasks.length?`<div style="margin-top:7px;display:flex;flex-direction:column;gap:4px">
             ${t.subtasks.slice(0,3).map((s,i)=>`<div style="display:flex;align-items:center;gap:7px">
@@ -3522,7 +3619,7 @@ function buildNeural_v2(){
 
   // Hint
   const hint=ge('nhint');
-  if(hint){hint.style.color='rgba(255,255,255,0.25)';hint.textContent='tocá un nodo · arrastrá · pellizcar para zoom';}
+  if(hint){hint.style.color='rgba(255,255,255,0.25)';hint.textContent='tocá un nodo para hacer zoom · doble tap para volver · arrastrá para mover';}
 
   // ── Construir grafo ──────────────────────────────
   const cats=getActiveCategories();
@@ -3639,20 +3736,46 @@ function buildNeural_v2(){
   };
   canvas.onmouseleave=()=>{hovNode=null;tipEl.style.opacity='0';draw();};
 
-  // Click/tap: highlight red del nodo. Solo doble tap en tarea navega.
+  // ── Zoom suave hacia un nodo ─────────────────────
+  function zoomToNode(n,scale){
+    if(!n||!n.x)return;
+    const t=d3.zoomIdentity.translate(W/2,H/2).scale(scale).translate(-n.x,-n.y);
+    d3.select(canvas).transition().duration(500).ease(d3.easeCubicInOut).call(zoom.transform,t);
+  }
+  function zoomOut(){
+    const t=d3.zoomIdentity.translate(0,0).scale(1);
+    d3.select(canvas).transition().duration(400).ease(d3.easeCubicInOut).call(zoom.transform,t);
+  }
+
+  // Click/tap: 1 tap = zoom-in + highlight, 2 taps = reset / navegar
   let _lastTap=0,_lastTapId=null;
   function handleTap(n){
-    if(!n||n.type==='center'){_v2selected=null;draw();return;}
-    // Seleccionar / deseleccionar → highlight subred
-    _v2selected=_v2selected===n.id?null:n.id;
-    draw();
-    // Doble tap en tarea → navegar
     const now=Date.now();
-    if(n.type==='task'&&_lastTapId===n.id&&now-_lastTap<400){
-      _v2selected=null;
-      setTimeout(()=>{sw('tareas');setTimeout(()=>{const el=ge('task-'+n.task.id);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.boxShadow=`0 0 0 2px ${n.color},0 4px 16px ${n.color}44`;setTimeout(()=>el.style.boxShadow='',1400);}},120);},50);
+    const isDoubleTap=_lastTapId===n?.id&&now-_lastTap<400;
+    _lastTap=now;_lastTapId=n?.id||null;
+
+    if(!n||n.type==='center'){
+      // Tap en vacío → reset
+      _v2selected=null;zoomOut();draw();return;
     }
-    _lastTap=now;_lastTapId=n.id;
+
+    if(isDoubleTap){
+      // Doble tap → reset zoom y deseleccionar
+      _v2selected=null;zoomOut();draw();return;
+    }
+
+    // 1 tap → seleccionar y zoom
+    const prev=_v2selected;
+    _v2selected=prev===n.id?null:n.id;
+
+    if(_v2selected){
+      // Zoom hacia el nodo seleccionado
+      const scale=n.type==='cat'?2.2:n.type==='task'?3.2:3.8;
+      zoomToNode(n,scale);
+    } else {
+      zoomOut();
+    }
+    draw();
   }
 
   canvas.onclick=e=>{
