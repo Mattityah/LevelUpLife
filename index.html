@@ -970,10 +970,10 @@ const DEFAULT_CATS=[
           </div>
         </div>
         <!-- Stack container -->
-        <div id="stack-cards-container" style="position:relative;margin:0 10px;height:min(48vh,360px);flex-shrink:0"></div>
+        <div id="stack-cards-container" style="position:relative;margin:0 10px;height:min(52vh,390px);flex-shrink:0"></div>
 
         <!-- Agregar carta — separado de las cartas con margen propio -->
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px;flex-shrink:0">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 14px 12px;flex-shrink:0">
           <div id="stack-hint" style="display:flex;align-items:center;gap:5px;opacity:0.4">
             <div style="font-size:14px;animation:hintBounce 1.8s ease-in-out infinite">↑</div>
             <div style="font-size:10px;color:var(--muted2);letter-spacing:.5px">Swipe para ver más</div>
@@ -2375,7 +2375,7 @@ function habitCardHTML(h,showCheck){
   const ms=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
   const rangeLabel=dStart.getDate()+' '+ms[dStart.getMonth()]+' → '+dEnd.getDate()+' '+ms[dEnd.getMonth()];
 
-  const checkBtn=showCheck?`<div class="habit-check${done?' done':''}" style="${done?'background:'+m.color+';box-shadow:0 3px 10px '+m.color+'44':'background:var(--white)'}" onclick="toggleHabit('${h.id}')">${done?'✓':''}</div>`:'';
+  const checkBtn=showCheck?`<div class="habit-check${done?' done':''}" style="${done?'background:'+m.color+';box-shadow:0 3px 10px '+m.color+'44':'background:var(--white)'}" onclick="event.stopPropagation();toggleHabit('${h.id}')">${done?'✓':''}</div>`:'';
 
   return `<div class="habit-card" id="habit-${h.id}">
     <div class="habit-top">
@@ -2384,8 +2384,9 @@ function habitCardHTML(h,showCheck){
         <div class="habit-name">${esc(h.name)}</div>
         <div class="habit-meta" style="margin-top:4px">${freqHTML}</div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
+      <div style="display:flex;align-items:center;gap:6px">
         ${checkBtn}
+        ${done?`<button onclick="event.stopPropagation();toggleHabit('${h.id}')" title="Deshacer" style="width:28px;height:28px;border-radius:50%;background:${m.bg};border:none;cursor:pointer;color:${m.color};font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;opacity:0.8">↩</button>`:''}
         <button onclick="deleteHabit('${h.id}')" style="font-size:15px;color:var(--muted2);background:none;border:none;cursor:pointer;padding:4px" title="Eliminar">×</button>
       </div>
     </div>
@@ -2488,7 +2489,7 @@ function toggleHabit(id){
     if(state.activity.length>200)state.activity.pop();
     showXPBurst(h.xp,h.cat,ge('habit-'+id));
   }
-  save();render();
+  save();renderHabits();render();
 }
 
 function deleteHabit(id){
@@ -3625,7 +3626,7 @@ function buildCategoryCard(catId){
   const div=document.createElement('div');
   div.className='stack-card active-card';
   div.style.background=bg;
-  div.innerHTML=`<div class="sc-category" style="position:relative"><button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
+  div.innerHTML=`<div class="sc-category" style="position:relative"><button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button><button onclick="event.stopPropagation();stackUndoSkip()" title="Deshacer" style="position:absolute;top:14px;right:48px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.12);border:none;cursor:pointer;color:rgba(255,255,255,0.45);font-size:13px;display:flex;align-items:center;justify-content:center;z-index:10">↩</button>
     <div class="sc-cat-header">
       <div>
         <div class="sc-cat-emoji">${cat.emoji}</div>
@@ -3671,12 +3672,14 @@ function buildHabitsCard(){
   const div=document.createElement('div');
   div.className='stack-card active-card';
   div.style.background='linear-gradient(150deg,#1e1040,#3b1f8c,#5b21b6)';
-  div.innerHTML=`<div class="sc-category" style="position:relative"><button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
-    <div class="sc-cat-header">
+  div.innerHTML=`<div class="sc-category" style="position:relative">
+    <button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
+    <button onclick="event.stopPropagation();stackUndoSkip()" title="Deshacer" style="position:absolute;top:12px;right:46px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.12);border:none;cursor:pointer;color:rgba(255,255,255,0.45);font-size:13px;display:flex;align-items:center;justify-content:center;z-index:10">↩</button>
+    <div style="margin-bottom:auto">
       <div class="sc-cat-emoji">🔗</div>
-      <div style="text-align:right">
+      <div style="display:flex;align-items:baseline;gap:3px;margin-top:6px">
         <div class="sc-cat-xp">${done}/${todayHabits.length}</div>
-        <div style="font-size:10px;color:rgba(255,255,255,0.5)">hoy</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.5)">hoy</div>
       </div>
     </div>
     <div class="sc-cat-name">Hábitos</div>
@@ -3707,12 +3710,14 @@ function buildBitacoraCard(){
   const div=document.createElement('div');
   div.className='stack-card active-card';
   div.style.background='linear-gradient(150deg,#1a1814,#2d2520,#1a1814)';
-  div.innerHTML=`<div class="sc-category" style="position:relative"><button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
-    <div class="sc-cat-header">
+  div.innerHTML=`<div class="sc-category" style="position:relative">
+    <button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
+    <button onclick="event.stopPropagation();stackUndoSkip()" title="Deshacer" style="position:absolute;top:12px;right:46px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.12);border:none;cursor:pointer;color:rgba(255,255,255,0.45);font-size:13px;display:flex;align-items:center;justify-content:center;z-index:10">↩</button>
+    <div style="margin-bottom:auto">
       <div class="sc-cat-emoji">✎</div>
-      <div style="text-align:right">
+      <div style="display:flex;align-items:baseline;gap:3px;margin-top:6px">
         <div class="sc-cat-xp">${lines.length}</div>
-        <div style="font-size:10px;color:rgba(255,255,255,0.5)">notas</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.5)">notas</div>
       </div>
     </div>
     <div class="sc-cat-name">Bitácora</div>
@@ -3760,14 +3765,20 @@ function buildCalendarShortcutCard(){
 function stackSkipCard(){
   if(stackCards.length<=1)return;
   const current=stackCards[stackIndex];
-  // Add to hidden list
   if(!state.hiddenStackCards)state.hiddenStackCards=[];
   const key=current.type==='category'?'cat_'+current.catId:current.type;
   if(!state.hiddenStackCards.includes(key))state.hiddenStackCards.push(key);
+  window._lastSkippedKey=key;
   save();
   stackCards.splice(stackIndex,1);
   stackIndex=Math.min(stackIndex,stackCards.length-1);
   renderStack();
+}
+
+function stackUndoSkip(){
+  if(!window._lastSkippedKey)return;
+  stackRestoreCard(window._lastSkippedKey);
+  window._lastSkippedKey=null;
 }
 
 function stackRestoreCard(key){
