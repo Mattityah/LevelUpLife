@@ -2407,7 +2407,7 @@ function habitCardHTML(h,showCheck){
         <div class="habit-meta" style="margin-top:4px">${freqHTML}</div>
       </div>
       <div style="display:flex;align-items:center;gap:6px" onclick="event.stopPropagation()">
-        ${done&&showCheck?`<button onclick="toggleHabit('${h.id}')" title="Deshacer" style="width:28px;height:28px;border-radius:50%;background:${m.bg};border:none;cursor:pointer;color:${m.color};font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0">↩</button>`:''}
+        ${done?`<button onclick="event.stopPropagation();toggleHabit('${h.id}')" title="Deshacer" style="width:26px;height:26px;border-radius:50%;background:${m.bg};border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;color:${m.color};font-size:15px;font-weight:300">↺</button>`:`<button disabled style="width:26px;height:26px;border-radius:50%;background:var(--bg3);border:none;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted2);font-size:15px;opacity:0.4;font-weight:300">↺</button>`}
         <button onclick="deleteHabit('${h.id}')" style="font-size:15px;color:var(--muted2);background:none;border:none;cursor:pointer;padding:4px" title="Eliminar">×</button>
       </div>
     </div>
@@ -2437,64 +2437,113 @@ function renderHeatmap(){
   }
 
   const today=new Date();
-  const ms=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
   const monthNames=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   if(lbl) lbl.textContent=monthNames[today.getMonth()]+' '+today.getFullYear();
 
-  // Últimos 21 días — columnas
-  const DAYS=21;
-  const dates=[];
-  for(let i=DAYS-1;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);dates.push(d);}
+  // Mostrar los últimos 5 semanas completas (alineadas Lun-Dom)
+  // Encontrar el lunes más reciente
+  const endDate=new Date(today);
+  // Ir hasta el domingo de esta semana
+  const dow=today.getDay(); // 0=dom
+  const daysToSun=dow===0?0:7-dow;
+  endDate.setDate(endDate.getDate()+daysToSun);
 
-  // Cabecera de fechas
-  const dayLetters=['D','L','M','X','J','V','S'];
-  const headerCells=dates.map((d,i)=>{
-    const isToday=i===DAYS-1;
-    const isMon=(d.getDay()===1)||i===0;
-    return `<div style="text-align:center;padding:0 1px">
-      <div style="font-size:7px;color:${isToday?'var(--violet)':'var(--muted2)'};font-weight:${isToday?'600':'400'}">${dayLetters[d.getDay()]}</div>
-      <div style="font-size:8px;color:${isToday?'var(--violet)':'var(--muted2)'};font-weight:${isToday?'600':'400'};margin-top:1px">${isMon||isToday?d.getDate():''}</div>
-    </div>`;
-  }).join('');
+  // Empezar 5 semanas atrás desde ese domingo
+  const startDate=new Date(endDate);
+  startDate.setDate(startDate.getDate()-34); // 35 días = 5 semanas
 
-  // Filas por hábito
+  // Construir array de todas las fechas
+  const allDates=[];
+  const cur=new Date(startDate);
+  while(cur<=endDate){
+    allDates.push(new Date(cur));
+    cur.setDate(cur.getDate()+1);
+  }
+
+  // Días de semana header (Lun → Dom)
+  const dowLabels=['L','M','X','J','V','S','D'];
+  const headerHTML=dowLabels.map(d=>`<div style="text-align:center;font-size:8px;font-weight:500;color:var(--muted2);padding-bottom:4px">${d}</div>`).join('');
+
+  // Por cada hábito: una fila
   const rowsHTML=state.habits.map(h=>{
     const m=CATS[h.cat]||{color:'#7c3aed',bg:'#f5f2ff'};
-    const cells=dates.map((d,i)=>{
+
+    // Nombre del hábito (columna izquierda)
+    const nameCell=`<div style="display:flex;align-items:center;gap:5px;padding-right:6px;min-width:0">
+      <span style="font-size:13px;flex-shrink:0">${h.emoji}</span>
+      <span style="font-size:8px;color:var(--muted2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:48px">${esc(h.name)}</span>
+    </div>`;
+
+    // Celdas del calendario
+    const cells=allDates.map(d=>{
       const key=d.toDateString();
-      const isToday=i===DAYS-1;
+      const isToday=d.toDateString()===today.toDateString();
+      const isFuture=d>today;
       const scheduled=shouldShowHabitOnDay(h,d);
-      const done=habitDoneOn(h,key);
-      let bg,border='';
-      if(!scheduled){bg='transparent';}
-      else if(done){bg=m.color;}
-      else{bg='var(--bg3)';border=`border:1px solid var(--border2)`;}
-      if(isToday&&scheduled) border=`outline:2px solid ${m.color};outline-offset:1px;`;
-      return `<div title="${d.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'})}${done?' ✓':''}" style="aspect-ratio:1;border-radius:4px;background:${bg};${border}"></div>`;
+      const done=!!(h.log&&h.log[key]);
+
+      let bg,border='',cursor='default',opacity='1';
+
+      if(isFuture){
+        // Día futuro — solo mostrar si está programado (punteado muy suave)
+        bg='transparent';
+        opacity='0.2';
+        if(scheduled) border='border:1px dashed var(--border2)';
+      } else if(!scheduled){
+        // No programado ese día — vacío
+        bg='transparent';
+      } else if(done){
+        // Completado ✓
+        bg=m.color;
+      } else {
+        // Programado pero no hecho
+        bg='var(--bg3)';
+        border='border:1px solid var(--border2)';
+      }
+
+      if(isToday&&scheduled){
+        border=`outline:2px solid ${m.color};outline-offset:1px`;
+      }
+
+      return `<div title="${d.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'})}${done?' ✓':''}" style="aspect-ratio:1;border-radius:4px;background:${bg};${border};opacity:${opacity}"></div>`;
     }).join('');
 
     return `<div style="display:contents">
-      <div style="display:flex;align-items:center;gap:6px;padding-right:8px;min-width:0">
-        <span style="font-size:14px;line-height:1;flex-shrink:0">${h.emoji}</span>
-        <span style="font-size:9px;color:var(--muted2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:52px">${esc(h.name)}</span>
-      </div>
+      ${nameCell}
       ${cells}
     </div>`;
   }).join('');
 
-  const colDef=`70px repeat(${DAYS},1fr)`;
+  // Marcas de fecha (solo lunes de cada semana)
+  const dateMarks=allDates.map((d,i)=>{
+    const isLun=d.getDay()===1;
+    const isToday=d.toDateString()===today.toDateString();
+    return isLun?`<div style="font-size:7px;color:${isToday?'var(--violet)':'var(--muted2)'};text-align:center">${d.getDate()}</div>`:
+      isToday?`<div style="font-size:7px;color:var(--violet);text-align:center;font-weight:600">${d.getDate()}</div>`:
+      '<div></div>';
+  }).join('');
+
+  const cols=`64px repeat(${allDates.length},1fr)`;
 
   el.innerHTML=`
     <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
-      <div style="display:grid;grid-template-columns:${colDef};gap:3px;min-width:360px">
-        <div></div>${headerCells}
-        ${rowsHTML}
+      <div style="min-width:320px">
+        <!-- Header días de semana -->
+        <div style="display:grid;grid-template-columns:${cols};gap:2px;margin-bottom:2px">
+          <div></div>${headerHTML}
+        </div>
+        <!-- Filas por hábito -->
+        <div style="display:grid;grid-template-columns:${cols};gap:2px">
+          ${rowsHTML}
+        </div>
+        <!-- Marcas de fecha -->
+        <div style="display:grid;grid-template-columns:${cols};gap:2px;margin-top:3px">
+          <div></div>${dateMarks}
+        </div>
       </div>
-    </div>
-    <div style="display:flex;justify-content:flex-end;margin-top:8px">
-      <span style="font-size:9px;color:var(--muted2)">últimos ${DAYS} días</span>
     </div>`;
 }
+
 
 function toggleHabit(id){
   const h=state.habits.find(x=>x.id===id);if(!h)return;
@@ -3647,7 +3696,7 @@ function buildCategoryCard(catId){
   const div=document.createElement('div');
   div.className='stack-card active-card';
   div.style.background=bg;
-  div.innerHTML=`<div class="sc-category" style="position:relative"><button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button><button onclick="event.stopPropagation();stackUndoSkip()" title="Deshacer" style="position:absolute;top:14px;right:48px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.12);border:none;cursor:pointer;color:rgba(255,255,255,0.45);font-size:13px;display:flex;align-items:center;justify-content:center;z-index:10">↩</button>
+  div.innerHTML=`<div class="sc-category" style="position:relative"><button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
     <div class="sc-cat-header">
       <div>
         <div class="sc-cat-emoji">${cat.emoji}</div>
@@ -3695,7 +3744,6 @@ function buildHabitsCard(){
   div.style.background='linear-gradient(150deg,#1e1040,#3b1f8c,#5b21b6)';
   div.innerHTML=`<div class="sc-category" style="position:relative">
     <button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
-    <button onclick="event.stopPropagation();stackUndoSkip()" title="Deshacer" style="position:absolute;top:12px;right:46px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.12);border:none;cursor:pointer;color:rgba(255,255,255,0.45);font-size:13px;display:flex;align-items:center;justify-content:center;z-index:10">↩</button>
     <div style="margin-bottom:auto">
       <div class="sc-cat-emoji">🔗</div>
       <div style="display:flex;align-items:baseline;gap:3px;margin-top:6px">
@@ -3733,7 +3781,6 @@ function buildBitacoraCard(){
   div.style.background='linear-gradient(150deg,#1a1814,#2d2520,#1a1814)';
   div.innerHTML=`<div class="sc-category" style="position:relative">
     <button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
-    <button onclick="event.stopPropagation();stackUndoSkip()" title="Deshacer" style="position:absolute;top:12px;right:46px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.12);border:none;cursor:pointer;color:rgba(255,255,255,0.45);font-size:13px;display:flex;align-items:center;justify-content:center;z-index:10">↩</button>
     <div style="margin-bottom:auto">
       <div class="sc-cat-emoji">✎</div>
       <div style="display:flex;align-items:baseline;gap:3px;margin-top:6px">
