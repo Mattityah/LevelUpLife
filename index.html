@@ -3544,7 +3544,10 @@ function calShowDay(d){
     <div style="margin-top:12px">
       <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Notas del día</div>
       <textarea id="cal-note-input" placeholder="Anotá algo sobre este día..." style="width:100%;min-height:90px;background:var(--white);border:1px solid var(--border2);border-radius:11px;padding:11px 13px;font-size:13px;font-family:'Geist',sans-serif;font-weight:300;color:var(--text);outline:none;resize:vertical;transition:border-color .15s;line-height:1.55" onfocus="this.style.borderColor='var(--violet)';this.style.boxShadow='0 0 0 3px rgba(124,58,237,0.07)'" onblur="this.style.borderColor='var(--border2)';this.style.boxShadow='none'">${esc(existingNote)}</textarea>
-      <button id="cal-note-save" onclick="saveNote(${d})" style="margin-top:8px;width:100%;padding:9px;background:var(--text);color:#fff;border:none;border-radius:9px;font-size:13px;font-family:'Geist',sans-serif;font-weight:400;cursor:pointer;transition:all .18s">Guardar nota</button>
+      <div style="margin-top:8px;display:flex;gap:8px;">
+        <button id="cal-note-save" onclick="saveNote(${d})" style="flex:1;padding:9px;background:var(--text);color:#fff;border:none;border-radius:9px;font-size:13px;font-family:'Geist',sans-serif;font-weight:400;cursor:pointer;transition:all .18s">Guardar nota</button>
+        <button id="cal-gcal-save" onclick="saveNoteToGcal(${d})" style="flex:1;padding:9px;background:var(--violet);color:#fff;border:none;border-radius:9px;font-size:13px;font-family:'Geist',sans-serif;font-weight:400;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:6px"><span style="font-size:14px">📅</span> Google Cal</button>
+      </div>
     </div>`;
   ge('cal-day-detail').style.display='block';
   ge('cal-day-detail').scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -3565,6 +3568,67 @@ function saveNote(d){
   const btn=ge('cal-note-save');
   btn.textContent='✓ Guardado';btn.style.background='var(--teal)';
   setTimeout(()=>{btn.textContent='Guardar nota';btn.style.background='var(--text)';},1200);
+}
+
+async function saveNoteToGcal(d){
+  const val=ge('cal-note-input').value.trim();
+  if(!val){alert('Escribí algo antes de guardar en Google Calendar.');return;}
+  const btn=ge('cal-gcal-save');
+  const token=window._gcalToken||localStorage.getItem('gcal_token');
+  const tokenTime=parseInt(localStorage.getItem('gcal_token_time')||'0');
+  const tokenValid=token&&(Date.now()-tokenTime<3500000); // ~58 min
+  if(!tokenValid){
+    btn.textContent='Conectando...';
+    try{
+      // Re-usar el flujo de auth de Google que ya existe en la app
+      if(window.loginGoogle){await window.loginGoogle();}
+      // Esperamos que el token se refresque
+      await new Promise(r=>setTimeout(r,1500));
+    }catch(e){
+      btn.innerHTML='<span style="font-size:14px">📅</span> Google Cal';
+      alert('No se pudo conectar con Google. Intentá de nuevo.');return;
+    }
+  }
+  const freshToken=window._gcalToken||localStorage.getItem('gcal_token');
+  if(!freshToken){
+    btn.innerHTML='<span style="font-size:14px">📅</span> Google Cal';
+    alert('Necesitás iniciar sesión con Google para sincronizar con Calendar.');return;
+  }
+  btn.textContent='Guardando...';btn.style.opacity='0.7';
+  // Construir el evento: día seleccionado, todo el día
+  const year=calDate.getFullYear(),month=calDate.getMonth();
+  const dateStr=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  const nextDay=new Date(year,month,d+1);
+  const nextDateStr=`${nextDay.getFullYear()}-${String(nextDay.getMonth()+1).padStart(2,'0')}-${String(nextDay.getDate()).padStart(2,'0')}`;
+  const event={
+    summary:'📝 Nota — LevelUp Life',
+    description:val,
+    start:{date:dateStr},
+    end:{date:nextDateStr}
+  };
+  try{
+    const res=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+freshToken,'Content-Type':'application/json'},
+      body:JSON.stringify(event)
+    });
+    if(res.ok){
+      btn.textContent='✓ En Calendar';btn.style.background='#1a7340';btn.style.opacity='1';
+      setTimeout(()=>{btn.innerHTML='<span style="font-size:14px">📅</span> Google Cal';btn.style.background='var(--violet)';btn.style.opacity='1';},2000);
+    }else{
+      const err=await res.json();
+      btn.innerHTML='<span style="font-size:14px">📅</span> Google Cal';btn.style.opacity='1';
+      if(err.error&&err.error.code===401){
+        localStorage.removeItem('gcal_token');localStorage.removeItem('gcal_token_time');window._gcalToken=null;
+        alert('El token de Google venció. Intentá de nuevo para re-autenticar.');
+      }else{
+        alert('Error al guardar en Google Calendar: '+(err.error&&err.error.message||'desconocido'));
+      }
+    }
+  }catch(e){
+    btn.innerHTML='<span style="font-size:14px">📅</span> Google Cal';btn.style.opacity='1';
+    alert('Error de red. Verificá tu conexión e intentá de nuevo.');
+  }
 }
 
 /* ── RESET ── */
