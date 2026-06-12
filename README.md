@@ -1,116 +1,121 @@
 # LevelUp Life
 
-> Tu progreso, visible. Sincronizado en todos tus dispositivos.
-
-**LevelUp Life** es una app de desarrollo personal gamificada donde cada acción real de tu vida suma experiencia, sube de nivel a tu personaje y construye una identidad visible. Pensada para quien quiere generar estructura, ejecutar ideas y materializar lo que tiene en la cabeza — sin abrumarse.
+> *What gets tracked, evolves.*
 
 ---
 
-## ¿Qué es?
+I built this for myself.
 
-La vida real tiene un problema de feedback: el progreso es invisible, los loops son largos y no hay recompensa inmediata. LevelUp Life resuelve eso aplicando mecánicas de videojuego (XP, niveles, rachas, nodos neurales) a hábitos y tareas reales.
+Not as a portfolio piece. Not to ship a product.
+As a response to a real problem I was living — the absence of a mirror that reflects who you're actually becoming, day by day.
 
-No es una app de productividad más. Es un espejo de quién estás eligiendo ser cada día.
+Real life has poor feedback architecture. Progress is invisible. Loops are long. The things that truly matter — the consistency, the inner work, the small daily choices — leave no visible trace. Meanwhile, everything designed to capture your attention rewards you instantly, superficially, endlessly.
+
+LevelUp Life is my answer to that.
+
+---
+
+## What it is
+
+A personal development app built around one idea: **make your growth visible to yourself.**
+
+Not a productivity tool. Not a habit tracker. Not a to-do list.
+
+A mirror. A map. A living record of who you're choosing to be.
+
+It applies the feedback mechanics of video games — XP, levels, streaks, neural node evolution — to the things that actually move the needle in a human life: presence, self-knowledge, physical care, relationships, skill-building, meaningful work.
+
+The character you build inside the app is a reflection of the character you're building in the real world.
+
+---
+
+## Why I built it
+
+I'm self-taught. Reflexive by nature. Obsessed with understanding how growth actually happens — not in theory, but in the texture of a real day.
+
+I wanted to replace the apps I was using for the wrong reasons. The ones designed to exploit attention rather than cultivate it. I wanted something that felt like a companion to the version of me that's trying — not an audience for a performance.
+
+I wanted a place to log what I did, notice what I'm avoiding, break big goals into understandable steps, and see — actually see — the shape of my days over time.
+
+So I built it.
+
+---
+
+## Core philosophy
+
+**Presence over performance.**
+This app isn't for showing progress to anyone. It's for witnessing your own.
+
+**Process over results.**
+The feed shows what you did, not what you achieved. The neural map grows from repetition, not from milestones.
+
+**Substitution over restriction.**
+The goal isn't to eliminate what doesn't serve you through willpower. It's to replace it with something that actually resonates — something gamified enough to be engaging, honest enough to be real.
+
+**Self-knowledge as foundation.**
+Gratitude logs, daily notes, bitácora entries with timestamps. The app accumulates a record of your inner life. Over time, patterns emerge. You start to see yourself.
 
 ---
 
 ## Features
 
-### Mobile
-- **Stack de cartas** — al abrir la app te recibe una carta grande con tu categoría favorita. Swipe arriba para pasar, abajo para volver. Sin menús, sin fricción.
-- **Saludo contextual** — buenos días / tardes / noches / ¿trasnochando? con tu nombre y la frase del día
-- **Racha visible** — contador de días seguidos en el header, siempre presente
-- **Acceso rápido al calendario** — banner entre las cartas y el navbar
-- **Cartas personalizables** — podés ocultar y restaurar cartas del stack a gusto
+### The experience
+- **Card stack** — your life in swipeable cards. No menus, no friction. Your favorite category front and center.
+- **Contextual greeting** — morning / afternoon / night / *are you up late?* — with your name and a rotating phrase
+- **Neural network** — a D3.js visualization where your tasks exist as living nodes. Pending → forming → active → myelinated. The map grows as you do.
+- **Bitácora** — a timestamped journal. Multiline, freeform, organized by day. A letter to your future self.
+- **Habit tracker** — daily, specific days, or X times per week. Weekly strip, 14-day contribution grid, streak per habit.
+- **AI Planner** — describe a task, answer a few questions, get a step-by-step plan built around your actual availability.
 
-### Desktop
-- **Layout de dos columnas** — categorías a la izquierda, panel de progreso a la derecha
-- **Panel derecho** — racha con iconos de fuego, anillo de nivel XP, quote motivacional del día, mini calendario
-- **Sidebar completo** — navegación, perfil con mini XP bar, notas rápidas, exportar/importar
-
-### Core (mobile + desktop)
-- **5 categorías** — Mente, Cuerpo, Skills, Relaciones, Trabajo (personalizables)
-- **Sistema de XP y niveles** — cada tarea completada suma puntos, cada nivel tiene un título
-- **Red neuronal** — visualización D3.js de tus tareas como nodos que evolucionan (pending → forming → active → myelinated)
-- **Habit Tracker** — hábitos con frecuencia diaria, días específicos o X veces por semana. Strip semanal, grilla de 14 días, racha por hábito
-- **Bitácora** — notas rápidas con timestamp, organizadas por día, con opción de archivar y exportar
-- **Calendario** — vista mensual con actividad diaria y notas por día
-- **Firebase Sync** — todos los datos sincronizados en tiempo real entre dispositivos vía Firestore
-- **Google Auth** — login con una cuenta de Google, sin contraseñas
-- **PWA** — instalable en iOS y Android como app nativa
+### The system
+- 5 life categories: Mind, Body, Skills, Relationships, Work — fully customizable
+- XP + leveling system with titled progression
+- Daily streaks with best-streak tracking
+- Full Firebase sync — real-time across all your devices
+- Google Auth — one tap, no passwords
+- PWA — installable on iOS and Android
 
 ---
 
-## Stack técnico
+## Stack
 
-| Capa | Tecnología |
-|------|-----------|
+| Layer | Tech |
+|-------|------|
 | Frontend | HTML + CSS + Vanilla JS |
-| Visualización | D3.js (force simulation + Canvas) |
+| Visualization | D3.js — force simulation + Canvas |
 | Auth | Firebase Auth (Google Sign-In) |
-| Base de datos | Firebase Firestore (realtime sync) |
-| Fuentes | Geist 300/400/500 + Instrument Serif |
+| Database | Firebase Firestore (realtime sync) |
+| Fonts | Geist 300/400/500 + Instrument Serif |
 | Hosting | GitHub Pages |
 
-Sin frameworks. Sin build steps. Un solo archivo `index.html`.
+No frameworks. No build steps. One file.
 
 ---
 
-## Uso
+## Try it
 
-**App en vivo:** [mattityah.github.io/LevelUpLife](https://mattityah.github.io/LevelUpLife)
+**[mattityah.github.io/LevelUpLife](https://mattityah.github.io/LevelUpLife)**
 
-1. Abrí el link
-2. Iniciá sesión con Google
-3. Creá tus primeras tareas en las categorías que te importan
-4. Completalas. Mirá cómo sube tu personaje.
-
----
-
-## Arquitectura de datos
-
-```
-state {
-  tasks[]         — tareas con categoría, XP, recurrencia
-  habits[]        — hábitos con frecuencia y log de días
-  activity[]      — log de actividad (max 200 items)
-  notes{}         — bitácora por fecha { 'YYYY-MM-DD': 'texto' }
-  allCategories[] — categorías activas + custom
-  streak          — racha actual en días
-  profile{}       — nombre, emoji, gradiente, foto
-}
-```
-
-Todo se persiste en `localStorage` como fallback y se sincroniza con Firestore cuando hay sesión activa.
+Sign in with Google. Create your first tasks. Complete them. Watch your character grow.
 
 ---
 
 ## Roadmap
 
-### Phase 2 — Backend (DonWeb, PHP + MySQL)
-- [ ] Comunidad / feed social (proceso > resultados)
-- [ ] Google Calendar write (requiere token management en servidor)
-- [ ] Notificaciones push
+**Phase 2 — Community**
+A social feed where users share process, not results. The neural map as proof-of-work. Built on real backend (PHP + MySQL).
 
-### Phase 3 — Escala
-- [ ] App móvil nativa (iOS / Android)
-- [ ] Integración con apps externas (fitness, meditación, idiomas)
-- [ ] Sugerencias con IA según historial de actividad
+**Phase 3 — Ecosystem**
+Integration with fitness trackers, language apps, meditation platforms — all feeding into one identity map. AI suggestions based on your actual activity history.
 
 ---
 
-## Filosofía de producto
+## Author
 
-> "Real life has poor feedback architecture — progress is invisible, loops are long. LevelUp Life's core job is making that progress visible and meaningful."
-
-El usuario que entra a esta app no necesita motivación desde cero. Ya quiere cambiar. Necesita una herramienta que acompañe ese proceso haciéndolo visible, disfrutable y sostenible.
-
-**El diferencial:** ningún competidor combina identidad de personaje + desarrollo integral de vida + comunidad enfocada en proceso. Habitica gamifica, pero no construye identidad. Skool conecta, pero no es personal. LevelUp Life hace las tres.
-
----
-
-## Autor
-
-Construido por **Mattia** — desde cero, con propósito.
+Built by **Mattia** — self-taught, from scratch, with intention.
 
 *2025*
+
+---
+
+*The best version of you already exists. This app helps you find the path there — one logged day at a time.*
