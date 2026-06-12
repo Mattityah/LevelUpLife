@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>LevelUp Life</title>
-<script>if(localStorage.getItem('_v')!=='2.2'){localStorage.setItem('_v','2.2');location.reload(true);}</script>
 <link rel="manifest" href="data:application/json,{
   &quot;name&quot;: &quot;LevelUp Life&quot;,
   &quot;short_name&quot;: &quot;LevelUp&quot;,
@@ -534,17 +533,17 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 }
 .stack-card:active{cursor:grabbing;}
 
-/* Peek cards behind */
+/* Peek cards behind — stack upward */
 .stack-card.behind-1{
-  transform:scale(0.94) translateY(28px);
+  transform:scale(0.95) translateY(-12px);
   z-index:1;pointer-events:none;
 }
 .stack-card.behind-2{
-  transform:scale(0.88) translateY(52px);
+  transform:scale(0.90) translateY(-22px);
   z-index:0;pointer-events:none;
 }
 .stack-card.behind-3{
-  transform:scale(0.82) translateY(72px);
+  transform:scale(0.85) translateY(-30px);
   z-index:-1;pointer-events:none;opacity:0.6;
 }
 .stack-card.active-card{
@@ -556,7 +555,7 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
   opacity:0;transition:transform .4s cubic-bezier(.4,0,.2,1),opacity .3s;
 }
 .stack-card.entering{
-  transform:scale(0.82) translateY(72px);
+  transform:scale(0.85) translateY(-30px);
   opacity:0.6;
   transition:none;
 }
@@ -868,10 +867,7 @@ const DEFAULT_CATS=[
     </div>
     <div class="nav-section-label" id="sb-nav-label" style="display:none">Navegación</div>
 
-    <!-- Mobile: 3 | CENTER | 3 layout -->
-    <button class="nav-btn" data-pane="calendario" onclick="sw('calendario')">
-      <span class="nav-ico">📅</span><span class="nav-lbl">Calendario</span>
-    </button>
+    <!-- Mobile: 2 | CENTER | 2 layout -->
     <button class="nav-btn active" data-pane="inicio" onclick="sw('inicio')">
       <span class="nav-ico">🏠</span><span class="nav-lbl">Inicio</span>
     </button>
@@ -886,8 +882,8 @@ const DEFAULT_CATS=[
     <button class="nav-btn" data-pane="habitos" onclick="sw('habitos')">
       <span class="nav-ico">🔗</span><span class="nav-lbl">Hábitos</span>
     </button>
-    <button class="nav-btn" data-pane="bitacora" onclick="sw('bitacora')">
-      <span class="nav-ico">✎</span><span class="nav-lbl">Bitácora</span>
+    <button class="nav-btn" data-pane="calendario" onclick="sw('calendario')">
+      <span class="nav-ico">📅</span><span class="nav-lbl">Calendario</span>
     </button>
     <button class="nav-btn" data-pane="perfil" onclick="sw('perfil')">
       <span class="nav-ico">👤</span><span class="nav-lbl">Perfil</span>
@@ -954,10 +950,10 @@ const DEFAULT_CATS=[
               <div style="font-family:'Instrument Serif',serif;font-size:17px;font-style:italic;color:#fff;line-height:1.35;letter-spacing:-.1px" id="stack-quote">Tu mejor versión, cada día.</div>
             </div>
             <!-- Streak box -->
-            <div id="stack-streak-box" style="flex-shrink:0;background:#fff;border-radius:16px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:64px;box-shadow:0 2px 12px rgba(0,0,0,0.18)">
+            <div id="stack-streak-box" style="flex-shrink:0;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.18);border-radius:16px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:62px;backdrop-filter:blur(8px)">
               <span style="font-size:22px;line-height:1">🔥</span>
-              <span style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;color:#1a1814;line-height:1" id="stack-streak-n">0</span>
-              <span style="font-size:8px;color:#8a8680;letter-spacing:.8px;text-transform:uppercase">días</span>
+              <span style="font-family:'Instrument Serif',serif;font-size:22px;font-weight:400;color:#fff;line-height:1" id="stack-streak-n">0</span>
+              <span style="font-size:8px;color:rgba(255,255,255,0.5);letter-spacing:.8px;text-transform:uppercase">días</span>
             </div>
           </div>
           <div style="position:relative;z-index:1">
@@ -971,22 +967,24 @@ const DEFAULT_CATS=[
           </div>
         </div>
         <!-- Stack container -->
-        <div id="stack-cards-container" style="position:relative;margin:0 10px;height:min(38vh,280px);flex-shrink:0"></div>
-        <!-- Swipe hint + add button -->
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 14px 12px;flex-shrink:0">
+        <div id="stack-cards-container" style="position:relative;margin:0 10px;height:min(48vh,360px);flex-shrink:0"></div>
+
+        <!-- Agregar carta — separado de las cartas con margen propio -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px;flex-shrink:0">
           <div id="stack-hint" style="display:flex;align-items:center;gap:5px;opacity:0.4">
             <div style="font-size:14px;animation:hintBounce 1.8s ease-in-out infinite">↑</div>
             <div style="font-size:10px;color:var(--muted2);letter-spacing:.5px">Swipe para ver más</div>
           </div>
-          <button onclick="openStackAddMenu()" style="display:flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--border2);border-radius:20px;padding:7px 16px;cursor:pointer;font-family:'Geist',sans-serif;font-size:12px;color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,0.06)">
-            <span style="font-size:15px;line-height:1;color:var(--violet)">+</span> Agregar carta
+          <button onclick="openStackAddMenu()" style="display:flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--border2);border-radius:20px;padding:8px 18px;cursor:pointer;font-family:'Geist',sans-serif;font-size:12px;color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.08);font-weight:400">
+            <span style="font-size:16px;line-height:1;color:var(--violet)">+</span> Agregar carta
           </button>
         </div>
+
         <!-- Dots -->
         <div id="stack-dots" style="position:fixed;right:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px;z-index:50"></div>
 
         <!-- Calendar banner -->
-        <div onclick="sw('calendario')" id="cal-banner" style="margin:4px 12px 20px;background:var(--white);border:1px solid var(--border);border-radius:18px;padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.08);flex-shrink:0">
+        <div onclick="sw('calendario')" id="cal-banner" style="margin:6px 12px 24px;background:var(--white);border:1px solid var(--border);border-radius:18px;padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.08);flex-shrink:0">
           <div style="width:52px;height:52px;border-radius:15px;background:linear-gradient(135deg,#0369a1,#38bdf8);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(3,105,161,0.28);line-height:1">
             <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.7);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:1px" id="cal-banner-month-short"></div>
             <div style="font-size:22px;font-weight:700;color:#fff;line-height:1" id="cal-banner-daynum"></div>
@@ -1138,6 +1136,15 @@ const DEFAULT_CATS=[
         <!-- Todos los hábitos -->
         <div class="sec-label" style="margin-bottom:10px;margin-top:24px">Todos los hábitos</div>
         <div id="habits-all"></div>
+
+        <!-- Mapa de actividad mensual -->
+        <div style="margin-top:28px;margin-bottom:8px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div class="sec-label" style="margin-bottom:0">Mapa de actividad</div>
+            <div id="heatmap-month-label" style="font-size:11px;color:var(--muted2)"></div>
+          </div>
+          <div id="habit-heatmap" style="background:var(--white);border:1px solid var(--border);border-radius:16px;padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,0.04)"></div>
+        </div>
 
         <div id="habits-empty" style="display:none;text-align:center;padding:48px 20px;color:var(--muted)">
           <span style="font-family:'Instrument Serif',serif;font-size:40px;color:var(--muted2);display:block;margin-bottom:8px;font-style:italic">◌</span>
@@ -2318,6 +2325,7 @@ function renderHabits(){
 
   // ── Todos los hábitos ──
   ge('habits-all').innerHTML = state.habits.map(h=>habitCardHTML(h,false)).join('');
+  renderHeatmap();
 }
 
 function shouldShowHabitOnDay(h, d){
@@ -2349,22 +2357,20 @@ function habitCardHTML(h,showCheck){
     freqHTML=`<span style="font-size:10px;color:var(--muted2);background:var(--bg3);border-radius:20px;padding:2px 8px">${h.timesPerWeek}x semana</span>`;
   }
 
-  // Grid 14 días con etiquetas
-  const dayLettersGrid=['D','L','M','X','J','V','S'];
+  // Grid 14 días — solo puntos limpios, sin texto encima de cada celda
   const days=[];
-  for(let i=0;i<=13;i++){
+  for(let i=13;i>=0;i--){
     const d=new Date();d.setDate(d.getDate()-i);
     const key=d.toDateString();
     const isToday=i===0;
     const isDone=habitDoneOn(h,key);
-    const dayLetter=dayLettersGrid[d.getDay()];
-    const dayNum=d.getDate();
-    days.push(`<div style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0">
-      <div style="font-size:8px;color:${isToday?m.color:'var(--muted2)'};font-weight:${isToday?'500':'300'};text-transform:uppercase">${dayLetter}</div>
-      <div style="font-size:9px;color:${isToday?m.color:'var(--muted2)'};font-weight:${isToday?'500':'300'}">${dayNum}</div>
-      <div style="width:100%;aspect-ratio:1;border-radius:4px;background:${isDone?m.color+'cc':'var(--bg3)'};${isToday?'outline:2px solid '+m.color+';outline-offset:1px':''}" title="${d.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'})}"></div>
-    </div>`);
+    const titleStr=d.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'});
+    days.push(`<div title="${titleStr}" style="aspect-ratio:1;border-radius:5px;background:${isDone?m.color+'dd':'var(--bg3)'};${isToday?'outline:2px solid '+m.color+';outline-offset:1px':''}"></div>`);
   }
+  const dStart=new Date();dStart.setDate(dStart.getDate()-13);
+  const dEnd=new Date();
+  const ms=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const rangeLabel=dStart.getDate()+' '+ms[dStart.getMonth()]+' → '+dEnd.getDate()+' '+ms[dEnd.getMonth()];
 
   const checkBtn=showCheck?`<div class="habit-check${done?' done':''}" style="${done?'background:'+m.color+';box-shadow:0 3px 10px '+m.color+'44':'background:var(--white)'}" onclick="toggleHabit('${h.id}')">${done?'✓':''}</div>`:'';
 
@@ -2380,7 +2386,7 @@ function habitCardHTML(h,showCheck){
         <button onclick="deleteHabit('${h.id}')" style="font-size:15px;color:var(--muted2);background:none;border:none;cursor:pointer;padding:4px" title="Eliminar">×</button>
       </div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
       <div style="display:flex;align-items:baseline;gap:3px">
         <span style="font-family:'Instrument Serif',serif;font-size:22px;color:var(--text)">${streak}</span>
         <span style="font-size:10px;color:var(--muted2)">días 🔥</span>
@@ -2388,8 +2394,89 @@ function habitCardHTML(h,showCheck){
       <span style="font-size:10px;color:var(--muted2);background:var(--bg3);border-radius:20px;padding:2px 8px">${h.cat} · +${h.xp} XP</span>
       ${done?`<span style="font-size:10px;background:${m.bg};color:${m.color};padding:2px 8px;border-radius:20px;font-weight:500;margin-left:auto">✓ +${h.xp} XP hoy</span>`:''}
     </div>
-    <div class="habit-grid">${days.join('')}</div>
+    <div style="display:grid;grid-template-columns:repeat(14,1fr);gap:3px;margin-bottom:4px">${days.join('')}</div>
+    <div style="display:flex;justify-content:space-between;margin-top:2px">
+      <span style="font-size:9px;color:var(--muted2)">${rangeLabel.split(' → ')[0]}</span>
+      <span style="font-size:9px;color:var(--muted2)">hoy</span>
+    </div>
   </div>`;
+}
+
+function renderHeatmap(){
+  const el=ge('habit-heatmap');
+  const lbl=ge('heatmap-month-label');
+  if(!el||!state.habits||!state.habits.length){if(el)el.innerHTML='<div style="font-size:12px;color:var(--muted2);text-align:center;padding:12px 0">Agregá hábitos para ver el mapa</div>';return;}
+
+  const today=new Date();
+  const monthNames=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  if(lbl) lbl.textContent=monthNames[today.getMonth()]+' '+today.getFullYear();
+
+  // Últimos 35 días (5 semanas)
+  const DAYS=35;
+  const dates=[];
+  for(let i=DAYS-1;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);dates.push(d);}
+
+  // Día de semana del primer día para alinear a la grilla (lun=0)
+  const firstDay=dates[0];
+  const firstDow=(firstDay.getDay()+6)%7; // 0=lun
+
+  // Leyenda de hábitos
+  const legendHTML=state.habits.map(h=>{
+    const m=CATS[h.cat]||{color:'#7c3aed'};
+    return `<div style="display:flex;align-items:center;gap:5px">
+      <div style="width:10px;height:10px;border-radius:3px;background:${m.color};flex-shrink:0"></div>
+      <span style="font-size:10px;color:var(--muted2);white-space:nowrap">${h.emoji} ${esc(h.name)}</span>
+    </div>`;
+  }).join('');
+
+  // Headers días de semana
+  const dowLabels=['L','M','X','J','V','S','D'];
+  const headerHTML=dowLabels.map(d=>`<div style="font-size:8px;color:var(--muted2);text-align:center;font-weight:500;padding-bottom:3px">${d}</div>`).join('');
+
+  // Celdas — cada día puede tener múltiples hábitos completados
+  // Mostramos el color del primero completado; si hay varios, usamos un gradiente
+  const cellsHTML=[];
+  // Padding para alinear al día de semana correcto
+  for(let p=0;p<firstDow;p++) cellsHTML.push(`<div></div>`);
+
+  dates.forEach(d=>{
+    const key=d.toDateString();
+    const isToday=d.toDateString()===today.toDateString();
+    const isFuture=d>today;
+    const doneHabits=state.habits.filter(h=>habitDoneOn(h,key));
+    const totalScheduled=state.habits.filter(h=>shouldShowHabitOnDay(h,d)).length;
+
+    let bg='var(--bg3)';
+    let opacity=1;
+    if(isFuture){bg='transparent';opacity=0.3;}
+    else if(doneHabits.length===0){bg='var(--bg3)';}
+    else if(doneHabits.length===1){
+      const m=CATS[doneHabits[0].cat]||{color:'#7c3aed'};
+      bg=m.color+'cc';
+    } else {
+      // Múltiples: dividir la celda con gradiente de los colores
+      const colors=doneHabits.map(h=>(CATS[h.cat]||{color:'#7c3aed'}).color);
+      const step=100/colors.length;
+      const stops=colors.map((c,i)=>`${c} ${i*step}%, ${c} ${(i+1)*step}%`).join(', ');
+      bg=`linear-gradient(135deg, ${stops})`;
+    }
+
+    const pct=totalScheduled>0?Math.round(doneHabits.filter(h=>shouldShowHabitOnDay(h,d)).length/totalScheduled*100):0;
+    const titleStr=`${d.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'})}: ${doneHabits.length} completados`;
+
+    cellsHTML.push(`<div title="${titleStr}" style="aspect-ratio:1;border-radius:4px;background:${bg};opacity:${opacity};${isToday?'outline:2px solid var(--violet);outline-offset:1px':''}"></div>`);
+  });
+
+  el.innerHTML=`
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">${legendHTML}</div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">
+      ${headerHTML}
+      ${cellsHTML.join('')}
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:6px">
+      <span style="font-size:9px;color:var(--muted2)">${dates[0].getDate()} ${['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'][dates[0].getMonth()]}</span>
+      <span style="font-size:9px;color:var(--muted2)">hoy</span>
+    </div>`;
 }
 
 function toggleHabit(id){
@@ -3543,12 +3630,11 @@ function buildCategoryCard(catId){
   const div=document.createElement('div');
   div.className='stack-card active-card';
   div.style.background=bg;
-  div.innerHTML=`<div class="sc-category" style="position:relative">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:auto">
-      <div class="sc-cat-emoji">${cat.emoji}</div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-        <button onclick="event.stopPropagation();stackSkipCard()" style="width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center">×</button>
-        <div style="display:flex;align-items:baseline;gap:3px">
+  div.innerHTML=`<div class="sc-category" style="position:relative"><button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
+    <div class="sc-cat-header">
+      <div>
+        <div class="sc-cat-emoji">${cat.emoji}</div>
+        <div style="display:flex;align-items:baseline;gap:3px;margin-top:8px">
           <div class="sc-cat-xp">${catXP}</div>
           <div style="font-size:11px;color:rgba(255,255,255,0.5)">XP</div>
         </div>
@@ -3590,15 +3676,12 @@ function buildHabitsCard(){
   const div=document.createElement('div');
   div.className='stack-card active-card';
   div.style.background='linear-gradient(150deg,#1e1040,#3b1f8c,#5b21b6)';
-  div.innerHTML=`<div class="sc-category" style="position:relative">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:auto">
+  div.innerHTML=`<div class="sc-category" style="position:relative"><button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
+    <div class="sc-cat-header">
       <div class="sc-cat-emoji">🔗</div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-        <button onclick="event.stopPropagation();stackSkipCard()" style="width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center">×</button>
-        <div style="text-align:right">
-          <div class="sc-cat-xp">${done}/${todayHabits.length}</div>
-          <div style="font-size:10px;color:rgba(255,255,255,0.5)">hoy</div>
-        </div>
+      <div style="text-align:right">
+        <div class="sc-cat-xp">${done}/${todayHabits.length}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.5)">hoy</div>
       </div>
     </div>
     <div class="sc-cat-name">Hábitos</div>
@@ -3629,15 +3712,12 @@ function buildBitacoraCard(){
   const div=document.createElement('div');
   div.className='stack-card active-card';
   div.style.background='linear-gradient(150deg,#1a1814,#2d2520,#1a1814)';
-  div.innerHTML=`<div class="sc-category" style="position:relative">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:auto">
+  div.innerHTML=`<div class="sc-category" style="position:relative"><button onclick="event.stopPropagation();stackSkipCard()" style="position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10">×</button>
+    <div class="sc-cat-header">
       <div class="sc-cat-emoji">✎</div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-        <button onclick="event.stopPropagation();stackSkipCard()" style="width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;color:rgba(255,255,255,0.55);font-size:16px;display:flex;align-items:center;justify-content:center">×</button>
-        <div style="text-align:right">
-          <div class="sc-cat-xp">${lines.length}</div>
-          <div style="font-size:10px;color:rgba(255,255,255,0.5)">notas</div>
-        </div>
+      <div style="text-align:right">
+        <div class="sc-cat-xp">${lines.length}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.5)">notas</div>
       </div>
     </div>
     <div class="sc-cat-name">Bitácora</div>
@@ -3785,12 +3865,16 @@ function renderStack(){
   if(ge('stack-xp-pct'))  ge('stack-xp-pct').textContent=pct+'%';
   const streakVal=state.streak||0;
   if(ge('stack-streak-n'))ge('stack-streak-n').textContent=streakVal;
-  // Keep white box, tint number orange when streak active
+  // Color the streak box — orange glow when active
   const sbox=ge('stack-streak-box');
   if(sbox){
-    const nEl=ge('stack-streak-n');
-    if(streakVal>=2 && nEl) nEl.style.color='#ea580c';
-    else if(nEl) nEl.style.color='#1a1814';
+    if(streakVal>=2){
+      sbox.style.background='rgba(251,146,60,0.18)';
+      sbox.style.borderColor='rgba(251,146,60,0.35)';
+    } else {
+      sbox.style.background='rgba(255,255,255,0.10)';
+      sbox.style.borderColor='rgba(255,255,255,0.15)';
+    }
   }
 
   // Calendar banner
