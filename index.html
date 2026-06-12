@@ -232,15 +232,16 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 /* Inicio layout */
 .inicio-body{padding:16px 16px 30px;}
 .inicio-left{margin-bottom:20px;position:relative;z-index:2;}
-.inicio-right{position:relative;z-index:1;}
+.inicio-right{display:none;}
 @media(min-width:768px){
-  .inicio-body{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start;}
+  .inicio-body{display:block;padding:20px 24px 40px;}
   .inicio-left{margin-bottom:0;}
 }
 
 /* ── Cat Cards estilo App Store ── */
 .cat-cards-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:16px;}
-@media(min-width:900px){.cat-cards-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
+@media(min-width:768px){.cat-cards-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}}
+@media(min-width:1100px){.cat-cards-grid{grid-template-columns:repeat(4,minmax(0,1fr));}}
 
 .cat-big-card{
   border-radius:20px;padding:16px 15px 14px;
@@ -935,6 +936,21 @@ const DEFAULT_CATS=[
     <!-- Desktop extras -->
     <div class="sb-section" id="sb-stats-section" style="display:none">
       <div class="sb-label">Tu progreso</div>
+      <!-- Nivel + XP bar -->
+      <div style="background:var(--vi-bg);border-radius:12px;padding:12px;margin-bottom:10px;border:1px solid rgba(124,58,237,0.1)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <div style="font-size:22px" id="sb-level-emoji">⭐</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:500;color:var(--text)" id="sb-level-name">Nivel 1</div>
+            <div style="font-size:11px;color:var(--violet)" id="sb-level-title">Aprendiz</div>
+          </div>
+          <div style="font-size:15px;font-weight:500;color:var(--violet);font-family:'Instrument Serif',serif" id="sb-level-pct">0%</div>
+        </div>
+        <div style="height:4px;background:rgba(124,58,237,0.15);border-radius:4px;overflow:hidden">
+          <div id="sb-xp-bar" style="height:100%;background:var(--violet);border-radius:4px;width:0%;transition:width .4s ease"></div>
+        </div>
+        <div style="font-size:10px;color:var(--muted2);margin-top:4px;text-align:right" id="sb-xp-lbl">0 / 100 XP</div>
+      </div>
       <div class="sb-stats">
         <div class="sb-stat"><div class="sb-stat-val" id="s-xp">0</div><div class="sb-stat-lbl">XP total</div></div>
         <div class="sb-stat"><div class="sb-stat-val" id="s-done">0</div><div class="sb-stat-lbl">Completadas</div></div>
@@ -2977,6 +2993,13 @@ function render(){
   ge('s-nodes')&&(ge('s-nodes').textContent=state.tasks.filter(t=>nodeState(t)!=='pending').length);
   ge('s-myelin')&&(ge('s-myelin').textContent=state.tasks.filter(t=>nodeState(t)==='myelin').length);
   ge('sb-streak')&&(ge('sb-streak').textContent=state.streak||0);
+  // Sidebar nivel (desktop)
+  ge('sb-level-emoji')&&(ge('sb-level-emoji').textContent=lvl<=1?'⭐':lvl<=2?'🌟':lvl<=3?'💫':lvl<=4?'⚡':'🏆');
+  ge('sb-level-name')&&(ge('sb-level-name').textContent='Nivel '+lvl);
+  ge('sb-level-title')&&(ge('sb-level-title').textContent=title);
+  ge('sb-level-pct')&&(ge('sb-level-pct').textContent=pct+'%');
+  ge('sb-xp-bar')&&(ge('sb-xp-bar').style.width=pct+'%');
+  ge('sb-xp-lbl')&&(ge('sb-xp-lbl').textContent=xp+' / '+nextXp+' XP');
   // Perfil
   ge('prof-sub')&&(ge('prof-sub').textContent=`${title} · Nivel ${lvl}`);
   ge('pf-streak')&&(ge('pf-streak').textContent=state.streak||0);
