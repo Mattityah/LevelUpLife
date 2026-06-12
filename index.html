@@ -995,7 +995,7 @@ const DEFAULT_CATS=[
         <div id="stack-cards-container" style="position:relative;margin:0 10px;height:min(46vh,340px);flex-shrink:0"></div>
 
         <!-- Spacer fijo — área de seguridad entre cartas y botón -->
-        <div style="height:80px;flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;padding:0 14px;position:relative">
+        <div style="height:150px;flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;padding:0 14px;position:relative">
           <div id="stack-hint" style="position:absolute;left:14px;display:flex;align-items:center;gap:5px;opacity:0.4">
             <div style="font-size:14px;animation:hintBounce 1.8s ease-in-out infinite">↑</div>
             <div style="font-size:10px;color:var(--muted2);letter-spacing:.5px">Swipe para ver más</div>
@@ -1006,7 +1006,7 @@ const DEFAULT_CATS=[
         </div>
 
         <!-- Dots -->
-        <div id="stack-dots" style="position:fixed;right:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px;z-index:50"></div>
+        <div id="stack-dots" style="position:fixed;right:10px;top:calc(50% - 50px);transform:translateY(-50%);display:flex;flex-direction:column;gap:5px;z-index:50"></div>
 
         <!-- Calendar banner -->
         <div onclick="sw('calendario')" id="cal-banner" style="margin:6px 12px 24px;background:var(--white);border:1px solid var(--border);border-radius:18px;padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.08);flex-shrink:0">
