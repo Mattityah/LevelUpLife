@@ -1293,29 +1293,35 @@ const DEFAULT_CATS=[
             <button class="cat-pill" data-cat="Relaciones" style="background:#fdf2f8;color:#9d174d" onclick="selectCatPill(this,'Relaciones')">🤝 Relaciones</button>
             <button class="cat-pill" data-cat="Trabajo" style="background:#f0f9ff;color:#075985" onclick="selectCatPill(this,'Trabajo')">💼 Trabajo</button>
           </div>
-          <!-- Recurrencia visual -->
-          <div style="margin-top:8px">
-            <div style="display:flex;gap:6px;margin-bottom:6px" id="task-recur-btns">
-              <button class="task-recur-btn active" id="trb-none" onclick="selectTaskRecur('none')"
-                style="flex:1;padding:7px 4px;border-radius:20px;border:1px solid var(--border2);background:var(--text);color:#fff;font-size:11px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s">Sin recurrencia</button>
+          <!-- Recurrencia — mismo diseño que hábitos -->
+          <div style="margin-top:10px">
+            <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Frecuencia</div>
+            <div style="display:flex;gap:8px;margin-bottom:8px" id="task-recur-btns">
+              <button class="task-recur-btn" id="trb-none" onclick="selectTaskRecur('none')"
+                style="flex:1;padding:8px 6px;border-radius:20px;border:1.5px solid var(--text);background:var(--text);color:#fff;font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s;font-weight:400">Ninguna</button>
               <button class="task-recur-btn" id="trb-daily" onclick="selectTaskRecur('daily')"
-                style="flex:1;padding:7px 4px;border-radius:20px;border:1px solid var(--border2);background:var(--white);color:var(--text);font-size:11px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s">🔁 Diario</button>
+                style="flex:1;padding:8px 6px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;color:var(--text);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s;font-weight:400">Diario</button>
               <button class="task-recur-btn" id="trb-weekly" onclick="selectTaskRecur('weekly')"
-                style="flex:1;padding:7px 4px;border-radius:20px;border:1px solid var(--border2);background:var(--white);color:var(--text);font-size:11px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s">📅 Días</button>
+                style="flex:1;padding:8px 6px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;color:var(--text);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s;font-weight:400">Días</button>
               <button class="task-recur-btn" id="trb-monthly" onclick="selectTaskRecur('monthly')"
-                style="flex:1;padding:7px 4px;border-radius:20px;border:1px solid var(--border2);background:var(--white);color:var(--text);font-size:11px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s">🗓 Mensual</button>
+                style="flex:1;padding:8px 6px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;color:var(--text);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s;font-weight:400">Mensual</button>
             </div>
-            <!-- Selector de días (solo para "Días") -->
-            <div id="task-days-picker" style="display:none;gap:6px;justify-content:center;margin-bottom:6px">
-              ${['L','M','X','J','V','S','D'].map((d,i)=>`<button class="task-day-btn" data-day="${i+1===7?0:i+1}" onclick="toggleTaskDay(this,${i+1===7?0:i+1})"
-                style="width:34px;height:34px;border-radius:50%;border:1px solid var(--border2);background:var(--white);color:var(--text);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s;flex-shrink:0">${d}</button>`).join('')}
+            <!-- Selector de días específicos -->
+            <div id="task-days-picker" style="display:none;flex-wrap:wrap;gap:8px;justify-content:center;padding:4px 0 6px">
+              <button class="task-day-btn" data-day="1" onclick="toggleTaskDay(this,1)" style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);color:var(--text);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s">L</button>
+              <button class="task-day-btn" data-day="2" onclick="toggleTaskDay(this,2)" style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);color:var(--text);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s">M</button>
+              <button class="task-day-btn" data-day="3" onclick="toggleTaskDay(this,3)" style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);color:var(--text);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s">X</button>
+              <button class="task-day-btn" data-day="4" onclick="toggleTaskDay(this,4)" style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);color:var(--text);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s">J</button>
+              <button class="task-day-btn" data-day="5" onclick="toggleTaskDay(this,5)" style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);color:var(--text);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s">V</button>
+              <button class="task-day-btn" data-day="6" onclick="toggleTaskDay(this,6)" style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);color:var(--text);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s">S</button>
+              <button class="task-day-btn" data-day="0" onclick="toggleTaskDay(this,0)" style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);color:var(--text);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s">D</button>
             </div>
           </div>
-          <!-- Input oculto para compatibilidad con addTask -->
+          <!-- Inputs ocultos -->
           <input type="hidden" id="task-recur" value="none">
           <input type="hidden" id="task-recur-days" value="">
 
-          <div class="input-row" style="margin-top:6px;gap:7px">
+          <div class="input-row" style="margin-top:8px;gap:7px">
             <select class="inp inp-sel" id="task-priority" style="width:80px;font-size:12px" title="Prioridad">
               <option value="1">🟢 Baja</option>
               <option value="2" selected>🟡 Media</option>
@@ -2394,19 +2400,15 @@ function updateStreak(){
 
 let _taskRecurDays=[];
 function selectTaskRecur(freq){
-  // Update hidden input
   const inp=ge('task-recur');if(inp)inp.value=freq;
-  // Update buttons
   document.querySelectorAll('.task-recur-btn').forEach(b=>{
     const isActive=b.id==='trb-'+freq;
-    b.style.background=isActive?'var(--text)':'var(--white)';
+    b.style.background=isActive?'var(--text)':'transparent';
     b.style.color=isActive?'#fff':'var(--text)';
     b.style.borderColor=isActive?'var(--text)':'var(--border2)';
   });
-  // Show/hide day picker
   const picker=ge('task-days-picker');
   if(picker)picker.style.display=freq==='weekly'?'flex':'none';
-  // Reset days if not weekly
   if(freq!=='weekly'){_taskRecurDays=[];const di=ge('task-recur-days');if(di)di.value='';}
 }
 function toggleTaskDay(btn,day){
