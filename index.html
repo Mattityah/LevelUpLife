@@ -3750,343 +3750,310 @@ async function saveNoteToGcal(d){
 }
 
 /* ══════════════════════════════
-   PLANIFICADOR IA — CHAT CONVERSACIONAL
+   PLANIFICADOR IA
+   Fase 1: chat para entender la tarea
+   Fase 2: vista de pasos checkeable
 ══════════════════════════════ */
 let _plannerTaskId=null;
-let _plannerMessages=[]; // historial de mensajes del chat
-let _plannerTask=null;   // tarea seleccionada
+let _plannerMessages=[];
+let _plannerTask=null;
+let _plannerPhase='chat'; // 'chat' | 'plan'
+
+// ── API KEY ──────────────────────────────────────────────
+function getAIKey(){return localStorage.getItem('lu_ai_key')||'';}
+function setAIKey(k){if(k)localStorage.setItem('lu_ai_key',k.trim());else localStorage.removeItem('lu_ai_key');}
+
+function openAPIKeySetup(callback){
+  const existing=getAIKey();
+  const ov=document.createElement('div');
+  ov.id='apikey-overlay';
+  ov.style.cssText='position:fixed;inset:0;z-index:800;background:rgba(0,0,0,0.5);display:flex;align-items:flex-end;justify-content:center';
+  ov.innerHTML=`
+    <div style="background:var(--white);border-radius:24px 24px 0 0;padding:28px 20px 44px;width:100%;max-width:520px;animation:slideUp .3s cubic-bezier(.32,1,.5,1)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+        <div>
+          <div style="font-size:17px;font-family:'Instrument Serif',serif;font-style:italic">Conectar con IA</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px">Necesitás una API key de Anthropic</div>
+        </div>
+        <button onclick="document.getElementById('apikey-overlay').remove()" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--border2);background:var(--bg3);font-size:16px;cursor:pointer;color:var(--muted)">×</button>
+      </div>
+      <div style="background:var(--vi-bg);border-radius:12px;padding:12px 14px;margin-bottom:16px;border:1px solid rgba(124,58,237,0.15)">
+        <div style="font-size:11px;color:var(--vi-tc);line-height:1.6">
+          1. Entrá a <strong>console.anthropic.com</strong><br>
+          2. API Keys → Create Key<br>
+          3. Copiá la key (empieza con <code style="font-family:monospace;font-size:10px">sk-ant-</code>)<br>
+          4. La key se guarda solo en este dispositivo
+        </div>
+      </div>
+      <div style="position:relative;margin-bottom:12px">
+        <input type="password" id="apikey-input" placeholder="sk-ant-api03-..." value="${existing}"
+          style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:11px 40px 11px 12px;font-size:13px;font-family:monospace;outline:none;box-sizing:border-box">
+        <button onclick="const i=ge('apikey-input');i.type=i.type==='password'?'text':'password'" 
+          style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:var(--muted)">👁</button>
+      </div>
+      <button onclick="
+        const k=ge('apikey-input').value.trim();
+        if(!k.startsWith('sk-ant-')){alert('La key debe empezar con sk-ant-');return;}
+        setAIKey(k);
+        document.getElementById('apikey-overlay').remove();
+        ${callback?`(${callback})();`:''}
+      " style="width:100%;padding:12px;background:var(--violet);color:#fff;border:none;border-radius:11px;font-size:13px;font-family:'Geist',sans-serif;cursor:pointer">
+        Guardar y continuar
+      </button>
+      ${existing?`<button onclick="setAIKey('');ge('apikey-input').value='';showToast('Key eliminada')" style="width:100%;padding:9px;background:transparent;color:var(--rose);border:none;font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;margin-top:4px">Eliminar key guardada</button>`:''}
+    </div>`;
+  document.body.appendChild(ov);
+  setTimeout(()=>ge('apikey-input').focus(),300);
+}
+
 
 function openPlanner(preselectedId){
   const pending=state.tasks.filter(t=>!t.done);
   if(!pending.length){alert('No hay tareas pendientes para planificar.');return;}
-  _plannerMessages=[];
-  _plannerTask=null;
+  if(!getAIKey()){openAPIKeySetup(`function(){openPlanner(${preselectedId||'undefined'})}`);return;}
+  _plannerMessages=[];_plannerTask=null;_plannerPhase='chat';
 
   const overlay=document.createElement('div');
-  overlay.id='planner-overlay';
-  overlay.className='plan-overlay';
+  overlay.id='planner-overlay';overlay.className='plan-overlay';
   overlay.innerHTML=`
     <div class="plan-sheet" id="plan-sheet-inner">
-      <!-- Header -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-shrink:0">
-        <div>
-          <div style="font-size:18px;font-family:'Instrument Serif',serif;font-style:italic;color:var(--text)">Planificar con IA</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+        <div style="font-size:18px;font-family:'Instrument Serif',serif;font-style:italic;color:var(--text)">Planificar con IA</div>
+        <div style="display:flex;gap:8px">
+          <button onclick="openAPIKeySetup()" title="API key" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--border2);background:var(--bg3);font-size:13px;cursor:pointer">🔑</button>
+          <button onclick="document.getElementById('planner-overlay').remove()" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--border2);background:var(--bg3);font-size:16px;cursor:pointer;color:var(--muted)">×</button>
         </div>
-        <button onclick="document.getElementById('planner-overlay').remove()" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--border2);background:var(--bg3);font-size:16px;cursor:pointer;color:var(--muted)">×</button>
       </div>
-
-      <!-- Selector tarea -->
-      <div style="flex-shrink:0">
-        <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px;margin-top:16px">¿Qué tarea querés planificar?</div>
-        <select id="plan-task-sel" onchange="plannerTaskSelected(this.value)" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:10px 12px;font-size:13px;font-family:'Geist',sans-serif;outline:none;margin-bottom:12px">
+      <div style="flex-shrink:0;margin-top:16px">
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">¿Qué tarea querés planificar?</div>
+        <select id="plan-task-sel" onchange="plannerTaskSelected(this.value)" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:10px 12px;font-size:13px;font-family:'Geist',sans-serif;outline:none">
           <option value="">— Elegí una tarea —</option>
           ${pending.map(t=>`<option value="${t.id}"${preselectedId&&t.id===preselectedId?' selected':''}>${['','🟢','🟡','🔴'][t.priority||2]||'⚪'} ${t.title} (${t.cat})</option>`).join('')}
         </select>
       </div>
-
-      <!-- Área del chat -->
-      <div id="plan-chat-area" style="flex:1;overflow-y:auto;min-height:0;margin-bottom:12px;display:flex;flex-direction:column;gap:10px">
-        <div id="plan-chat-msgs" style="display:flex;flex-direction:column;gap:8px"></div>
-        <div id="plan-typing" style="display:none;padding:10px 14px;background:var(--bg3);border-radius:14px 14px 14px 4px;width:fit-content">
-          <div style="display:flex;gap:4px;align-items:center;height:14px">
-            <div class="plan-dot"></div><div class="plan-dot" style="animation-delay:.15s"></div><div class="plan-dot" style="animation-delay:.3s"></div>
+      <div id="plan-phase-chat" style="flex:1;display:flex;flex-direction:column;min-height:0;margin-top:12px">
+        <div id="plan-chat-area" style="flex:1;overflow-y:auto;min-height:0;display:flex;flex-direction:column;gap:8px;padding-bottom:4px">
+          <div id="plan-chat-msgs" style="display:flex;flex-direction:column;gap:8px"></div>
+          <div id="plan-typing" style="display:none;padding:10px 14px;background:var(--bg3);border-radius:14px 14px 14px 4px;width:fit-content">
+            <div style="display:flex;gap:4px;align-items:center;height:14px"><div class="plan-dot"></div><div class="plan-dot" style="animation-delay:.15s"></div><div class="plan-dot" style="animation-delay:.3s"></div></div>
           </div>
         </div>
-      </div>
-
-      <!-- Input del usuario -->
-      <div id="plan-input-area" style="display:none;flex-shrink:0">
-        <div style="display:flex;gap:8px;align-items:flex-end">
-          <textarea id="plan-user-input" placeholder="Escribí tu respuesta..." rows="2"
-            style="flex:1;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:12px;padding:10px 12px;font-size:13px;font-family:'Geist',sans-serif;outline:none;resize:none;line-height:1.4"
-            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();plannerSendMsg();}"></textarea>
-          <button onclick="plannerSendMsg()" id="plan-send-btn"
-            style="width:38px;height:38px;border-radius:50%;background:var(--violet);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7L13 1L7 13L6 8L1 7Z" fill="white" stroke="white" stroke-width="1" stroke-linejoin="round"/></svg>
-          </button>
+        <div id="plan-input-area" style="display:none;flex-shrink:0;margin-top:8px">
+          <div style="display:flex;gap:8px;align-items:flex-end">
+            <textarea id="plan-user-input" placeholder="Escribí tu respuesta..." rows="2" style="flex:1;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:12px;padding:10px 12px;font-size:13px;font-family:'Geist',sans-serif;outline:none;resize:none;line-height:1.4" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();plannerSendMsg();}"></textarea>
+            <button onclick="plannerSendMsg()" id="plan-send-btn" style="width:38px;height:38px;border-radius:50%;background:var(--violet);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7L13 1L7 13L6 8L1 7Z" fill="white" stroke="white" stroke-width="1" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+          <div style="font-size:10px;color:var(--muted2);margin-top:4px;text-align:center">Enter para enviar · Shift+Enter para nueva línea</div>
         </div>
-        <div style="font-size:10px;color:var(--muted2);margin-top:5px;text-align:center">Enter para enviar · Shift+Enter para nueva línea</div>
       </div>
-
-      <!-- Resultado final -->
-      <div id="plan-result" style="display:none;flex-shrink:0"></div>
+      <div id="plan-phase-result" style="display:none;flex:1;overflow-y:auto;min-height:0"></div>
     </div>`;
-
   document.body.appendChild(overlay);
-
-  if(preselectedId){
-    const sel=ge('plan-task-sel');
-    sel.value=preselectedId;
-    plannerTaskSelected(preselectedId);
-  }
+  if(preselectedId){const sel=ge('plan-task-sel');if(sel){sel.value=preselectedId;plannerTaskSelected(preselectedId);}}
 }
 
 function plannerTaskSelected(taskId){
   if(!taskId)return;
   _plannerTask=state.tasks.find(t=>t.id===parseInt(taskId));
   if(!_plannerTask)return;
-  _plannerMessages=[];
-  ge('plan-chat-msgs').innerHTML='';
-  ge('plan-result').style.display='none';
-  ge('plan-input-area').style.display='none';
+  _plannerMessages=[];_plannerPhase='chat';
+  const cm=ge('plan-chat-msgs');if(cm)cm.innerHTML='';
+  const pr=ge('plan-phase-result');if(pr){pr.style.display='none';pr.innerHTML='';}
+  const ia=ge('plan-input-area');if(ia)ia.style.display='none';
+  const pc=ge('plan-phase-chat');if(pc)pc.style.display='flex';
   _plannerStartChat();
 }
 
 async function _plannerStartChat(){
-  const t=_plannerTask;
-  if(!t)return;
+  const t=_plannerTask;if(!t)return;
+  const sys=`Sos un coach de productividad en LevelUp Life. Hacé 1-2 preguntas específicas sobre el alcance de la tarea y luego una sobre disponibilidad. Cuando tengas suficiente info, generá el plan.
 
-  // Mensaje inicial del sistema — Claude va a hacer preguntas
-  const systemPrompt=`Sos un coach de productividad dentro de la app LevelUp Life. Tu trabajo es ayudar al usuario a planificar una tarea haciéndole 2-3 preguntas clave para entender bien el alcance antes de generar el plan.
+Tarea: "${t.title}" (${t.cat})
 
-La tarea es: "${t.title}" (categoría: ${t.cat})
+Ejemplos de preguntas por tipo:
+- fotoproductos: ¿cuántos productos? ¿es sesión completa o solo edición?
+- limpiar casa: ¿cuántas habitaciones? ¿limpieza superficial o profunda?
+- aprender X: ¿desde qué nivel? ¿tenés material?
+- proyecto: ¿qué falta exactamente?
 
-FASE 1 — PREGUNTAS:
-Primero, analizá el nombre de la tarea y hacé 1-2 preguntas específicas y cortas para entender mejor el alcance real. Por ejemplo:
-- Si dice "fotoproductos": ¿cuántas fotos/productos?, ¿es sesión completa o solo edición?
-- Si dice "limpiar la casa": ¿cuántas habitaciones?, ¿limpieza superficial o profunda?
-- Si dice "aprender X": ¿desde qué nivel?, ¿tenés material o hay que buscarlo?
-- Si dice "terminar proyecto": ¿qué falta exactamente?, ¿hay dependencias?
+Cuando tengas alcance + disponibilidad, respondé SOLO con este JSON sin texto antes ni después:
+{"PLAN":{"resumen":"frase corta","complejidad":7,"tiempo_total_horas":4.5,"dias_estimados":3,"pasos":[{"titulo":"Paso 1","duracion_min":30,"descripcion":"detalle","dia":1}],"consejo":"consejo"}}
 
-Luego de que el usuario responda, hacé 1 pregunta más sobre disponibilidad: cuántas horas por día puede dedicarle y qué días.
-
-FASE 2 — PLAN (solo cuando tengas suficiente info):
-Cuando tengas la información necesaria, generá el plan en este JSON exacto (sin markdown, sin texto extra):
-{"PLAN":{"complejidad":7,"tiempo_total_horas":4.5,"dias_estimados":3,"resumen":"Frase corta","pasos":[{"titulo":"Paso 1","duracion_min":30,"descripcion":"Qué hacer"}],"cronograma":[{"dia":1,"pasos_idx":[0],"descripcion":"Qué hacer el día 1"}],"consejo":"Consejo motivador"}}
-
-REGLAS:
-- Tono cálido, directo, en español rioplatense
-- Preguntas cortas, máximo 2-3 líneas
-- Cuando vayas a dar el plan, SOLO el JSON, nada más
-- No uses asteriscos ni markdown en las preguntas`;
-
+Tono: directo, cálido, español rioplatense. Sin markdown ni asteriscos.`;
   _plannerMessages=[{role:'user',content:`Necesito planificar: "${t.title}"`}];
-
   _showTyping();
   try{
-    const reply=await _callClaude(systemPrompt,_plannerMessages);
+    const reply=await _callClaude(sys,_plannerMessages);
     _hideTyping();
-    _appendMsg('ai',reply);
     _plannerMessages.push({role:'assistant',content:reply});
-
-    // Ver si ya viene el plan
-    if(reply.includes('"PLAN"')){
-      _parsePlan(reply);
-    } else {
-      ge('plan-input-area').style.display='block';
-      ge('plan-user-input').focus();
-    }
-  }catch(err){
-    _hideTyping();
-    _appendMsg('error','No pude conectar con la IA. Verificá tu conexión.');
-  }
+    if(reply.trim().startsWith('{"PLAN"')||reply.includes('"PLAN":')){_switchToPlanView(reply);}
+    else{_appendMsg('ai',reply);const ia=ge('plan-input-area');if(ia)ia.style.display='block';setTimeout(()=>{const i=ge('plan-user-input');if(i)i.focus();},200);}
+  }catch(err){_hideTyping();_appendMsg('error',err.message||'No pude conectar con la IA.');}
 }
 
 async function plannerSendMsg(){
-  const input=ge('plan-user-input');
-  const txt=input.value.trim();
-  if(!txt)return;
+  const input=ge('plan-user-input');if(!input)return;
+  const txt=input.value.trim();if(!txt)return;
   input.value='';
-  ge('plan-send-btn').disabled=true;
-
+  const sb=ge('plan-send-btn');if(sb)sb.disabled=true;
   _appendMsg('user',txt);
   _plannerMessages.push({role:'user',content:txt});
-
-  const systemPrompt=`Sos un coach de productividad dentro de LevelUp Life. Estás ayudando a planificar: "${_plannerTask.title}" (${_plannerTask.cat}).
-
-Continuá la conversación. Si ya tenés suficiente info sobre el alcance Y disponibilidad, generá el plan final con el JSON. Si todavía falta algo clave, hacé UNA pregunta más.
-
-Cuando tengas todo, respondé SOLO con este JSON (sin texto antes ni después):
-{"PLAN":{"complejidad":7,"tiempo_total_horas":4.5,"dias_estimados":3,"resumen":"Frase corta","pasos":[{"titulo":"Paso 1","duracion_min":30,"descripcion":"Descripción"}],"cronograma":[{"dia":1,"pasos_idx":[0],"descripcion":"Día 1"}],"consejo":"Consejo"}}
-
-Reglas: español rioplatense, tono directo y cálido, sin markdown.`;
-
+  const sys=`Sos un coach de productividad en LevelUp Life planificando: "${_plannerTask.title}" (${_plannerTask.cat}).
+Si falta info clave → hacé UNA pregunta más. Si ya tenés alcance y disponibilidad → generá el plan SOLO con este JSON sin texto:
+{"PLAN":{"resumen":"frase","complejidad":7,"tiempo_total_horas":4.5,"dias_estimados":3,"pasos":[{"titulo":"Paso 1","duracion_min":30,"descripcion":"detalle","dia":1}],"consejo":"consejo"}}
+Tono: directo, cálido, español rioplatense. Sin markdown.`;
   _showTyping();
   try{
-    const reply=await _callClaude(systemPrompt,_plannerMessages);
+    const reply=await _callClaude(sys,_plannerMessages);
     _hideTyping();
     _plannerMessages.push({role:'assistant',content:reply});
-
-    if(reply.trim().startsWith('{"PLAN"')||reply.includes('"PLAN":')){
-      _appendMsg('ai','Perfecto, acá está tu plan 👇');
-      _parsePlan(reply);
-      ge('plan-input-area').style.display='none';
-    } else {
-      _appendMsg('ai',reply);
-      ge('plan-user-input').focus();
-    }
-  }catch(err){
-    _hideTyping();
-    _appendMsg('error','Error al conectar. Intentá de nuevo.');
-  }
-  ge('plan-send-btn').disabled=false;
+    if(reply.trim().startsWith('{"PLAN"')||reply.includes('"PLAN":')){_switchToPlanView(reply);const ia=ge('plan-input-area');if(ia)ia.style.display='none';}
+    else{_appendMsg('ai',reply);setTimeout(()=>{const i=ge('plan-user-input');if(i)i.focus();},100);}
+  }catch(err){_hideTyping();_appendMsg('error',err.message||'Error al conectar.');}
+  if(sb)sb.disabled=false;
 }
 
 async function _callClaude(system,messages){
+  const key=getAIKey();
+  if(!key)throw new Error('No hay API key. Tocá 🔑 para configurarla.');
   const resp=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'anthropic-dangerous-direct-browser-access':'true'
-    },
-    body:JSON.stringify({
-      model:'claude-sonnet-4-6',
-      max_tokens:1000,
-      system:system,
-      messages:messages
-    })
+    headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1200,system:system,messages:messages})
   });
   if(!resp.ok){
-    const errData=await resp.json().catch(()=>({}));
-    throw new Error(errData.error?.message||`HTTP ${resp.status}`);
+    const e=await resp.json().catch(()=>({}));
+    if(resp.status===401)throw new Error('API key inválida. Tocá 🔑 para corregirla.');
+    if(resp.status===429)throw new Error('Límite de requests. Esperá un momento.');
+    throw new Error(e.error?.message||`HTTP ${resp.status}`);
   }
   const data=await resp.json();
   return data.content.map(i=>i.text||'').join('');
 }
 
 function _appendMsg(role,text){
-  const msgs=ge('plan-chat-msgs');
-  const isAI=role==='ai';
-  const isUser=role==='user';
-  const isError=role==='error';
-
+  const msgs=ge('plan-chat-msgs');if(!msgs)return;
+  const isUser=role==='user',isError=role==='error';
   const div=document.createElement('div');
   div.style.cssText=`display:flex;${isUser?'justify-content:flex-end':'justify-content:flex-start'}`;
-
-  const bubble=document.createElement('div');
-  bubble.style.cssText=`
-    max-width:85%;padding:10px 14px;border-radius:${isUser?'14px 14px 4px 14px':'14px 14px 14px 4px'};
-    font-size:13px;line-height:1.5;font-family:'Geist',sans-serif;
-    background:${isUser?'var(--violet)':isError?'rgba(190,24,93,0.08)':'var(--bg3)'};
-    color:${isUser?'#fff':isError?'var(--rose)':'var(--text)'};
-    border:${isError?'1px solid rgba(190,24,93,0.2)':'none'};
-  `;
-  // Convertir saltos de línea
-  bubble.innerHTML=text.replace(/\n/g,'<br>');
-  div.appendChild(bubble);
-  msgs.appendChild(div);
-
-  // Scroll al final
-  const chatArea=ge('plan-chat-area');
-  chatArea.scrollTop=chatArea.scrollHeight;
+  const bub=document.createElement('div');
+  bub.style.cssText=`max-width:88%;padding:10px 14px;border-radius:${isUser?'14px 14px 4px 14px':'14px 14px 14px 4px'};font-size:13px;line-height:1.5;font-family:'Geist',sans-serif;background:${isUser?'var(--violet)':isError?'rgba(190,24,93,0.08)':'var(--bg3)'};color:${isUser?'#fff':isError?'var(--rose)':'var(--text)'};border:${isError?'1px solid rgba(190,24,93,0.2)':'none'};`;
+  bub.innerHTML=text.replace(/\n/g,'<br>');
+  div.appendChild(bub);msgs.appendChild(div);
+  const ca=ge('plan-chat-area');if(ca)ca.scrollTop=ca.scrollHeight;
 }
+function _showTyping(){const t=ge('plan-typing');if(t){t.style.display='block';const ca=ge('plan-chat-area');if(ca)ca.scrollTop=ca.scrollHeight;}}
+function _hideTyping(){const t=ge('plan-typing');if(t)t.style.display='none';}
 
-function _showTyping(){
-  const typing=ge('plan-typing');
-  if(typing){typing.style.display='block';const ca=ge('plan-chat-area');ca.scrollTop=ca.scrollHeight;}
-}
-function _hideTyping(){
-  const typing=ge('plan-typing');
-  if(typing)typing.style.display='none';
-}
-
-function _parsePlan(rawText){
+function _switchToPlanView(rawText){
   try{
-    const match=rawText.match(/\{[\s\S]*\}/);
-    if(!match)throw new Error('No JSON found');
-    const outer=JSON.parse(match[0]);
-    const plan=outer.PLAN||outer;
-    window._lastPlan=plan;
-    _plannerTaskId=_plannerTask.id;
-
-    const compColor=plan.complejidad<=3?'#15803d':plan.complejidad<=6?'#b45309':'#be185d';
-    const compPct=plan.complejidad*10;
-    const resultEl=ge('plan-result');
-    resultEl.style.display='block';
-    resultEl.innerHTML=`
-      <div style="border-top:1px solid var(--border);padding-top:16px;margin-top:4px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span style="font-size:9px;color:var(--muted2);font-weight:500;text-transform:uppercase;letter-spacing:.8px">Complejidad</span>
-          <span style="font-size:13px;font-weight:500;color:${compColor}">${plan.complejidad}/10</span>
-        </div>
-        <div class="complexity-bar"><div class="complexity-fill" style="width:${compPct}%;background:${compColor}"></div></div>
-        <div style="font-size:12px;color:var(--muted);margin:6px 0 14px">${plan.resumen}</div>
-
-        <div style="display:flex;gap:10px;margin-bottom:16px">
-          <div style="flex:1;background:var(--vi-bg);border-radius:10px;padding:10px;text-align:center">
-            <div style="font-size:18px;font-weight:500;color:var(--violet)">${plan.tiempo_total_horas}h</div>
-            <div style="font-size:10px;color:var(--vi-tc)">Tiempo total</div>
+    const match=rawText.match(/\{[\s\S]*\}/);if(!match)throw new Error('no json');
+    const outer=JSON.parse(match[0]);const plan=outer.PLAN||outer;
+    window._lastPlan=plan;_plannerTaskId=_plannerTask.id;_plannerPhase='plan';
+    const pc=ge('plan-phase-chat');if(pc)pc.style.display='none';
+    const re=ge('plan-phase-result');re.style.display='block';
+    const cc=plan.complejidad<=3?'#15803d':plan.complejidad<=6?'#b45309':'#be185d';
+    // Agrupar pasos por día
+    const byDay={};
+    plan.pasos.forEach((p,i)=>{const d=p.dia||1;if(!byDay[d])byDay[d]=[];byDay[d].push({...p,idx:i});});
+    const days=Object.keys(byDay).sort((a,b)=>a-b);
+    re.innerHTML=`
+      <div style="padding:14px 0 0">
+        <div style="font-size:15px;font-family:'Instrument Serif',serif;font-style:italic;color:var(--text);margin-bottom:2px">${_plannerTask.title}</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px">${plan.resumen}</div>
+        <div style="display:flex;gap:8px;margin-bottom:16px">
+          <div style="flex:1;background:var(--vi-bg);border-radius:10px;padding:9px;text-align:center">
+            <div style="font-size:16px;font-weight:500;color:var(--violet)">${plan.tiempo_total_horas}h</div>
+            <div style="font-size:9px;color:var(--vi-tc);text-transform:uppercase;letter-spacing:.6px">Total</div>
           </div>
-          <div style="flex:1;background:var(--bg3);border-radius:10px;padding:10px;text-align:center">
-            <div style="font-size:18px;font-weight:500;color:var(--text)">${plan.dias_estimados}</div>
-            <div style="font-size:10px;color:var(--muted2)">Días</div>
+          <div style="flex:1;background:var(--bg3);border-radius:10px;padding:9px;text-align:center">
+            <div style="font-size:16px;font-weight:500;color:var(--text)">${plan.dias_estimados}</div>
+            <div style="font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.6px">Días</div>
           </div>
-          <div style="flex:1;background:var(--bg3);border-radius:10px;padding:10px;text-align:center">
-            <div style="font-size:18px;font-weight:500;color:var(--text)">${plan.pasos.length}</div>
-            <div style="font-size:10px;color:var(--muted2)">Pasos</div>
+          <div style="flex:1;background:var(--bg3);border-radius:10px;padding:9px;text-align:center">
+            <div style="font-size:16px;font-weight:500;color:${cc}">${plan.complejidad}/10</div>
+            <div style="font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.6px">Dificultad</div>
           </div>
         </div>
-
-        <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:10px">Plan de acción</div>
-        ${plan.pasos.map((p,i)=>`
-          <div class="plan-step">
-            <div class="plan-step-num">${i+1}</div>
-            <div style="flex:1">
-              <div style="font-size:13px;font-weight:400;color:var(--text)">${p.titulo}</div>
-              <div style="font-size:11px;color:var(--muted);margin-top:2px">${p.descripcion}</div>
-              <div style="font-size:10px;color:var(--muted2);margin-top:3px">⏱ ${p.duracion_min} min</div>
+        ${days.map(d=>`
+          <div style="margin-bottom:14px">
+            <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:6px">
+              <div style="width:22px;height:22px;border-radius:7px;background:var(--vi-bg);color:var(--violet);font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center">D${d}</div>
+              Día ${d}
             </div>
+            ${byDay[d].map(p=>`
+              <div id="pstep-${p.idx}" onclick="_togglePlanStep(${p.idx})" data-done="false"
+                style="display:flex;align-items:flex-start;gap:10px;padding:11px 13px;background:var(--bg3);border-radius:12px;margin-bottom:6px;cursor:pointer;transition:all .15s;border:1.5px solid transparent">
+                <div id="pstep-check-${p.idx}" style="width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:all .15s"></div>
+                <div style="flex:1;min-width:0">
+                  <div id="pstep-title-${p.idx}" style="font-size:13px;color:var(--text);line-height:1.3">${p.titulo}</div>
+                  <div style="font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4">${p.descripcion}</div>
+                  <div style="font-size:10px;color:var(--muted2);margin-top:4px">⏱ ${p.duracion_min} min</div>
+                </div>
+              </div>`).join('')}
           </div>`).join('')}
-
-        <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin:14px 0 10px">Cronograma sugerido</div>
-        ${plan.cronograma.map(d=>`
-          <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px">
-            <div style="width:36px;height:36px;border-radius:10px;background:var(--vi-bg);color:var(--violet);font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0">D${d.dia}</div>
-            <div><div style="font-size:12px;color:var(--text)">${d.descripcion}</div><div style="font-size:10px;color:var(--muted2);margin-top:2px">${d.pasos_idx.map(i=>'Paso '+(i+1)).join(' · ')}</div></div>
-          </div>`).join('')}
-
-        <div style="background:linear-gradient(135deg,rgba(124,58,237,0.06),rgba(168,85,247,0.06));border:1px solid rgba(124,58,237,0.15);border-radius:12px;padding:12px 14px;margin:14px 0">
-          <div style="font-size:10px;color:var(--violet);font-weight:500;margin-bottom:4px">✦ Consejo</div>
+        <div style="margin:8px 0 14px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+            <span style="font-size:10px;color:var(--muted2)">Progreso</span>
+            <span id="plan-progress-lbl" style="font-size:10px;color:var(--violet);font-weight:500">0 / ${plan.pasos.length} pasos</span>
+          </div>
+          <div style="height:5px;border-radius:3px;background:var(--bg4)"><div id="plan-progress-fill" style="height:100%;border-radius:3px;background:var(--violet);width:0%;transition:width .3s ease"></div></div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(124,58,237,0.06),rgba(168,85,247,0.06));border:1px solid rgba(124,58,237,0.15);border-radius:12px;padding:12px 14px;margin-bottom:14px">
+          <div style="font-size:9px;color:var(--violet);font-weight:500;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">✦ Consejo</div>
           <div style="font-size:12px;color:var(--text);line-height:1.55;font-family:'Instrument Serif',serif;font-style:italic">${plan.consejo}</div>
         </div>
-
-        <button onclick="savePlanAsSubtasks()" style="width:100%;padding:12px;background:var(--text);color:#fff;border:none;border-radius:11px;font-size:13px;font-family:'Geist',sans-serif;font-weight:400;cursor:pointer;margin-top:4px">
-          ✓ Convertir en sub-tareas
-        </button>
-        <button onclick="document.getElementById('planner-overlay').remove()" style="width:100%;padding:10px;background:transparent;color:var(--muted);border:none;font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;margin-top:4px">
-          Cerrar sin guardar
-        </button>
+        <button onclick="savePlanAsSubtasks()" style="width:100%;padding:12px;background:var(--text);color:#fff;border:none;border-radius:11px;font-size:13px;font-family:'Geist',sans-serif;cursor:pointer;margin-bottom:6px">✓ Guardar como sub-tareas</button>
+        <button onclick="_plannerBackToChat()" style="width:100%;padding:9px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:11px;font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;margin-bottom:6px">← Ajustar descripción</button>
+        <button onclick="document.getElementById('planner-overlay').remove()" style="width:100%;padding:8px;background:transparent;color:var(--muted2);border:none;font-size:12px;font-family:'Geist',sans-serif;cursor:pointer">Cerrar sin guardar</button>
       </div>`;
+  }catch(e){_appendMsg('error','No pude leer el plan. Intentá de nuevo.');const pc=ge('plan-phase-chat');if(pc)pc.style.display='flex';const re=ge('plan-phase-result');if(re)re.style.display='none';}
+}
 
-    // scroll al plan
-    setTimeout(()=>{const ca=ge('plan-chat-area');ca.scrollTop=ca.scrollHeight;},100);
-  }catch(e){
-    _appendMsg('error','No pude leer el plan. Intentá de nuevo.');
-  }
+function _togglePlanStep(idx){
+  const card=ge(`pstep-${idx}`),check=ge(`pstep-check-${idx}`),title=ge(`pstep-title-${idx}`);
+  if(!card||!check)return;
+  const done=card.dataset.done!=='true';
+  card.dataset.done=done;
+  if(done){card.style.background='rgba(124,58,237,0.05)';card.style.borderColor='rgba(124,58,237,0.25)';check.style.background='var(--violet)';check.style.borderColor='var(--violet)';check.innerHTML='<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';if(title){title.style.textDecoration='line-through';title.style.color='var(--muted2)';}}
+  else{card.style.background='var(--bg3)';card.style.borderColor='transparent';check.style.background='var(--white)';check.style.borderColor='var(--border2)';check.innerHTML='';if(title){title.style.textDecoration='none';title.style.color='var(--text)';}}
+  _updatePlanProgress();
+}
+function _updatePlanProgress(){
+  const plan=window._lastPlan;if(!plan)return;
+  const total=plan.pasos.length;let done=0;
+  for(let i=0;i<total;i++){const c=ge(`pstep-${i}`);if(c&&c.dataset.done==='true')done++;}
+  const pct=total?Math.round(done/total*100):0;
+  const lbl=ge('plan-progress-lbl'),fill=ge('plan-progress-fill');
+  if(lbl)lbl.textContent=done===total&&total>0?'✓ Completado':`${done} / ${total} pasos`;
+  if(lbl&&done===total&&total>0)lbl.style.color='#15803d';
+  if(fill){fill.style.width=pct+'%';if(done===total&&total>0)fill.style.background='#15803d';}
+}
+function _plannerBackToChat(){
+  _plannerPhase='chat';
+  const re=ge('plan-phase-result');if(re)re.style.display='none';
+  const pc=ge('plan-phase-chat');if(pc)pc.style.display='flex';
+  _appendMsg('ai','¿Qué querés ajustar? Contame y regenero el plan.');
+  const ia=ge('plan-input-area');if(ia)ia.style.display='block';
+  setTimeout(()=>{const i=ge('plan-user-input');if(i)i.focus();},100);
 }
 
 function savePlanAsSubtasks(){
-  const plan=window._lastPlan;
-  if(!plan){alert('No hay plan guardado.');return;}
-  const task=state.tasks.find(t=>t.id===_plannerTaskId);
-  if(!task)return;
-  // Guardar complejidad en la tarea
-  task.complexity=plan.complejidad;
-  task.estimatedHours=plan.tiempo_total_horas;
-  // Crear sub-tareas como objetos en la tarea
-  task.subtasks=plan.pasos.map((p,i)=>({
-    id:i,
-    title:p.titulo,
-    description:p.descripcion,
-    duracion:p.duracion_min,
-    done:false
-  }));
-  save();
-  renderTasks();
-  document.getElementById('planner-overlay').remove();
-  // Feedback
-  setTimeout(()=>{
-    const taskEl=document.getElementById('task-'+_plannerTaskId);
-    if(taskEl){taskEl.style.transition='background .4s';taskEl.style.background='rgba(124,58,237,0.07)';setTimeout(()=>{taskEl.style.background='';},800);}
-  },100);
+  const plan=window._lastPlan;if(!plan){alert('No hay plan guardado.');return;}
+  const task=state.tasks.find(t=>t.id===_plannerTaskId);if(!task)return;
+  task.complexity=plan.complejidad;task.estimatedHours=plan.tiempo_total_horas;
+  task.subtasks=plan.pasos.map((p,i)=>({id:i,title:p.titulo,description:p.descripcion,duracion:p.duracion_min,done:false}));
+  save();renderTasks();document.getElementById('planner-overlay').remove();
+  setTimeout(()=>{const el=document.getElementById('task-'+_plannerTaskId);if(el){el.style.transition='background .4s';el.style.background='rgba(124,58,237,0.07)';setTimeout(()=>{el.style.background='';},800);}},100);
 }
 
 function toggleSubtask(taskId,subIdx){
-  const task=state.tasks.find(t=>t.id===taskId);
-  if(!task||!task.subtasks)return;
-  task.subtasks[subIdx].done=!task.subtasks[subIdx].done;
-  save();renderTasks();
+  const task=state.tasks.find(t=>t.id===taskId);if(!task||!task.subtasks)return;
+  task.subtasks[subIdx].done=!task.subtasks[subIdx].done;save();renderTasks();
 }
+
 
 /* ── RESET ── */
 function resetSoft(){
