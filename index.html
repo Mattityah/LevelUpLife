@@ -1123,6 +1123,14 @@ const DEFAULT_CATS=[
                   <span style="font-size:10px;color:var(--violet);font-weight:500;background:var(--vi-bg);padding:2px 8px;border-radius:20px" id="home-cal-day-xp"></span>
                 </div>
                 <div id="home-cal-day-list" style="max-height:180px;overflow-y:auto"></div>
+                <!-- Google Calendar events — visually differentiated -->
+                <div id="home-gcal-section" style="display:none;margin-top:8px;border-top:1px solid var(--border);padding-top:8px">
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+                    <div style="width:14px;height:14px;border-radius:3px;background:linear-gradient(135deg,#4285f4,#34a853);flex-shrink:0"></div>
+                    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.1px;color:var(--muted2);font-weight:500">Google Calendar</div>
+                  </div>
+                  <div id="home-gcal-events" style="display:flex;flex-direction:column;gap:4px"></div>
+                </div>
                 <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px">
                   <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.1px;color:var(--muted2);font-weight:500;margin-bottom:5px">Nota del día</div>
                   <textarea id="home-cal-note" placeholder="Anotá algo..." style="width:100%;min-height:50px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:7px 10px;font-size:12px;font-family:'Geist',sans-serif;font-weight:300;outline:none;resize:none;" onfocus="this.style.borderColor='var(--violet)'" onblur="this.style.borderColor='var(--border2)'"></textarea>
@@ -1428,7 +1436,13 @@ const DEFAULT_CATS=[
           <div style="text-align:center"><div class="ps-n" id="pf-xp">0</div><div class="ps-l">XP</div></div>
         </div>
       </div>
-      <div style="height:20px"></div>
+
+      <!-- Categorías con nivel y progreso -->
+      <div style="padding:0 20px 4px" id="prof-cats-section">
+        <div class="sec-label" style="margin-bottom:14px">Mis categorías</div>
+        <div id="prof-cats-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px"></div>
+      </div>
+
       <div class="set-list">
         <div class="sec-label" style="margin-bottom:10px">Configuración</div>
         <div class="set-item" onclick="sw('calendario')"><div class="set-ico" style="background:#f0f9ff">📅</div><span class="set-txt">Calendario & notas</span><span class="set-arr">›</span></div>
@@ -2909,6 +2923,7 @@ function render(){
   ge('pf-streak')&&(ge('pf-streak').textContent=state.streak||0);
   ge('pf-done')&&(ge('pf-done').textContent=state.tasks.filter(t=>t.done).length);
   ge('pf-xp')&&(ge('pf-xp').textContent=xp);
+  renderProfCats();
   // Tasks sub
   ge('tasks-sub')&&(ge('tasks-sub').textContent=`${state.tasks.filter(t=>!t.done).length} pendientes hoy`);
   renderTasks();
@@ -3465,13 +3480,19 @@ function calShowDayHome(d){
   ge('home-cal-detail').scrollIntoView({behavior:'smooth',block:'nearest'});
   // Show GCal events for this day
   const gcalEl = ge('home-gcal-events');
-  if (gcalEl && window.gcalEventsForDay) {
+  const gcalSection = ge('home-gcal-section');
+  if (gcalEl && gcalSection && window.gcalEventsForDay) {
     const dateStr = `${calDate.getFullYear()}-${String(calDate.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const evs = window.gcalEventsForDay(dateStr);
     if (evs.length) {
-      gcalEl.innerHTML = evs.map(ev => `<div class="gcal-event"><div class="gcal-event-dot"></div><span class="gcal-event-title">${esc(ev.title)}</span><span class="gcal-event-time">${ev.time}</span></div>`).join('');
+      gcalSection.style.display='block';
+      gcalEl.innerHTML = evs.map(ev => `
+        <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:linear-gradient(135deg,rgba(66,133,244,0.06),rgba(52,168,83,0.06));border:1px solid rgba(66,133,244,0.15);border-left:3px solid #4285f4;border-radius:6px">
+          <span style="flex:1;font-size:12px;color:var(--text);font-weight:300">${esc(ev.title)}</span>
+          <span style="font-size:10px;color:#4285f4;font-weight:500">${ev.time}</span>
+        </div>`).join('');
     } else {
-      gcalEl.innerHTML = '<div style="font-size:11px;color:var(--muted2);padding:2px 0">Sin eventos de Google Calendar</div>';
+      gcalSection.style.display='none';
     }
   }
 }
@@ -3683,6 +3704,45 @@ function saveProfile(){
   const btn=event.target;
   btn.textContent='✓ Guardado';btn.style.background='var(--teal)';
   setTimeout(()=>{btn.textContent='Guardar cambios';btn.style.background='var(--text)';sw('perfil');},1000);
+}
+
+function renderProfCats(){
+  const el=ge('prof-cats-grid');
+  if(!el) return;
+  const cats=getAllCategories();
+  if(!cats||!cats.length){el.innerHTML='';return;}
+
+  el.innerHTML=cats.map(cat=>{
+    const m=CATS[cat.id]||{color:'#7c3aed',bg:'#f5f2ff'};
+    const cl=calcCatLevel(cat.id);
+    const catStreak=getCatStreak(cat.id);
+    const gradients={
+      '#7c3aed':'linear-gradient(135deg,#6d28d9,#a855f7)',
+      '#0f766e':'linear-gradient(135deg,#0f766e,#10b981)',
+      '#b45309':'linear-gradient(135deg,#b45309,#f59e0b)',
+      '#be185d':'linear-gradient(135deg,#be185d,#f472b6)',
+      '#0369a1':'linear-gradient(135deg,#0369a1,#38bdf8)',
+    };
+    const grad=gradients[cat.color]||`linear-gradient(135deg,${cat.color},${cat.color}88)`;
+
+    return `<div style="background:${grad};border-radius:16px;padding:14px;color:#fff;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:rgba(255,255,255,0.08);border-radius:50%"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:22px">${cat.emoji}</span>
+        <span style="font-size:10px;font-weight:600;background:rgba(255,255,255,0.2);border-radius:20px;padding:2px 8px">Nv ${cl.lvl}</span>
+      </div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:2px">${cat.name}</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.7);margin-bottom:8px">${cl.xp} XP</div>
+      <!-- Barra vertical de progreso — horizontal aquí por espacio -->
+      <div style="height:3px;background:rgba(255,255,255,0.25);border-radius:10px;overflow:hidden;margin-bottom:6px">
+        <div style="height:100%;width:${cl.pct}%;background:rgba(255,255,255,0.9);border-radius:10px;transition:width .5s"></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:9px;color:rgba(255,255,255,0.6)">${cl.xp}/${cl.nextXp} XP</span>
+        <span style="font-size:10px;color:rgba(255,255,255,0.9)">${catStreak>0?catStreak+'🔥':''}</span>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function applyProfile(){
