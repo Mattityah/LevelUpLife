@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+<!-- DEV_MODE: cambiar a true para desarrollo local (salta login Google) -->
+<script>const DEV_MODE = false;</script>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -755,6 +757,23 @@ const DEFAULT_CATS=[
 
   // ── Auth state observer ──
   onAuthStateChanged(auth, (user) => {
+    // ── DEV MODE: línea 3 del archivo, cambiar a true para desarrollo local ──
+    if (DEV_MODE) {
+      window._currentUID = 'dev-local';
+      showApp({ displayName: 'Dev Local', email: 'dev@local' });
+      // Cargar desde localStorage directamente
+      const waitAndRender = () => {
+        if (window.render && window.state) {
+          window._fbLoaded = true;
+          window.render();
+          if (window.applyProfile) window.applyProfile();
+          if (window.applyProfilePhoto) window.applyProfilePhoto();
+        } else { setTimeout(waitAndRender, 50); }
+      };
+      waitAndRender();
+      return;
+    }
+    // ── FIN DEV MODE ──
     if (user) {
       window._currentUID = user.uid;
       showApp(user);
@@ -2360,7 +2379,7 @@ function habitCardHTML(h,showCheck){
     freqHTML=`<span style="font-size:10px;color:var(--muted2);background:var(--bg3);border-radius:20px;padding:2px 8px">${h.timesPerWeek}x semana</span>`;
   }
 
-  // Grid 14 días — solo puntos limpios, sin texto encima de cada celda
+  // Grid 14 días — celda de hoy clickeable
   const days=[];
   for(let i=13;i>=0;i--){
     const d=new Date();d.setDate(d.getDate()-i);
@@ -2368,25 +2387,27 @@ function habitCardHTML(h,showCheck){
     const isToday=i===0;
     const isDone=habitDoneOn(h,key);
     const titleStr=d.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'});
-    days.push(`<div title="${titleStr}" style="aspect-ratio:1;border-radius:5px;background:${isDone?m.color+'dd':'var(--bg3)'};${isToday?'outline:2px solid '+m.color+';outline-offset:1px':''}"></div>`);
+    const clickAttr=isToday?`onclick="event.stopPropagation();toggleHabit('${h.id}')" style="aspect-ratio:1;border-radius:5px;background:${isDone?m.color+'dd':'var(--bg3)'};outline:2px solid ${m.color};outline-offset:1px;cursor:pointer"`
+      :`style="aspect-ratio:1;border-radius:5px;background:${isDone?m.color+'dd':'var(--bg3)'}"`;
+    days.push(`<div title="${titleStr}" ${clickAttr}></div>`);
   }
   const dStart=new Date();dStart.setDate(dStart.getDate()-13);
   const dEnd=new Date();
   const ms=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
   const rangeLabel=dStart.getDate()+' '+ms[dStart.getMonth()]+' → '+dEnd.getDate()+' '+ms[dEnd.getMonth()];
 
-  const checkBtn=showCheck?`<div class="habit-check${done?' done':''}" style="${done?'background:'+m.color+';box-shadow:0 3px 10px '+m.color+'44':'background:var(--white)'}" onclick="event.stopPropagation();toggleHabit('${h.id}')">${done?'✓':''}</div>`:'';
+  // La card entera es clickeable para toggle (solo en sección Hoy)
+  const cardClick=showCheck?`onclick="toggleHabit('${h.id}')" style="cursor:pointer"`:'';
 
-  return `<div class="habit-card" id="habit-${h.id}">
+  return `<div class="habit-card" id="habit-${h.id}" ${cardClick}>
     <div class="habit-top">
       <div class="habit-ico" style="background:${m.bg}">${h.emoji}</div>
       <div style="flex:1;min-width:0">
         <div class="habit-name">${esc(h.name)}</div>
         <div class="habit-meta" style="margin-top:4px">${freqHTML}</div>
       </div>
-      <div style="display:flex;align-items:center;gap:6px">
-        ${checkBtn}
-        ${done?`<button onclick="event.stopPropagation();toggleHabit('${h.id}')" title="Deshacer" style="width:28px;height:28px;border-radius:50%;background:${m.bg};border:none;cursor:pointer;color:${m.color};font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;opacity:0.8">↩</button>`:''}
+      <div style="display:flex;align-items:center;gap:6px" onclick="event.stopPropagation()">
+        ${done&&showCheck?`<button onclick="toggleHabit('${h.id}')" title="Deshacer" style="width:28px;height:28px;border-radius:50%;background:${m.bg};border:none;cursor:pointer;color:${m.color};font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0">↩</button>`:''}
         <button onclick="deleteHabit('${h.id}')" style="font-size:15px;color:var(--muted2);background:none;border:none;cursor:pointer;padding:4px" title="Eliminar">×</button>
       </div>
     </div>
