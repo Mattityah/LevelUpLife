@@ -1871,7 +1871,18 @@ function renderDayNotes(){
 function deleteNote(dateKey, lineIdx){
   if(!state.notes||!state.notes[dateKey])return;
   const raw=state.notes[dateKey];
-  const entries=raw.includes('\u241E')?raw.split('\u241E'):raw.split('\n').filter(Boolean);
+  let entries;
+  if(raw.includes('\u241E')){
+    entries=raw.split('\u241E').filter(Boolean);
+  } else {
+    const lines=raw.split('\n');
+    entries=[];
+    lines.forEach(line=>{
+      if(/^\[\d{2}:\d{2}/.test(line)){entries.push(line);}
+      else if(entries.length>0&&line.trim()){entries[entries.length-1]+='\n'+line;}
+      else if(line.trim()){entries.push(line);}
+    });
+  }
   entries.splice(lineIdx,1);
   if(entries.length===0) delete state.notes[dateKey];
   else state.notes[dateKey]=entries.join('\u241E');
@@ -1901,9 +1912,22 @@ function renderBitacora(){
     const date=new Date(y,m-1,d);
     const isToday=key===(() => {const t=new Date();return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;})();
     const label=isToday?'Hoy':`${dayNames[date.getDay()]}, ${d} de ${monthNames[m-1]}`;
-    // Soporte para separador viejo (\n) y nuevo (\u241E)
+    // Soporte para separador viejo (\n entre entradas con timestamp) y nuevo (\u241E)
     const raw=notes[key];
-    const entries=raw.includes('\u241E')?raw.split('\u241E'):raw.split('\n').filter(Boolean);
+    let entries;
+    if(raw.includes('\u241E')){
+      entries=raw.split('\u241E').filter(Boolean);
+    } else {
+      // Formato viejo: cada línea que empieza con [HH:MM] es una entrada nueva
+      // Las líneas sin timestamp se juntan con la entrada anterior
+      const lines=raw.split('\n');
+      entries=[];
+      lines.forEach(line=>{
+        if(/^\[\d{2}:\d{2}/.test(line)){entries.push(line);}
+        else if(entries.length>0&&line.trim()){entries[entries.length-1]+='\n'+line;}
+        else if(line.trim()){entries.push(line);}
+      });
+    }
 
     const notesHTML=entries.map((entry,idx)=>{
       const match=entry.match(/^\[(\d{2}:\d{2}(?:\s[ap]\.?\s?m\.?)?)\] ([\s\S]+)$/);
