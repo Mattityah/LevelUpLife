@@ -1243,7 +1243,7 @@ const DEFAULT_CATS=[
         <!-- Campo de escritura en la sección -->
         <div style="background:var(--white);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,0.05)">
           <div style="font-size:9px;font-weight:500;color:var(--muted2);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:10px" id="bita-date-label">HOY</div>
-          <textarea id="bita-inp" placeholder="Anotá algo... (Enter para nueva línea, Ctrl+Enter para guardar)" style="width:100%;min-height:80px;background:transparent;border:none;outline:none;font-size:14px;font-family:'Geist',sans-serif;font-weight:300;color:var(--text);resize:none;line-height:1.6;box-sizing:border-box" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)){event.preventDefault();submitBitaInline();}"></textarea>
+          <textarea id="bita-inp" placeholder="Anotá algo..." style="width:100%;min-height:80px;background:transparent;border:none;outline:none;font-size:14px;font-family:'Geist',sans-serif;font-weight:300;color:var(--text);resize:none;line-height:1.6;box-sizing:border-box" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
           <div style="display:flex;justify-content:flex-end;margin-top:8px;border-top:1px solid var(--border);padding-top:10px">
             <button onclick="submitBitaInline()" style="background:var(--text);color:#fff;border:none;border-radius:20px;padding:7px 20px;font-size:12px;font-family:'Geist',sans-serif;cursor:pointer">Guardar ↑</button>
           </div>
@@ -1293,35 +1293,14 @@ const DEFAULT_CATS=[
             <button class="cat-pill" data-cat="Relaciones" style="background:#fdf2f8;color:#9d174d" onclick="selectCatPill(this,'Relaciones')">🤝 Relaciones</button>
             <button class="cat-pill" data-cat="Trabajo" style="background:#f0f9ff;color:#075985" onclick="selectCatPill(this,'Trabajo')">💼 Trabajo</button>
           </div>
-          <!-- Recurrencia — mismo diseño que hábitos -->
-          <div style="margin-top:10px">
-            <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500;margin-bottom:8px">Frecuencia</div>
-            <div style="display:flex;gap:8px;margin-bottom:8px" id="task-recur-btns">
-              <button class="task-recur-btn" id="trb-none" onclick="selectTaskRecur('none')"
-                style="flex:1;padding:8px 6px;border-radius:20px;border:1.5px solid var(--text);background:var(--text);color:#fff;font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s;font-weight:400">Ninguna</button>
-              <button class="task-recur-btn" id="trb-daily" onclick="selectTaskRecur('daily')"
-                style="flex:1;padding:8px 6px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;color:var(--text);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s;font-weight:400">Diario</button>
-              <button class="task-recur-btn" id="trb-weekly" onclick="selectTaskRecur('weekly')"
-                style="flex:1;padding:8px 6px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;color:var(--text);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s;font-weight:400">Días</button>
-              <button class="task-recur-btn" id="trb-monthly" onclick="selectTaskRecur('monthly')"
-                style="flex:1;padding:8px 6px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;color:var(--text);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s;font-weight:400">Mensual</button>
-            </div>
-            <!-- Selector de días específicos -->
-            <div id="task-days-picker" style="display:none;flex-wrap:wrap;gap:8px;justify-content:center;padding:4px 0 6px">
-              <button class="task-day-btn" data-day="1" onclick="toggleTaskDay(this,1)" style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);color:var(--text);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s">L</button>
-              <button class="task-day-btn" data-day="2" onclick="toggleTaskDay(this,2)" style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);color:var(--text);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s">M</button>
-              <button class="task-day-btn" data-day="3" onclick="toggleTaskDay(this,3)" style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);color:var(--text);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s">X</button>
-              <button class="task-day-btn" data-day="4" onclick="toggleTaskDay(this,4)" style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);color:var(--text);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s">J</button>
-              <button class="task-day-btn" data-day="5" onclick="toggleTaskDay(this,5)" style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);color:var(--text);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s">V</button>
-              <button class="task-day-btn" data-day="6" onclick="toggleTaskDay(this,6)" style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);color:var(--text);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s">S</button>
-              <button class="task-day-btn" data-day="0" onclick="toggleTaskDay(this,0)" style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);color:var(--text);font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s">D</button>
-            </div>
-          </div>
-          <!-- Inputs ocultos -->
-          <input type="hidden" id="task-recur" value="none">
-          <input type="hidden" id="task-recur-days" value="">
-
-          <div class="input-row" style="margin-top:8px;gap:7px">
+          <!-- Recurrence + date in collapsed row -->
+          <div class="input-row" style="margin-top:6px;gap:7px">
+            <select class="inp inp-sel" id="task-recur" style="flex:1;font-size:12px">
+              <option value="none">Sin recurrencia</option>
+              <option value="daily">🔁 Todos los días</option>
+              <option value="weekly">📅 Semanal</option>
+              <option value="monthly">🗓 Mensual</option>
+            </select>
             <select class="inp inp-sel" id="task-priority" style="width:80px;font-size:12px" title="Prioridad">
               <option value="1">🟢 Baja</option>
               <option value="2" selected>🟡 Media</option>
@@ -1802,8 +1781,8 @@ function submitQuickCapture(){
   if(!state.notes)state.notes={};
   const timestamp=today.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
   const existing=state.notes[key]||'';
-  // Acumular notas del día separadas por ␞ (permite saltos de línea internos)
-  state.notes[key]=existing?(existing+'\u241E'+'['+timestamp+'] '+title):('['+timestamp+'] '+title);
+  // Acumular notas del día separadas por línea con hora
+  state.notes[key]=existing?(existing+'\n'+'['+timestamp+'] '+title):('['+timestamp+'] '+title);
   save();
   inp.value='';
   ge('qc-send').classList.remove('visible');
@@ -1870,22 +1849,10 @@ function renderDayNotes(){
 
 function deleteNote(dateKey, lineIdx){
   if(!state.notes||!state.notes[dateKey])return;
-  const raw=state.notes[dateKey];
-  let entries;
-  if(raw.includes('\u241E')){
-    entries=raw.split('\u241E').filter(Boolean);
-  } else {
-    const lines=raw.split('\n');
-    entries=[];
-    lines.forEach(line=>{
-      if(/^\[\d{2}:\d{2}/.test(line)){entries.push(line);}
-      else if(entries.length>0&&line.trim()){entries[entries.length-1]+='\n'+line;}
-      else if(line.trim()){entries.push(line);}
-    });
-  }
-  entries.splice(lineIdx,1);
-  if(entries.length===0) delete state.notes[dateKey];
-  else state.notes[dateKey]=entries.join('\u241E');
+  const lines=state.notes[dateKey].split('\n').filter(Boolean);
+  lines.splice(lineIdx,1);
+  if(lines.length===0) delete state.notes[dateKey];
+  else state.notes[dateKey]=lines.join('\n');
   save();renderDayNotes();renderBitacora();
 }
 
@@ -1912,32 +1879,15 @@ function renderBitacora(){
     const date=new Date(y,m-1,d);
     const isToday=key===(() => {const t=new Date();return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;})();
     const label=isToday?'Hoy':`${dayNames[date.getDay()]}, ${d} de ${monthNames[m-1]}`;
-    // Soporte para separador viejo (\n entre entradas con timestamp) y nuevo (\u241E)
-    const raw=notes[key];
-    let entries;
-    if(raw.includes('\u241E')){
-      entries=raw.split('\u241E').filter(Boolean);
-    } else {
-      // Formato viejo: cada línea que empieza con [HH:MM] es una entrada nueva
-      // Las líneas sin timestamp se juntan con la entrada anterior
-      const lines=raw.split('\n');
-      entries=[];
-      lines.forEach(line=>{
-        if(/^\[\d{2}:\d{2}/.test(line)){entries.push(line);}
-        else if(entries.length>0&&line.trim()){entries[entries.length-1]+='\n'+line;}
-        else if(line.trim()){entries.push(line);}
-      });
-    }
+    const lines=notes[key].split('\n').filter(Boolean);
 
-    const notesHTML=entries.map((entry,idx)=>{
-      const match=entry.match(/^\[(\d{2}:\d{2}(?:\s[ap]\.?\s?m\.?)?)\] ([\s\S]+)$/);
+    const notesHTML=lines.map((line,idx)=>{
+      const match=line.match(/^\[(\d{2}:\d{2})\] (.+)$/);
       const time=match?match[1]:'';
-      const text=match?match[2]:entry;
-      // Preservar saltos de línea dentro de cada entrada
-      const textHTML=esc(text).replace(/\n/g,'<br>');
-      return`<div style="display:flex;gap:12px;align-items:flex-start;padding:11px 14px;border-bottom:1px solid var(--border)">
-        <div style="font-size:10px;font-weight:500;color:var(--violet);white-space:nowrap;min-width:36px;margin-top:2px;line-height:1.4">${time}</div>
-        <div style="flex:1;font-size:13px;color:var(--text);font-weight:300;line-height:1.55;white-space:pre-wrap;word-break:break-word">${textHTML}</div>
+      const text=match?match[2]:line;
+      return`<div style="display:flex;gap:12px;align-items:flex-start;padding:10px 13px;border-bottom:1px solid var(--border)">
+        <div style="font-size:10px;font-weight:500;color:var(--violet);white-space:nowrap;min-width:32px;margin-top:2px">${time}</div>
+        <div style="flex:1;font-size:13px;color:var(--text);font-weight:300;line-height:1.45">${esc(text)}</div>
         <button onclick="deleteNote('${key}',${idx})" style="flex-shrink:0;background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted2);padding:2px 6px;opacity:0.5;transition:opacity .15s" title="Eliminar" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">✕</button>
       </div>`;
     }).join('');
@@ -1995,19 +1945,19 @@ function exportBitacora(){
 function submitBitaInline(){
   const inp=ge('bita-inp');
   if(!inp)return;
-  const text=inp.value.trim();
-  if(!text)return;
+  const lines=inp.value.split('\n').map(l=>l.trim()).filter(Boolean);
+  if(!lines.length)return;
   const today=new Date();
   const key=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
   if(!state.notes)state.notes={};
   const timestamp=today.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
-  // Usar ␞ (U+241E) como separador entre entradas — permite saltos de línea dentro de cada una
-  const entry='['+timestamp+'] '+text;
   const existing=state.notes[key]||'';
-  state.notes[key]=existing?(existing+'\u241E'+entry):entry;
+  const newEntries=lines.map(l=>'['+timestamp+'] '+l).join('\n');
+  state.notes[key]=existing?(existing+'\n'+newEntries):newEntries;
   save();
   inp.value='';
   inp.style.height='auto';
+  // Flash feedback
   const btn=inp.parentElement.querySelector('button');
   if(btn){const orig=btn.textContent;btn.textContent='✓ Guardado';btn.style.background='#16a34a';setTimeout(()=>{btn.textContent=orig;btn.style.background='var(--text)';},1200);}
   renderBitacora();
@@ -2025,7 +1975,7 @@ function submitSbNote(){
   if(!state.notes)state.notes={};
   const timestamp=today.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
   const existing=state.notes[key]||'';
-  state.notes[key]=existing?(existing+'\u241E'+'['+timestamp+'] '+title):('['+timestamp+'] '+title);
+  state.notes[key]=existing?(existing+'\n'+'['+timestamp+'] '+title):('['+timestamp+'] '+title);
   save();
   inp.value='';
   // Flash feedback
@@ -2427,53 +2377,25 @@ function updateStreak(){
   save();
 }
 
-let _taskRecurDays=[];
-function selectTaskRecur(freq){
-  const inp=ge('task-recur');if(inp)inp.value=freq;
-  document.querySelectorAll('.task-recur-btn').forEach(b=>{
-    const isActive=b.id==='trb-'+freq;
-    b.style.background=isActive?'var(--text)':'transparent';
-    b.style.color=isActive?'#fff':'var(--text)';
-    b.style.borderColor=isActive?'var(--text)':'var(--border2)';
-  });
-  const picker=ge('task-days-picker');
-  if(picker)picker.style.display=freq==='weekly'?'flex':'none';
-  if(freq!=='weekly'){_taskRecurDays=[];const di=ge('task-recur-days');if(di)di.value='';}
-}
-function toggleTaskDay(btn,day){
-  if(_taskRecurDays.includes(day)){
-    _taskRecurDays=_taskRecurDays.filter(d=>d!==day);
-    btn.style.background='var(--white)';btn.style.borderColor='var(--border2)';btn.style.color='var(--text)';
-  } else {
-    _taskRecurDays.push(day);
-    btn.style.background='var(--text)';btn.style.borderColor='var(--text)';btn.style.color='#fff';
-  }
-  const di=ge('task-recur-days');if(di)di.value=_taskRecurDays.join(',');
-}
-
 function addTask(){
   const inp=ge('task-input'),cat=ge('task-cat').value;
   const pts=parseInt(ge('task-pts').value)||10,title=inp.value.trim();
   if(!title){inp.focus();return;}
   const recur=ge('task-recur')?ge('task-recur').value:'none';
-  // Validar días si es semanal
-  if(recur==='weekly'&&_taskRecurDays.length===0){alert('Elegí al menos un día.');return;}
-  const recurDays=[..._taskRecurDays];
   const due=ge('task-due')?ge('task-due').value:'';
   const priority=parseInt(ge('task-priority')?ge('task-priority').value:'2')||2;
+  // Horas: manual si se completó, fallback por XP (10 XP ≈ 0.5h)
   const hoursInput=ge('task-hours');
   const hoursManual=hoursInput&&hoursInput.value?parseFloat(hoursInput.value):null;
   const hoursEst=hoursManual!==null?hoursManual:Math.max(0.5,Math.round(pts/10*2)/2);
-  state.tasks.push({id:state.nextId++,title,cat,pts,done:false,completions:0,createdAt:Date.now(),recur,recurDays,due,priority,subtasks:[],hoursEst,hoursManual});
+  state.tasks.push({id:state.nextId++,title,cat,pts,done:false,completions:0,createdAt:Date.now(),recur,due,priority,subtasks:[],hoursEst,hoursManual});
   inp.value='';
   const taskDateStr = due || new Date().toISOString().slice(0,10);
   if(window.createGcalEvent) window.createGcalEvent('✦ '+title+' ('+cat+')', taskDateStr, 'Tarea LevelUp Life · '+pts+' XP');
   if(ge('task-due'))ge('task-due').value='';
+  if(ge('task-recur'))ge('task-recur').value='none';
   if(ge('task-priority'))ge('task-priority').value='2';
   if(ge('task-hours'))ge('task-hours').value='';
-  // Reset recurrencia UI
-  _taskRecurDays=[];selectTaskRecur('none');
-  document.querySelectorAll('.task-day-btn').forEach(b=>{b.style.background='var(--white)';b.style.borderColor='var(--border2)';b.style.color='var(--text)';});
   save();render();
   spawnRecurrentTasks();
 }
@@ -2960,11 +2882,6 @@ function checkRecurReset(t){
   if(t.lastReset===today)return false;
   if(t.recur==='daily')return true;
   if(t.recur==='weekly'){
-    // Si tiene días específicos, solo resetear en esos días
-    if(t.recurDays&&t.recurDays.length>0){
-      return t.recurDays.includes(now.getDay());
-    }
-    // Fallback: cada 7 días
     const lastR=t.lastReset?new Date(t.lastReset):new Date(t.createdAt);
     const diff=(now-lastR)/(1000*60*60*24);
     return diff>=7;
@@ -3388,23 +3305,25 @@ function renderTaskList(){
       const dueColor=isPastDue(t.due)?'var(--rose)':isDueToday(t.due)?'var(--rose)':isDueSoon(t.due)?'var(--amber)':'var(--muted2)';
       const dueIcon=isPastDue(t.due)?'⚠️':isDueToday(t.due)?'❗':isDueSoon(t.due)?'⚡':'📅';
       const dueStr=t.due?`<span style="font-size:10px;color:${dueColor};white-space:nowrap">${dueIcon} ${formatDue(t.due)}</span>`:'';
-      const recurStr=t.recur&&t.recur!=='none'?`<span style="font-size:10px;color:var(--teal);white-space:nowrap">${t.recur==='daily'?'🔁':t.recur==='monthly'?'🗓':'📅'} ${t.recur==='weekly'&&t.recurDays&&t.recurDays.length?['D','L','M','X','J','V','S'].filter((_,i)=>t.recurDays.includes(i)).join(' '):t.recur==='daily'?'Diario':t.recur==='monthly'?'Mensual':'Semanal'}</span>`:'';
+      const recurStr=t.recur&&t.recur!=='none'?`<span style="font-size:10px;color:var(--teal);white-space:nowrap">${{daily:'🔁',weekly:'📅',monthly:'🗓'}[t.recur]}</span>`:'';
       return`<div class="swipe-wrap" id="swipe-${t.id}">
         <div class="swipe-del-bg"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></div>
         <div class="task-card" id="task-${t.id}" style="${isDueToday(t.due)?'border-color:rgba(190,24,93,0.25)':''}">
         <div class="check" onclick="completeTask(${t.id},event)" title="Marcar completada" style="cursor:pointer"></div>
         <div style="flex:1;min-width:0">
-          <div class="task-title" onclick="openEditTask(${t.id})" style="cursor:pointer" title="Editar tarea">${esc(t.title)}</div>
+          <div class="task-title" onclick="${t.subtasks&&t.subtasks.length?`openTaskDetail(${t.id})`:`openEditTask(${t.id})`}" style="cursor:pointer" title="${t.subtasks&&t.subtasks.length?'Ver plan de pasos':'Editar tarea'}">${esc(t.title)}</div>
           ${t.due||t.recur&&t.recur!=='none'?`<div style="display:flex;gap:8px;margin-top:3px;flex-wrap:wrap">${dueStr}${recurStr}</div>`:''}
-          ${t.subtasks&&t.subtasks.length?`<div style="margin-top:7px;display:flex;flex-direction:column;gap:4px">
-            ${t.subtasks.slice(0,3).map((s,i)=>`<div style="display:flex;align-items:center;gap:7px">
-              <div class="plan-step-check${s.done?' done':''}" onclick="event.stopPropagation();toggleSubtask(${t.id},${s.id})" style="width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border2);background:${s.done?'var(--violet)':'var(--white)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer">${s.done?'<svg width="8" height="6" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3 5.5L8 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>':''}</div>
-              <span style="font-size:11px;color:${s.done?'var(--muted2)':'var(--text)'};${s.done?'text-decoration:line-through':''};">${esc(s.title)}</span>
-              <span style="font-size:9px;color:var(--muted2);margin-left:auto;white-space:nowrap">${s.duracion}m</span>
-            </div>`).join('')}
-            ${t.subtasks.length>3?`<span style="font-size:10px;color:var(--muted2)">+${t.subtasks.length-3} pasos más</span>`:''}
+          ${t.subtasks&&t.subtasks.length?`
+          <div onclick="openTaskDetail(${t.id})" style="margin-top:8px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:8px 10px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+              <span style="font-size:10px;color:var(--muted);font-weight:500">${t.subtasks.filter(s=>s.done).length}/${t.subtasks.length} pasos · ${t.subtasks.reduce((s,sub)=>s+(sub.duracion||0),0)}m</span>
+              <span style="font-size:10px;color:var(--violet)">Ver plan →</span>
+            </div>
+            <div style="height:3px;background:var(--bg4);border-radius:3px;overflow:hidden">
+              <div style="height:100%;width:${t.subtasks.length?Math.round(t.subtasks.filter(s=>s.done).length/t.subtasks.length*100):0}%;background:${(CATS[t.cat]||{color:'#7c3aed'}).color};border-radius:3px;transition:width .3s"></div>
+            </div>
           </div>`:''}
-          ${t.complexity?`<div style="margin-top:6px;display:flex;align-items:center;gap:6px">
+          ${t.complexity&&!(t.subtasks&&t.subtasks.length)?`<div style="margin-top:6px;display:flex;align-items:center;gap:6px">
             <div style="flex:1;height:3px;border-radius:2px;background:var(--bg4)"><div style="width:${t.complexity*10}%;height:100%;border-radius:2px;background:${t.complexity<=3?'#15803d':t.complexity<=6?'#b45309':'#be185d'}"></div></div>
             <span style="font-size:9px;color:var(--muted2)">complejidad ${t.complexity}/10</span>
           </div>`:''}
@@ -4647,6 +4566,161 @@ function savePlanAsSubtasks(){
   task.subtasks=plan.pasos.map((p,i)=>({id:i,title:p.titulo,description:p.descripcion,duracion:p.duracion_min,done:false}));
   save();renderTasks();document.getElementById('planner-overlay').remove();
   setTimeout(()=>{const el=document.getElementById('task-'+_plannerTaskId);if(el){el.style.transition='background .4s';el.style.background='rgba(124,58,237,0.07)';setTimeout(()=>{el.style.background='';},800);}},100);
+}
+
+/* ── Toast notification ── */
+function showToast(msg,duration){
+  duration=duration||2200;
+  let t=document.getElementById('lu-toast');
+  if(!t){
+    t=document.createElement('div');
+    t.id='lu-toast';
+    t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);z-index:9999;background:#1a1814;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-family:Geist,sans-serif;font-weight:300;opacity:0;transition:all .3s ease;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.25)';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg;
+  clearTimeout(t._to);
+  requestAnimationFrame(()=>{
+    t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';
+    t._to=setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(-50%) translateY(10px)';},duration);
+  });
+}
+
+/* ── Task Detail Modal (subtareas expandidas) ── */
+function openTaskDetail(taskId){
+  const t=state.tasks.find(x=>x.id===taskId);if(!t)return;
+  const m=CATS[t.cat]||{color:'#7c3aed',bg:'#f5f2ff',tc:'#5b21b6',emoji:'📌',name:t.cat};
+  const gradients={
+    '#7c3aed':'linear-gradient(135deg,#6d28d9,#a855f7)',
+    '#0f766e':'linear-gradient(135deg,#0f766e,#10b981)',
+    '#b45309':'linear-gradient(135deg,#b45309,#f59e0b)',
+    '#be185d':'linear-gradient(135deg,#be185d,#f472b6)',
+    '#0369a1':'linear-gradient(135deg,#0369a1,#38bdf8)',
+  };
+  const grad=gradients[m.color]||`linear-gradient(135deg,${m.color},${m.color}88)`;
+  const subtasks=t.subtasks||[];
+  const doneSubs=subtasks.filter(s=>s.done).length;
+  const totalTime=subtasks.reduce((s,sub)=>s+(sub.duracion||0),0);
+  const pct=subtasks.length?Math.round(doneSubs/subtasks.length*100):0;
+  const nsL={pending:'Pendiente',forming:'En formación',active:'Activo',myelin:'Mielinizado ✦'};
+  const ns=nodeState(t);
+
+  // By-day grouping
+  const byDay={};
+  subtasks.forEach((s,i)=>{
+    const d=s.dia||1;
+    if(!byDay[d])byDay[d]=[];
+    byDay[d].push({...s,_i:i});
+  });
+  const days=Object.keys(byDay).sort((a,b)=>a-b);
+
+  const daysHTML=days.map(d=>{
+    const items=byDay[d].map(s=>`
+      <div id="td-sub-${taskId}-${s._i}" onclick="toggleSubtaskInDetail(${taskId},${s._i})" style="display:flex;align-items:flex-start;gap:10px;padding:11px 13px;background:${s.done?m.color+'08':'var(--white)'};border:1.5px solid ${s.done?m.color+'33':'var(--border)'};border-radius:12px;margin-bottom:6px;cursor:pointer;transition:all .2s">
+        <div style="width:20px;height:20px;border-radius:50%;border:1.5px solid ${s.done?m.color:'var(--border2)'};background:${s.done?m.color:'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all .2s">
+          ${s.done?`<svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3 5.5L8 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`:''}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;color:${s.done?'var(--muted2)':'var(--text)'};${s.done?'text-decoration:line-through':''}; line-height:1.35">${esc(s.title||s.titulo||'')}</div>
+          ${s.descripcion?`<div style="font-size:11px;color:var(--muted);margin-top:3px;line-height:1.45">${esc(s.descripcion)}</div>`:''}
+        </div>
+        <div style="font-size:10px;color:var(--muted2);white-space:nowrap;flex-shrink:0;margin-top:2px">⏱ ${s.duracion||0}m</div>
+      </div>`).join('');
+    return days.length>1?`
+      <div style="margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <div style="width:22px;height:22px;border-radius:7px;background:${grad};color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0">D${d}</div>
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);font-weight:500">Día ${d}</div>
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+        </div>
+        ${items}
+      </div>`:items;
+  }).join('');
+
+  const ov=document.createElement('div');
+  ov.id='task-detail-overlay';
+  ov.style.cssText='position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.4);display:flex;align-items:flex-end;justify-content:center';
+  ov.innerHTML=`
+    <div style="background:var(--white);border-radius:24px 24px 0 0;width:100%;max-width:560px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;animation:slideUp .3s cubic-bezier(.32,1,.5,1)">
+      <!-- Header con gradiente -->
+      <div style="background:${grad};padding:22px 20px 18px;flex-shrink:0;position:relative">
+        <button onclick="document.getElementById('task-detail-overlay').remove()" style="position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.18);border:none;cursor:pointer;font-size:15px;color:rgba(255,255,255,0.8);display:flex;align-items:center;justify-content:center">×</button>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="font-size:20px">${m.emoji}</span>
+          <span style="font-size:11px;font-weight:500;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:.6px">${t.cat}</span>
+        </div>
+        <div style="font-family:'Instrument Serif',serif;font-size:20px;font-weight:400;color:#fff;line-height:1.3;margin-bottom:10px">${esc(t.title)}</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+          <span style="font-size:11px;background:rgba(255,255,255,0.15);color:#fff;border-radius:20px;padding:3px 10px">${nsL[ns]}</span>
+          ${t.hoursEst?`<span style="font-size:11px;background:rgba(255,255,255,0.15);color:#fff;border-radius:20px;padding:3px 10px">⏱ ${t.hoursEst}h estimadas</span>`:''}
+          ${totalTime>0?`<span style="font-size:11px;background:rgba(255,255,255,0.15);color:#fff;border-radius:20px;padding:3px 10px">🗓 ${totalTime}m total</span>`:''}
+          <span style="font-size:11px;background:rgba(255,255,255,0.15);color:#fff;border-radius:20px;padding:3px 10px">+${t.pts} XP</span>
+        </div>
+        ${subtasks.length?`
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+            <span style="font-size:10px;color:rgba(255,255,255,0.65)">${doneSubs} de ${subtasks.length} pasos</span>
+            <span id="td-pct-${taskId}" style="font-size:10px;color:#fff;font-weight:500">${pct}%</span>
+          </div>
+          <div style="height:4px;background:rgba(255,255,255,0.2);border-radius:4px;overflow:hidden">
+            <div id="td-bar-${taskId}" style="height:100%;width:${pct}%;background:rgba(255,255,255,0.9);border-radius:4px;transition:width .3s ease"></div>
+          </div>
+        </div>`:''}
+      </div>
+      <!-- Body scrollable -->
+      <div style="flex:1;overflow-y:auto;padding:16px 18px 32px">
+        ${subtasks.length?`
+          <div style="margin-bottom:4px">${daysHTML}</div>
+          <button onclick="markAllSubsDone(${taskId})" style="width:100%;padding:11px;background:var(--bg3);border:1px solid var(--border);border-radius:11px;font-size:12px;font-family:'Geist',sans-serif;cursor:pointer;color:var(--muted);margin-top:4px">Marcar todos completados</button>
+        `:`
+          <div style="text-align:center;padding:32px 20px;color:var(--muted)">
+            <div style="font-size:36px;margin-bottom:8px">✦</div>
+            <div style="font-size:13px;line-height:1.5">Sin plan todavía.<br>Usá <strong>Planificar con IA</strong> para dividir esta tarea en pasos.</div>
+            <button onclick="document.getElementById('task-detail-overlay').remove();openPlanner(${taskId})" style="margin-top:16px;padding:10px 24px;background:var(--violet);color:#fff;border:none;border-radius:20px;font-size:13px;font-family:'Geist',sans-serif;cursor:pointer">✦ Planificar con IA</button>
+          </div>
+        `}
+      </div>
+    </div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+}
+
+function toggleSubtaskInDetail(taskId,subIdx){
+  const task=state.tasks.find(t=>t.id===taskId);if(!task||!task.subtasks)return;
+  task.subtasks[subIdx].done=!task.subtasks[subIdx].done;
+  save();
+  // Update detail modal visuals
+  const s=task.subtasks[subIdx];
+  const m=CATS[task.cat]||{color:'#7c3aed'};
+  const row=document.getElementById(`td-sub-${taskId}-${subIdx}`);
+  if(row){
+    row.style.background=s.done?m.color+'08':'var(--white)';
+    row.style.borderColor=s.done?m.color+'33':'var(--border)';
+    const check=row.querySelector('div');
+    if(check){check.style.background=s.done?m.color:'transparent';check.style.borderColor=s.done?m.color:'var(--border2)';check.innerHTML=s.done?`<svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3 5.5L8 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`:'';}
+    const titleEl=row.querySelectorAll('div')[1]?.querySelector('div');
+    if(titleEl){titleEl.style.textDecoration=s.done?'line-through':'none';titleEl.style.color=s.done?'var(--muted2)':'var(--text)';}
+  }
+  // Update progress bar
+  const total=task.subtasks.length;
+  const done=task.subtasks.filter(s=>s.done).length;
+  const pct=total?Math.round(done/total*100):0;
+  const bar=document.getElementById(`td-bar-${taskId}`);const pctEl=document.getElementById(`td-pct-${taskId}`);
+  if(bar)bar.style.width=pct+'%';
+  if(pctEl)pctEl.textContent=pct+'%';
+  // Also refresh task list behind
+  renderTasks();
+}
+
+function markAllSubsDone(taskId){
+  const task=state.tasks.find(t=>t.id===taskId);if(!task||!task.subtasks)return;
+  task.subtasks.forEach(s=>s.done=true);
+  save();
+  // Close and reopen to refresh
+  const ov=document.getElementById('task-detail-overlay');
+  if(ov)ov.remove();
+  openTaskDetail(taskId);
+  renderTasks();
 }
 
 function toggleSubtask(taskId,subIdx){
