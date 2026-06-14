@@ -369,6 +369,7 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 .tg-line{flex:1;height:1px;background:var(--border);}
 .plan-overlay{position:fixed;inset:0;z-index:700;background:rgba(0,0,0,0.45);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .2s ease}
 .plan-sheet{background:var(--white);border-radius:24px 24px 0 0;padding:28px 20px 36px;width:100%;max-width:520px;height:88vh;display:flex;flex-direction:column;overflow:hidden;animation:slideUp .3s cubic-bezier(.32,1,.5,1)}
+@media(min-width:768px){.plan-overlay{align-items:center;}.plan-sheet{border-radius:24px;height:auto;max-height:85vh;overflow-y:auto;}}
 #plan-chat-area{flex:1;overflow-y:auto;min-height:0;display:flex;flex-direction:column;gap:10px;padding-bottom:4px}
 .plan-dot{width:6px;height:6px;border-radius:50%;background:var(--muted2);animation:planDotBounce .6s infinite alternate}
 @keyframes planDotBounce{0%{transform:translateY(0);opacity:.5}100%{transform:translateY(-5px);opacity:1}}
@@ -2020,7 +2021,7 @@ function renderCatCardsHome(){
     '#d97706':'linear-gradient(135deg,#d97706,#fbbf24)',
   };
   function getGrad(color){
-    return gradients[color]||`linear-gradient(135deg,${color},${color}dd)`;
+    return gradients[color]||`linear-gradient(135deg,${color},${color}88)`;
   }
 
   container.innerHTML=activeCats.map(cat=>{
@@ -2066,7 +2067,7 @@ function openCatFromHome(catId){
   if(!cat)return;
   // update CATS for modal
   const gradients={'#7c3aed':'linear-gradient(135deg,#6d28d9,#a855f7)','#0f766e':'linear-gradient(135deg,#0f766e,#10b981)','#b45309':'linear-gradient(135deg,#b45309,#f59e0b)','#be185d':'linear-gradient(135deg,#be185d,#f472b6)','#0369a1':'linear-gradient(135deg,#0369a1,#38bdf8)'};
-  const grad=gradients[cat.color]||`linear-gradient(135deg,${cat.color},${cat.color}dd)`;
+  const grad=gradients[cat.color]||`linear-gradient(135deg,${cat.color},${cat.color}88)`;
   const hdr=ge('cat-modal-header');
   hdr.style.background=grad;
   ge('cat-modal-ico').textContent=cat.emoji;
@@ -4342,7 +4343,7 @@ function openPlanner(preselectedId){
           <div style="font-size:10px;color:var(--muted2);margin-top:4px;text-align:center">Enter para enviar · Shift+Enter para nueva línea</div>
         </div>
       </div>
-      <div id="plan-phase-result" style="display:none;flex:1;overflow-y:auto;min-height:0"></div>
+      <div id="plan-phase-result" style="display:none;flex:1;overflow-y:auto;min-height:0;-webkit-overflow-scrolling:touch"></div>
     </div>`;
   document.body.appendChild(overlay);
   if(preselectedId){const sel=ge('plan-task-sel');if(sel){sel.value=preselectedId;plannerTaskSelected(preselectedId);}}
@@ -4563,7 +4564,7 @@ function savePlanAsSubtasks(){
   const plan=window._lastPlan;if(!plan){alert('No hay plan guardado.');return;}
   const task=state.tasks.find(t=>t.id===_plannerTaskId);if(!task)return;
   task.complexity=plan.complejidad;task.estimatedHours=plan.tiempo_total_horas;
-  task.subtasks=plan.pasos.map((p,i)=>({id:i,title:p.titulo,description:p.descripcion,duracion:p.duracion_min,done:false}));
+  task.subtasks=plan.pasos.map((p,i)=>({id:i,title:p.titulo,titulo:p.titulo,descripcion:p.descripcion,description:p.descripcion,duracion:p.duracion_min,dia:p.dia||1,done:false}));
   save();renderTasks();document.getElementById('planner-overlay').remove();
   setTimeout(()=>{const el=document.getElementById('task-'+_plannerTaskId);if(el){el.style.transition='background .4s';el.style.background='rgba(124,58,237,0.07)';setTimeout(()=>{el.style.background='';},800);}},100);
 }
@@ -4597,7 +4598,7 @@ function openTaskDetail(taskId){
     '#be185d':'linear-gradient(135deg,#be185d,#f472b6)',
     '#0369a1':'linear-gradient(135deg,#0369a1,#38bdf8)',
   };
-  const grad=gradients[m.color]||`linear-gradient(135deg,${m.color},${m.color}dd)`;
+  const grad=gradients[m.color]||`linear-gradient(135deg,${m.color},${m.color}88)`;
   const subtasks=t.subtasks||[];
   const doneSubs=subtasks.filter(s=>s.done).length;
   const totalTime=subtasks.reduce((s,sub)=>s+(sub.duracion||0),0);
@@ -4622,7 +4623,7 @@ function openTaskDetail(taskId){
         </div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;color:${s.done?'var(--muted2)':'var(--text)'};${s.done?'text-decoration:line-through':''}; line-height:1.35">${esc(s.title||s.titulo||'')}</div>
-          ${s.descripcion?`<div style="font-size:11px;color:var(--muted);margin-top:3px;line-height:1.45">${esc(s.descripcion)}</div>`:''}
+          ${(s.descripcion||s.description)?`<div style="font-size:11px;color:var(--muted);margin-top:3px;line-height:1.45">${esc(s.descripcion||s.description||'')}</div>`:''}
         </div>
         <div style="font-size:10px;color:var(--muted2);white-space:nowrap;flex-shrink:0;margin-top:2px">⏱ ${s.duracion||0}m</div>
       </div>`).join('');
@@ -4885,7 +4886,7 @@ function renderProfCats(){
       '#be185d':'linear-gradient(135deg,#be185d,#f472b6)',
       '#0369a1':'linear-gradient(135deg,#0369a1,#38bdf8)',
     };
-    const grad=gradients[cat.color]||`linear-gradient(135deg,${cat.color},${cat.color}dd)`;
+    const grad=gradients[cat.color]||`linear-gradient(135deg,${cat.color},${cat.color}88)`;
 
     return `<div style="background:${grad};border-radius:16px;padding:14px;color:#fff;position:relative;overflow:hidden">
       <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:rgba(255,255,255,0.08);border-radius:50%"></div>
@@ -5032,7 +5033,7 @@ function buildCategoryCard(catId){
     '#be185d':'linear-gradient(150deg,#831843,#be185d,#f472b6)',
     '#0369a1':'linear-gradient(150deg,#1e3a5f,#0369a1,#38bdf8)',
   };
-  const bg=gradients[cat.color]||`linear-gradient(150deg,${cat.color},${cat.color}dd)`;
+  const bg=gradients[cat.color]||`linear-gradient(150deg,${cat.color},${cat.color}88)`;
 
   const taskHTML=pending.slice(0,4).map(t=>`
     <div class="sc-task" onclick="event.stopPropagation();completeTask(${t.id})">
