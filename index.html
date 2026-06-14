@@ -1018,9 +1018,9 @@ const DEFAULT_CATS=[
     <div class="pane active" id="pane-inicio">
 
       <!-- ══ MOBILE: Card Stack ══ -->
-      <div id="stack-mobile-wrap" style="display:flex;flex-direction:column;min-height:calc(100vh - var(--nav-h));overflow-x:hidden;background:var(--bg)">
+      <div id="stack-mobile-wrap" style="display:flex;flex-direction:column;min-height:calc(100vh - var(--nav-h));overflow-x:hidden">
         <!-- Header Co-Star mobile -->
-        <div style="position:relative;background:#0f0f0f;padding:44px 22px 24px;flex-shrink:0;overflow:hidden">
+        <div style="position:relative;background:#0f0f0f;padding:52px 22px 28px;flex-shrink:0;overflow:hidden">
           <!-- Grano sutil -->
           <div style="position:absolute;inset:0;opacity:0.04;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><filter id=%22n%22><feTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%224%22 stitchTiles=%22stitch%22/></filter><rect width=%22200%22 height=%22200%22 filter=%22url(%23n)%22/></svg>');background-size:180px;pointer-events:none"></div>
           <!-- Saludo + racha en la misma línea -->
@@ -1046,8 +1046,10 @@ const DEFAULT_CATS=[
             </div>
           </div>
         </div>
-        <!-- Stack container -->
-        <div id="stack-cards-container" style="position:relative;margin:0 14px;height:min(46vh,340px);flex-shrink:0"></div>
+        <!-- Stack container — flota sobre negro que transiciona a crema -->
+        <div style="position:relative;background:linear-gradient(180deg,#0f0f0f 0%,#0f0f0f 40%,var(--bg) 100%);flex-shrink:0;padding-bottom:20px">
+          <div id="stack-cards-container" style="position:relative;margin:0 16px;height:min(46vh,340px)"></div>
+        </div>
 
         <!-- Botones de acción -->
         <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:16px 14px 8px;position:relative">
@@ -2042,7 +2044,7 @@ function renderCatCardsHome(){
     '#d97706':'linear-gradient(135deg,#d97706,#fbbf24)',
   };
   function getGrad(color){
-    return gradients[color]||`linear-gradient(135deg,${color},${color}88)`;
+    return gradients[color]||`linear-gradient(135deg,${color},${color}dd)`;
   }
 
   container.innerHTML=activeCats.map(cat=>{
@@ -2088,7 +2090,7 @@ function openCatFromHome(catId){
   if(!cat)return;
   // update CATS for modal
   const gradients={'#7c3aed':'linear-gradient(135deg,#6d28d9,#a855f7)','#0f766e':'linear-gradient(135deg,#0f766e,#10b981)','#b45309':'linear-gradient(135deg,#b45309,#f59e0b)','#be185d':'linear-gradient(135deg,#be185d,#f472b6)','#0369a1':'linear-gradient(135deg,#0369a1,#38bdf8)'};
-  const grad=gradients[cat.color]||`linear-gradient(135deg,${cat.color},${cat.color}88)`;
+  const grad=gradients[cat.color]||`linear-gradient(135deg,${cat.color},${cat.color}dd)`;
   const hdr=ge('cat-modal-header');
   hdr.style.background=grad;
   ge('cat-modal-ico').textContent=cat.emoji;
@@ -3336,7 +3338,7 @@ function renderTaskList(){
           <div class="task-title" onclick="${t.subtasks&&t.subtasks.length?`openTaskDetail(${t.id})`:`openEditTask(${t.id})`}" style="cursor:pointer" title="${t.subtasks&&t.subtasks.length?'Ver plan de pasos':'Editar tarea'}">${esc(t.title)}</div>
           ${t.due||t.recur&&t.recur!=='none'?`<div style="display:flex;gap:8px;margin-top:3px;flex-wrap:wrap">${dueStr}${recurStr}</div>`:''}
           ${t.subtasks&&t.subtasks.length?`
-          <div onclick="openTaskDetail(${t.id})" style="margin-top:8px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:8px 10px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">
+          <div onclick="event.stopPropagation();openTaskDetail(${t.id})" style="margin-top:8px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:8px 10px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
               <span style="font-size:10px;color:var(--muted);font-weight:500">${t.subtasks.filter(s=>s.done).length}/${t.subtasks.length} pasos · ${t.subtasks.reduce((s,sub)=>s+(sub.duracion||0),0)}m</span>
               <span style="font-size:10px;color:var(--violet)">Ver plan →</span>
@@ -4612,6 +4614,7 @@ function showToast(msg,duration){
 function openTaskDetail(taskId){
   const t=state.tasks.find(x=>x.id===taskId);if(!t)return;
   const prev=document.getElementById('task-detail-overlay');if(prev)prev.remove();
+  const prev=document.getElementById('task-detail-overlay');if(prev)prev.remove();
   const m=CATS[t.cat]||{color:'#7c3aed',bg:'#f5f2ff',tc:'#5b21b6',emoji:'📌',name:t.cat};
   const gradients={
     '#7c3aed':'linear-gradient(135deg,#6d28d9,#a855f7)',
@@ -4620,7 +4623,7 @@ function openTaskDetail(taskId){
     '#be185d':'linear-gradient(135deg,#be185d,#f472b6)',
     '#0369a1':'linear-gradient(135deg,#0369a1,#38bdf8)',
   };
-  const grad=gradients[m.color]||`linear-gradient(135deg,${m.color},${m.color}88)`;
+  const grad=gradients[m.color]||`linear-gradient(135deg,${m.color},${m.color}dd)`;
   const subtasks=t.subtasks||[];
   const doneSubs=subtasks.filter(s=>s.done).length;
   const totalTime=subtasks.reduce((s,sub)=>s+(sub.duracion||0),0);
@@ -4908,7 +4911,7 @@ function renderProfCats(){
       '#be185d':'linear-gradient(135deg,#be185d,#f472b6)',
       '#0369a1':'linear-gradient(135deg,#0369a1,#38bdf8)',
     };
-    const grad=gradients[cat.color]||`linear-gradient(135deg,${cat.color},${cat.color}88)`;
+    const grad=gradients[cat.color]||`linear-gradient(135deg,${cat.color},${cat.color}dd)`;
 
     return `<div style="background:${grad};border-radius:16px;padding:14px;color:#fff;position:relative;overflow:hidden">
       <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:rgba(255,255,255,0.08);border-radius:50%"></div>
@@ -5055,7 +5058,7 @@ function buildCategoryCard(catId){
     '#be185d':'linear-gradient(150deg,#831843,#be185d,#f472b6)',
     '#0369a1':'linear-gradient(150deg,#1e3a5f,#0369a1,#38bdf8)',
   };
-  const bg=gradients[cat.color]||`linear-gradient(150deg,${cat.color},${cat.color}88)`;
+  const bg=gradients[cat.color]||`linear-gradient(150deg,${cat.color},${cat.color}dd)`;
 
   const taskHTML=pending.slice(0,4).map(t=>`
     <div class="sc-task" onclick="event.stopPropagation();completeTask(${t.id})">
@@ -5303,8 +5306,9 @@ function renderStack(){
   else            greet=firstName?`Buenas noches, ${firstName}`:'Buenas noches';
   if(ge('stack-greet')) ge('stack-greet').textContent=greet.toUpperCase();
 
-  const quotes=['Tu personalidad crea tu realidad personal.','Pensar en el futuro o en el pasado activa el estrés. Estar presente activa la creación.','No podés crear una vida nueva con la misma mente de siempre.','Cada vez que te superás a vos mismo, te convertís en alguien diferente.','El cuerpo es la mente inconsciente. Lo que pensás, lo sentís. Lo que sentís, lo vivís.','Si tu entorno controla cómo pensás y sentís, sos un producto de tu pasado.','Memorizar un estado emocional elevado es la base del cambio real.','El estrés es querer controlar el resultado. La creación es soltar el cómo.','Cuando cambiás tu estado interior antes de ver el cambio exterior, eso es fe verdadera.','Repetir los mismos pensamientos produce las mismas emociones. Las mismas emociones producen la misma vida.','El cerebro no distingue entre lo que imaginas vívidamente y lo que experimenta en la realidad.','Para cambiar, tenés que ser mayor que tu ambiente, tu cuerpo y el tiempo.','La meditación no es escapar de tu vida. Es crear tu vida desde adentro.','Pensar en grande y sentirlo como real antes de que ocurra: eso es manifestación neurocientífica.','El hábito es el yo automático. El despertar es elegir quién sos conscientemente.','Cuanto más practicás una emoción elevada, más se convierte en tu estado por defecto.','No sos tus genes. Sos la señal que le das a tus genes.','El pasado existe en tu biología solo si seguís recordándolo con la misma emoción.','Cambiar es incómodo porque el cuerpo quiere volver a lo conocido. Elegir igual, una y otra vez, es la práctica.','Una persona que medita regularmente literalmente reconstruye su cerebro.','La gratitud es la emoción que te pone en el futuro que ya querés vivir.','Cuando dejás de necesitar que algo externo te haga feliz, empezás a crearla vos.','El momento en que lográs sentir el futuro como presente, empezás a atraerlo.','Hacerse cargo de los pensamientos es hacerse cargo de la vida.','Tu cerebro cambia cada vez que aprendés algo nuevo. La neuroplasticidad es tu superpoder.','La coherencia entre pensamiento, sentimiento y acción produce resultados extraordinarios.','No esperés que algo cambie afuera para cambiar adentro. Es al revés.','Los pensamientos son el lenguaje del cerebro. Las emociones son el lenguaje del cuerpo. Juntos crean tu estado del ser.','Quien vive en supervivencia no puede crear. Solo quien vive en apertura puede.','Repetir afirmaciones sin sentirlas es solo ruido. Sentirlas sin decirlas es transformación.','La mayor adicción que existe es a las emociones que conocemos.','Cada pensamiento libera química en tu cuerpo. Sos un laboratorio viviente.','La mayoría cree que su pasado define su futuro. Los que evolucionan saben que su imaginación lo define.','Cuando el inconsciente y el consciente alinean, el cambio se vuelve automático.','Enamorarte de tu vida futura antes de tenerla es el primer paso para crearla.','El dolor es el gran maestro. Te muestra exactamente lo que necesitás transformar.','No medités para escapar. Meditá para crear.','Tus creencias más profundas son las que nunca cuestionás.','La energía que emitís determina la energía que atraés.','Ser nadie, en ningún lugar, sin tiempo: ahí empieza la creación real.','Tu cuerpo ya vivió el futuro que temés. Por eso reacciona antes de que ocurra.','Cambiar un hábito requiere más energía que mantenerlo. Por eso la mayoría no cambia.','La versión que querés ser ya existe como posibilidad. Solo tenés que sintonizarla.','La emoción elevada sostenida en el tiempo reescribe la biología.','Cuando lo ordinario se vuelve extraordinario, estás en el estado correcto.','El cambio ocurre en el momento en que la decisión interna es más real que la realidad externa.','Vivir en el futuro deseado como si ya fuera presente: eso entrena al cerebro a buscarlo.','No sos lo que te pasó. Sos lo que elegís hacer con lo que te pasó.','La identidad se cambia desde adentro, nunca desde afuera.','Cada mañana que te despertás sos una persona diferente. El problema es que elegís ser la misma.'];
-  const dayOfYear=()=>{const n=new Date(),s=new Date(n.getFullYear(),0,0);return Math.floor((n-s)/86400000);};
+  const dayOfYear=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000);
+  const quotes=['Tu personalidad crea tu realidad personal.','No podés crear una vida nueva con la misma mente de siempre.','El cuerpo es la mente inconsciente. Lo que pensás, lo sentís. Lo que sentís, lo vivís.','Repetir los mismos pensamientos produce las mismas emociones. Las mismas emociones producen la misma vida.','El cerebro no distingue entre lo que imaginas vívidamente y lo que experimenta en la realidad.','Para cambiar, tenés que ser mayor que tu ambiente, tu cuerpo y el tiempo.','La meditación no es escapar de tu vida. Es crear tu vida desde adentro.','El hábito es el yo automático. El despertar es elegir quién sos conscientemente.','No sos tus genes. Sos la señal que le das a tus genes.','La gratitud es la emoción que te pone en el futuro que ya querés vivir.','Cuando dejás de necesitar que algo externo te haga feliz, empezás a crearla vos.','El momento en que lográs sentir el futuro como presente, empezás a atraerlo.','La mayor adicción que existe es a las emociones que conocemos.','Cada pensamiento libera química en tu cuerpo. Sos un laboratorio viviente.','Cuando el inconsciente y el consciente alinean, el cambio se vuelve automático.','Enamorarte de tu vida futura antes de tenerla es el primer paso para crearla.','No sos lo que te pasó. Sos lo que elegís hacer con lo que te pasó.','La identidad se cambia desde adentro, nunca desde afuera.','Cada mañana que te despertás sos una persona diferente. El problema es que elegís ser la misma.','Cambiar es incómodo porque el cuerpo quiere volver a lo conocido. Elegir diferente, una y otra vez, es la práctica.','No esperés que algo cambie afuera para cambiar adentro. Es al revés.','La coherencia entre pensamiento, sentimiento y acción produce resultados extraordinarios.','Tu cuerpo ya vivió el futuro que temés. Por eso reacciona antes de que ocurra.','La versión que querés ser ya existe como posibilidad. Solo tenés que sintonizarla.','El dolor es el gran maestro. Te muestra exactamente lo que necesitás transformar.','Tus creencias más profundas son las que nunca cuestionás.','Meditá para crear, no para escapar.','El inconsciente dirige el 95% de tu vida. Hacerlo consciente es el trabajo.','La neuroplasticidad no es metáfora. Tu cerebro cambia físicamente con cada nuevo pensamiento.','Si tu entorno controla cómo pensás y sentís, sos un producto de tu pasado.'];
+  const dayOfYear=()=>{const n=new Date(),s=new Date(n.getFullYear(),0,0);return Math.floor((n-s)/86400000);};return Math.floor((n-s)/86400000);};
   if(ge('stack-quote')) ge('stack-quote').textContent=quotes[dayOfYear()%quotes.length];
 
   const {xp,pct,nextXp}=calcLevel();
@@ -5489,8 +5493,9 @@ function renderRightPanel(){
   if(ge('rp-level-xp'))ge('rp-level-xp').textContent=xp+' / '+nextXp+' XP';
   if(ge('rp-level-pct'))ge('rp-level-pct').textContent=pct+'%';
   // Quote
-  const quotes=['Tu personalidad crea tu realidad personal.','Pensar en el futuro o en el pasado activa el estrés. Estar presente activa la creación.','No podés crear una vida nueva con la misma mente de siempre.','Cada vez que te superás a vos mismo, te convertís en alguien diferente.','El cuerpo es la mente inconsciente. Lo que pensás, lo sentís. Lo que sentís, lo vivís.','Si tu entorno controla cómo pensás y sentís, sos un producto de tu pasado.','Memorizar un estado emocional elevado es la base del cambio real.','El estrés es querer controlar el resultado. La creación es soltar el cómo.','Cuando cambiás tu estado interior antes de ver el cambio exterior, eso es fe verdadera.','Repetir los mismos pensamientos produce las mismas emociones. Las mismas emociones producen la misma vida.','El cerebro no distingue entre lo que imaginas vívidamente y lo que experimenta en la realidad.','Para cambiar, tenés que ser mayor que tu ambiente, tu cuerpo y el tiempo.','La meditación no es escapar de tu vida. Es crear tu vida desde adentro.','El hábito es el yo automático. El despertar es elegir quién sos conscientemente.','Cuanto más practicás una emoción elevada, más se convierte en tu estado por defecto.','No sos tus genes. Sos la señal que le das a tus genes.','El pasado existe en tu biología solo si seguís recordándolo con la misma emoción.','Cambiar es incómodo porque el cuerpo quiere volver a lo conocido.','Una persona que medita regularmente literalmente reconstruye su cerebro.','La gratitud es la emoción que te pone en el futuro que ya querés vivir.','Cuando dejás de necesitar que algo externo te haga feliz, empezás a crearla vos.','El momento en que lográs sentir el futuro como presente, empezás a atraerlo.','Hacerse cargo de los pensamientos es hacerse cargo de la vida.','Tu cerebro cambia cada vez que aprendés algo nuevo.','La coherencia entre pensamiento, sentimiento y acción produce resultados extraordinarios.','No esperés que algo cambie afuera para cambiar adentro. Es al revés.','Los pensamientos son el lenguaje del cerebro. Las emociones son el lenguaje del cuerpo.','La mayor adicción que existe es a las emociones que conocemos.','Cada pensamiento libera química en tu cuerpo. Sos un laboratorio viviente.','La mayoría cree que su pasado define su futuro. Los que evolucionan saben que su imaginación lo define.','Cuando el inconsciente y el consciente alinean, el cambio se vuelve automático.','Enamorarte de tu vida futura antes de tenerla es el primer paso para crearla.','El dolor es el gran maestro. Te muestra exactamente lo que necesitás transformar.','Tus creencias más profundas son las que nunca cuestionás.','La energía que emitís determina la energía que atraés.','Tu cuerpo ya vivió el futuro que temés. Por eso reacciona antes de que ocurra.','Cambiar un hábito requiere más energía que mantenerlo. Por eso la mayoría no cambia.','La versión que querés ser ya existe como posibilidad. Solo tenés que sintonizarla.','La emoción elevada sostenida en el tiempo reescribe la biología.','El cambio ocurre cuando la decisión interna es más real que la realidad externa.','Vivir en el futuro deseado como si ya fuera presente entrena al cerebro a buscarlo.','No sos lo que te pasó. Sos lo que elegís hacer con lo que te pasó.','La identidad se cambia desde adentro, nunca desde afuera.','Cada mañana que te despertás sos una persona diferente. El problema es que elegís ser la misma.','Ser nadie, en ningún lugar, sin tiempo: ahí empieza la creación real.','Repetir afirmaciones sin sentirlas es solo ruido. Sentirlas sin decirlas es transformación.','Meditá para crear, no para escapar.','No sos lo que pensás que sos. Sos lo que repetís que sos.','El inconsciente dirige el 95% de tu vida. Hacerlo consciente es el trabajo.','La neuroplasticidad no es metáfora. Tu cerebro cambia físicamente con cada nuevo pensamiento.'];
-  const dayOfYear=()=>{const n=new Date(),s=new Date(n.getFullYear(),0,0);return Math.floor((n-s)/86400000);};
+  const dayOfYear=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000);
+  const quotes=['Tu personalidad crea tu realidad personal.','No podés crear una vida nueva con la misma mente de siempre.','El cuerpo es la mente inconsciente. Lo que pensás, lo sentís. Lo que sentís, lo vivís.','Repetir los mismos pensamientos produce las mismas emociones. Las mismas emociones producen la misma vida.','El cerebro no distingue entre lo que imaginas vívidamente y lo que experimenta en la realidad.','Para cambiar, tenés que ser mayor que tu ambiente, tu cuerpo y el tiempo.','La meditación no es escapar de tu vida. Es crear tu vida desde adentro.','El hábito es el yo automático. El despertar es elegir quién sos conscientemente.','No sos tus genes. Sos la señal que le das a tus genes.','La gratitud es la emoción que te pone en el futuro que ya querés vivir.','Cuando dejás de necesitar que algo externo te haga feliz, empezás a crearla vos.','El momento en que lográs sentir el futuro como presente, empezás a atraerlo.','La mayor adicción que existe es a las emociones que conocemos.','Cada pensamiento libera química en tu cuerpo. Sos un laboratorio viviente.','Cuando el inconsciente y el consciente alinean, el cambio se vuelve automático.','Enamorarte de tu vida futura antes de tenerla es el primer paso para crearla.','No sos lo que te pasó. Sos lo que elegís hacer con lo que te pasó.','La identidad se cambia desde adentro, nunca desde afuera.','Cada mañana que te despertás sos una persona diferente. El problema es que elegís ser la misma.','Cambiar es incómodo porque el cuerpo quiere volver a lo conocido. Elegir diferente, una y otra vez, es la práctica.','No esperés que algo cambie afuera para cambiar adentro. Es al revés.','La coherencia entre pensamiento, sentimiento y acción produce resultados extraordinarios.','Tu cuerpo ya vivió el futuro que temés. Por eso reacciona antes de que ocurra.','La versión que querés ser ya existe como posibilidad. Solo tenés que sintonizarla.','El dolor es el gran maestro. Te muestra exactamente lo que necesitás transformar.','Tus creencias más profundas son las que nunca cuestionás.','Meditá para crear, no para escapar.','El inconsciente dirige el 95% de tu vida. Hacerlo consciente es el trabajo.','La neuroplasticidad no es metáfora. Tu cerebro cambia físicamente con cada nuevo pensamiento.','Si tu entorno controla cómo pensás y sentís, sos un producto de tu pasado.'];
+  const dayOfYear=()=>{const n=new Date(),s=new Date(n.getFullYear(),0,0);return Math.floor((n-s)/86400000);};return Math.floor((n-s)/86400000);};
   const rq=ge('rp-quote');
   if(rq&&!rq.dataset.set){rq.textContent=quotes[dayOfYear()%quotes.length];rq.dataset.set='1';}
 }
