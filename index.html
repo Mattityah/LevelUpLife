@@ -369,7 +369,6 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 .tg-line{flex:1;height:1px;background:var(--border);}
 .plan-overlay{position:fixed;inset:0;z-index:700;background:rgba(0,0,0,0.45);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .2s ease}
 .plan-sheet{background:var(--white);border-radius:24px 24px 0 0;padding:28px 20px 36px;width:100%;max-width:520px;height:88vh;display:flex;flex-direction:column;overflow:hidden;animation:slideUp .3s cubic-bezier(.32,1,.5,1)}
-@media(min-width:768px){.plan-overlay{align-items:center;}.plan-sheet{border-radius:24px;height:auto;max-height:85vh;overflow-y:auto;}}
 #plan-chat-area{flex:1;overflow-y:auto;min-height:0;display:flex;flex-direction:column;gap:10px;padding-bottom:4px}
 .plan-dot{width:6px;height:6px;border-radius:50%;background:var(--muted2);animation:planDotBounce .6s infinite alternate}
 @keyframes planDotBounce{0%{transform:translateY(0);opacity:.5}100%{transform:translateY(-5px);opacity:1}}
@@ -3315,7 +3314,7 @@ function renderTaskList(){
           <div class="task-title" onclick="${t.subtasks&&t.subtasks.length?`openTaskDetail(${t.id})`:`openEditTask(${t.id})`}" style="cursor:pointer" title="${t.subtasks&&t.subtasks.length?'Ver plan de pasos':'Editar tarea'}">${esc(t.title)}</div>
           ${t.due||t.recur&&t.recur!=='none'?`<div style="display:flex;gap:8px;margin-top:3px;flex-wrap:wrap">${dueStr}${recurStr}</div>`:''}
           ${t.subtasks&&t.subtasks.length?`
-          <div onclick="openTaskDetail(${t.id})" style="margin-top:8px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:8px 10px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">
+          <div onclick="event.stopPropagation();openTaskDetail(${t.id})" style="margin-top:8px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:8px 10px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
               <span style="font-size:10px;color:var(--muted);font-weight:500">${t.subtasks.filter(s=>s.done).length}/${t.subtasks.length} pasos · ${t.subtasks.reduce((s,sub)=>s+(sub.duracion||0),0)}m</span>
               <span style="font-size:10px;color:var(--violet)">Ver plan →</span>
@@ -4343,7 +4342,7 @@ function openPlanner(preselectedId){
           <div style="font-size:10px;color:var(--muted2);margin-top:4px;text-align:center">Enter para enviar · Shift+Enter para nueva línea</div>
         </div>
       </div>
-      <div id="plan-phase-result" style="display:none;flex:1;overflow-y:auto;min-height:0;-webkit-overflow-scrolling:touch"></div>
+      <div id="plan-phase-result" style="display:none;flex:1;overflow-y:auto;min-height:0"></div>
     </div>`;
   document.body.appendChild(overlay);
   if(preselectedId){const sel=ge('plan-task-sel');if(sel){sel.value=preselectedId;plannerTaskSelected(preselectedId);}}
@@ -4564,7 +4563,7 @@ function savePlanAsSubtasks(){
   const plan=window._lastPlan;if(!plan){alert('No hay plan guardado.');return;}
   const task=state.tasks.find(t=>t.id===_plannerTaskId);if(!task)return;
   task.complexity=plan.complejidad;task.estimatedHours=plan.tiempo_total_horas;
-  task.subtasks=plan.pasos.map((p,i)=>({id:i,title:p.titulo,titulo:p.titulo,descripcion:p.descripcion,description:p.descripcion,duracion:p.duracion_min,dia:p.dia||1,done:false}));
+  task.subtasks=plan.pasos.map((p,i)=>({id:i,titulo:p.titulo,title:p.titulo,descripcion:p.descripcion,description:p.descripcion,duracion:p.duracion_min,dia:p.dia||1,done:false}));
   save();renderTasks();document.getElementById('planner-overlay').remove();
   setTimeout(()=>{const el=document.getElementById('task-'+_plannerTaskId);if(el){el.style.transition='background .4s';el.style.background='rgba(124,58,237,0.07)';setTimeout(()=>{el.style.background='';},800);}},100);
 }
@@ -4590,6 +4589,8 @@ function showToast(msg,duration){
 /* ── Task Detail Modal (subtareas expandidas) ── */
 function openTaskDetail(taskId){
   const t=state.tasks.find(x=>x.id===taskId);if(!t)return;
+  // Cerrar overlay anterior si existe
+  const existing=document.getElementById('task-detail-overlay');if(existing)existing.remove();
   const m=CATS[t.cat]||{color:'#7c3aed',bg:'#f5f2ff',tc:'#5b21b6',emoji:'📌',name:t.cat};
   const gradients={
     '#7c3aed':'linear-gradient(135deg,#6d28d9,#a855f7)',
@@ -4598,7 +4599,7 @@ function openTaskDetail(taskId){
     '#be185d':'linear-gradient(135deg,#be185d,#f472b6)',
     '#0369a1':'linear-gradient(135deg,#0369a1,#38bdf8)',
   };
-  const grad=gradients[m.color]||`linear-gradient(135deg,${m.color},${m.color}88)`;
+  const grad=gradients[m.color]||`linear-gradient(135deg,${m.color}ee,${m.color}cc)`;
   const subtasks=t.subtasks||[];
   const doneSubs=subtasks.filter(s=>s.done).length;
   const totalTime=subtasks.reduce((s,sub)=>s+(sub.duracion||0),0);
@@ -4623,7 +4624,7 @@ function openTaskDetail(taskId){
         </div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;color:${s.done?'var(--muted2)':'var(--text)'};${s.done?'text-decoration:line-through':''}; line-height:1.35">${esc(s.title||s.titulo||'')}</div>
-          ${(s.descripcion||s.description)?`<div style="font-size:11px;color:var(--muted);margin-top:3px;line-height:1.45">${esc(s.descripcion||s.description||'')}</div>`:''}
+          ${(s.descripcion||s.description)?`<div style="font-size:11px;color:var(--muted);margin-top:3px;line-height:1.45;font-style:italic">${esc(s.descripcion||s.description||''  )}</div>`:''}
         </div>
         <div style="font-size:10px;color:var(--muted2);white-space:nowrap;flex-shrink:0;margin-top:2px">⏱ ${s.duracion||0}m</div>
       </div>`).join('');
