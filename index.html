@@ -3151,6 +3151,33 @@ function render(){
   if(curTab==='progreso')renderProgreso();
   renderCalendario();
   applyProfile();
+  // ── Desktop hero card ──
+  const h2=new Date().getHours();
+  const fn=(state.profile&&state.profile.name)?state.profile.name.split(' ')[0]:'';
+  let dg;
+  if(h2>=0&&h2<5) dg=fn?`¿Trasnochando, ${fn}?`:'¿Trasnochando?';
+  else if(h2<12)  dg=fn?`Buenos días, ${fn}`:'Buenos días';
+  else if(h2<19)  dg=fn?`Buenas tardes, ${fn}`:'Buenas tardes';
+  else            dg=fn?`Buenas noches, ${fn}`:'Buenas noches';
+  if(ge('hero-greet'))ge('hero-greet').textContent=dg.toUpperCase();
+  const {xp:dxp,lvl:dlvl,title:dtitle,pct:dpct,nextXp:dnxp}=calcLevel();
+  const daysInYear=()=>{const n=new Date(),s=new Date(n.getFullYear(),0,0);return Math.floor((n-s)/86400000);};
+  const dq=['Tu personalidad crea tu realidad personal.','No podés crear una vida nueva con la misma mente de siempre.','El cuerpo es la mente inconsciente. Lo que pensás, lo sentís. Lo que sentís, lo vivís.','Repetir los mismos pensamientos produce las mismas emociones. Las mismas emociones producen la misma vida.','El cerebro no distingue entre lo que imaginas vívidamente y lo que experimenta en la realidad.','Para cambiar, tenés que ser mayor que tu ambiente, tu cuerpo y el tiempo.','La meditación no es escapar de tu vida. Es crear tu vida desde adentro.','El hábito es el yo automático. El despertar es elegir quién sos conscientemente.','No sos tus genes. Sos la señal que le das a tus genes.','La gratitud es la emoción que te pone en el futuro que ya querés vivir.','Cuando dejás de necesitar que algo externo te haga feliz, empezás a crearla vos.','La mayor adicción que existe es a las emociones que conocemos.','Cada pensamiento libera química en tu cuerpo. Sos un laboratorio viviente.','Cuando el inconsciente y el consciente alinean, el cambio se vuelve automático.','No sos lo que te pasó. Sos lo que elegís hacer con lo que te pasó.','La identidad se cambia desde adentro, nunca desde afuera.','Cada mañana que te despertás sos una persona diferente. El problema es que elegís ser la misma.','No esperés que algo cambie afuera para cambiar adentro. Es al revés.','La coherencia entre pensamiento, sentimiento y acción produce resultados extraordinarios.','Meditá para crear, no para escapar.'];
+  if(ge('hero-msg'))ge('hero-msg').textContent=dq[daysInYear()%dq.length];
+  if(ge('hero-ctx'))ge('hero-ctx').textContent='';
+  // ── Desktop right panel ──
+  if(ge('rp-streak-n'))ge('rp-streak-n').textContent=state.streak||0;
+  if(ge('rp-streak-sub'))ge('rp-streak-sub').textContent=(state.streak>=2)?`${state.streak} días seguidos`:'¡Empezá hoy!';
+  if(ge('rp-level-name'))ge('rp-level-name').textContent=`Nivel ${dlvl}`;
+  if(ge('rp-level-title'))ge('rp-level-title').textContent=dtitle||'Aprendiz';
+  if(ge('rp-level-xp'))ge('rp-level-xp').textContent=`${dxp} / ${dnxp} XP`;
+  if(ge('rp-level-pct'))ge('rp-level-pct').textContent=`${dpct}%`;
+  if(ge('rp-level-arc'))ge('rp-level-arc').style.strokeDashoffset=125.7-(125.7*(dpct/100));
+  if(ge('rp-level-arc-bar'))ge('rp-level-arc-bar').style.width=dpct+'%';
+  if(ge('rp-level-emoji'))ge('rp-level-emoji').textContent=dpct>=100?'🏆':dpct>=75?'💎':dpct>=50?'⭐':'🌱';
+  const rq=ge('rp-quote');if(rq&&!rq.dataset.set){rq.textContent=dq[daysInYear()%dq.length];rq.dataset.set='1';}
+  // ── streak-n-val (hero box blanco) ──
+  if(ge('streak-n-val'))ge('streak-n-val').textContent=state.streak||0;
 }
 
 let taskView='pending'; // 'pending' | 'history' | 'habits'
