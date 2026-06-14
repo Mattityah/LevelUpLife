@@ -43,26 +43,70 @@
 }
 /* ── MODO OSCURO ── */
 body.dark-mode{
-  --bg:#0f0f0f;--white:#1a1a1a;--bg3:#222222;--bg4:#2a2a2a;
-  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
-  --text:#f0ede8;--muted:#7a7672;--muted2:#4a4642;
-  --vi-bg:rgba(124,58,237,0.15);--vi-tc:#a78bfa;
-  --te-bg:rgba(15,118,110,0.15);--te-tc:#34d399;
-  --am-bg:rgba(180,83,9,0.15);--am-tc:#fbbf24;
-  --ro-bg:rgba(190,24,93,0.15);--ro-tc:#f472b6;
-  --sk-bg:rgba(3,105,161,0.15);--sk-tc:#38bdf8;
+  --bg:#111111;--white:#1c1c1c;--bg3:#242424;--bg4:#2e2e2e;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
+  --text:#ece9e4;--muted:#8a8680;--muted2:#5a5652;
+  --vi-bg:rgba(124,58,237,0.18);--vi-tc:#c4b5fd;
+  --te-bg:rgba(15,118,110,0.18);--te-tc:#6ee7b7;
+  --am-bg:rgba(180,83,9,0.18);--am-tc:#fcd34d;
+  --ro-bg:rgba(190,24,93,0.18);--ro-tc:#f9a8d4;
+  --sk-bg:rgba(3,105,161,0.18);--sk-tc:#7dd3fc;
 }
-body.dark-mode .hero-card{background:linear-gradient(170deg,#000 0%,#0d0820 55%,#000 100%)!important;}
-body.dark-mode .quick-capture{background:var(--white);border-color:var(--border2);}
-body.dark-mode .quick-capture-inp{color:var(--text);}
-body.dark-mode .task-card{background:var(--white);border-color:var(--border);}
-body.dark-mode .cat-big-card{filter:brightness(0.9);}
-body.dark-mode .rp-card{background:var(--white)!important;border-color:var(--border)!important;}
-body.dark-mode .rp-quote{color:var(--muted)!important;}
+/* Fondos generales */
+body.dark-mode html,body.dark-mode body{background:var(--bg);}
+body.dark-mode .app{background:var(--bg);}
+/* Hero card */
+body.dark-mode .hero-card{background:linear-gradient(170deg,#080808 0%,#0d0820 55%,#080808 100%)!important;}
+/* Inputs y textareas */
 body.dark-mode input,body.dark-mode textarea,body.dark-mode select{background:var(--bg3)!important;color:var(--text)!important;border-color:var(--border2)!important;}
-body.dark-mode .navbar{background:rgba(15,15,15,0.95)!important;}
-body.dark-mode .set-item{background:transparent;}
-body.dark-mode .set-ico{filter:brightness(0.8);}
+body.dark-mode input::placeholder,body.dark-mode textarea::placeholder{color:var(--muted2)!important;}
+/* Cards y panes */
+body.dark-mode .task-card{background:var(--white);border-color:var(--border);}
+body.dark-mode .task-title{color:var(--text);}
+body.dark-mode .page-pad{background:var(--bg);}
+body.dark-mode .pane{background:var(--bg);}
+/* Quick capture */
+body.dark-mode .quick-capture{background:var(--white);border-color:var(--border2);}
+body.dark-mode .quick-capture-inp{color:var(--text);background:transparent!important;}
+/* Categorías — mantener colores pero ajustar brillo */
+body.dark-mode .cat-big-card{filter:brightness(0.85) saturate(0.9);}
+/* Navbar mobile */
+body.dark-mode .navbar{background:rgba(17,17,17,0.96)!important;border-color:var(--border)!important;}
+body.dark-mode .nav-lbl{color:var(--muted);}
+body.dark-mode .nav-btn.active .nav-lbl{color:var(--text);}
+/* Sidebar desktop — ya es negra, solo ajustar labels */
+body.dark-mode .sb-stat{background:var(--bg3);border-color:var(--border);}
+body.dark-mode .sb-stat-val{color:var(--text);}
+body.dark-mode .sb-stat-lbl{color:var(--muted);}
+/* Set items en perfil */
+body.dark-mode .set-item{background:var(--white);border-color:var(--border);}
+body.dark-mode .set-txt{color:var(--text);}
+body.dark-mode .set-arr{color:var(--muted);}
+body.dark-mode .sec-label{color:var(--muted2);}
+body.dark-mode .page-title{color:var(--text);}
+body.dark-mode .page-sub{color:var(--muted);}
+/* Hábitos */
+body.dark-mode .habit-strip-day{background:var(--bg3);}
+/* Botones */
+body.dark-mode .btn-add{background:var(--violet);}
+/* Panel derecho inicio */
+body.dark-mode .inicio-right>div{background:var(--white)!important;border-color:var(--border)!important;}
+/* Racha en sidebar — mantener blanco */
+body.dark-mode .sb-streak{background:#1c1c1c;box-shadow:0 4px 20px rgba(0,0,0,0.5);}
+body.dark-mode .sb-streak-n{color:var(--text);}
+body.dark-mode .sb-streak-l{color:var(--muted);}
+/* Input area tareas */
+body.dark-mode .input-area{background:var(--white);border-color:var(--border);}
+body.dark-mode .inp{background:var(--bg3)!important;color:var(--text)!important;border-color:var(--border2)!important;}
+body.dark-mode .cat-pill{background:var(--bg3)!important;color:var(--muted)!important;border-color:var(--border)!important;}
+body.dark-mode .cat-pill.active{background:var(--vi-bg)!important;color:var(--vi-tc)!important;}
+/* Bitácora */
+body.dark-mode .act-log{background:var(--white);}
+body.dark-mode .act-title{color:var(--text);}
+/* Perfil hero */
+body.dark-mode .prof-hero{background:linear-gradient(160deg,#1a1820,var(--bg));}
+body.dark-mode .prof-name{color:var(--text);}
+body.dark-mode .prof-sub{color:var(--muted);}
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;}#app-wrap{height:100%;}
 
@@ -1156,76 +1200,71 @@ const DEFAULT_CATS=[
             </div>
           </div>
           <div class="inicio-right">
-            <!-- RACHA — box blanco prominente -->
-            <div style="background:#fff;border-radius:20px;padding:20px 18px;margin-bottom:12px;box-shadow:0 4px 24px rgba(0,0,0,0.08);position:relative;overflow:hidden">
-              <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% -10%,rgba(251,146,60,0.1),transparent 65%);pointer-events:none"></div>
-              <div style="font-size:8px;text-transform:uppercase;letter-spacing:2px;color:#b8b4ae;font-weight:500;margin-bottom:12px">Racha actual</div>
-              <div style="display:flex;align-items:flex-end;gap:8px;margin-bottom:4px">
-                <div style="font-family:'Instrument Serif',serif;font-size:56px;font-weight:400;color:#1a1814;line-height:1" id="rp-streak-n">0</div>
-                <div style="font-size:28px;line-height:1;margin-bottom:6px">🔥</div>
+            <!-- HÁBITOS DE HOY -->
+            <div style="background:var(--white);border-radius:20px;padding:20px 18px;margin-bottom:12px;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,0.04)">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+                <div style="font-size:8px;text-transform:uppercase;letter-spacing:2px;color:var(--muted2);font-weight:500">Hábitos de hoy</div>
+                <button onclick="sw('habitos')" style="font-size:10px;color:var(--violet);background:var(--vi-bg);border:none;border-radius:20px;padding:3px 10px;cursor:pointer;font-family:'Geist',sans-serif">Ver todos →</button>
               </div>
-              <div style="font-size:11px;color:#8a8680;margin-bottom:14px" id="rp-streak-sub">¡Empezá hoy!</div>
-              <div id="rp-fire-row" style="display:flex;gap:3px;flex-wrap:wrap"></div>
-            </div>
-            <!-- NIVEL -->
-            <div style="background:#0f0f0f;border-radius:20px;padding:20px 18px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.06)">
-              <div style="font-size:8px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.25);font-weight:500;margin-bottom:14px">Nivel</div>
-              <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
-                <div style="width:52px;height:52px;border-radius:16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0" id="rp-level-emoji">⭐</div>
-                <div style="flex:1">
-                  <div style="font-family:'Instrument Serif',serif;font-size:22px;color:#fff;line-height:1" id="rp-level-name">Nivel 1</div>
-                  <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:3px" id="rp-level-title">Aprendiz</div>
-                </div>
-                <div style="font-family:'Instrument Serif',serif;font-size:24px;color:rgba(255,255,255,0.3)" id="rp-level-pct">0%</div>
+              <div id="rp-habits-today" style="display:flex;flex-direction:column;gap:8px">
+                <div style="font-size:12px;color:var(--muted2);text-align:center;padding:12px 0">Cargando hábitos...</div>
               </div>
-              <div style="height:1px;background:rgba(255,255,255,0.08);border-radius:1px;overflow:hidden;margin-bottom:6px">
-                <div id="rp-level-arc-bar" style="height:100%;background:rgba(255,255,255,0.6);width:0%;border-radius:1px;transition:width .5s ease"></div>
-              </div>
-              <div style="font-size:10px;color:rgba(255,255,255,0.25)" id="rp-level-xp">0 / 100 XP</div>
-              <!-- SVG arc oculto para compatibilidad con render() -->
-              <svg style="display:none" viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" fill="none" stroke="transparent" stroke-width="0"/><circle cx="25" cy="25" r="20" fill="none" stroke="transparent" stroke-width="0" stroke-dasharray="125.7" id="rp-level-arc" stroke-dashoffset="125.7" stroke-linecap="round"/></svg>
             </div>
-            <!-- FRASE -->
-            <div style="background:#0f0f0f;border-radius:20px;padding:20px 18px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.06)">
-              <div style="font-size:28px;color:rgba(255,255,255,0.12);line-height:1;margin-bottom:10px;font-family:'Instrument Serif',serif">"</div>
-              <div style="font-family:'Instrument Serif',serif;font-size:16px;font-style:italic;color:rgba(255,255,255,0.7);line-height:1.55" id="rp-quote">Pequeñas acciones diarias, grandes cambios con el tiempo.</div>
+
+            <!-- FRASE DISPENZA -->
+            <div style="background:var(--white);border-radius:20px;padding:20px 18px;margin-bottom:12px;border:1px solid var(--border)">
+              <div style="font-size:28px;color:var(--border2);line-height:1;margin-bottom:10px;font-family:'Instrument Serif',serif">"</div>
+              <div style="font-family:'Instrument Serif',serif;font-size:15px;font-style:italic;color:var(--text);line-height:1.55" id="rp-quote">Pequeñas acciones diarias, grandes cambios con el tiempo.</div>
             </div>
-            <div style="background:#0f0f0f;border-radius:20px;padding:20px 18px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.06)">
+
+            <!-- CALENDARIO -->
+            <div style="background:var(--white);border-radius:20px;padding:20px 18px;margin-bottom:12px;border:1px solid var(--border)">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-                <div style="font-size:8px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.25);font-weight:500">Calendario</div>
+                <div style="font-size:8px;text-transform:uppercase;letter-spacing:2px;color:var(--muted2);font-weight:500">Calendario</div>
                 <div style="display:flex;align-items:center;gap:6px">
-                  <button onclick="calNav(-1)" style="width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);cursor:pointer;font-size:11px;color:rgba(255,255,255,0.5)">‹</button>
-                  <span style="font-size:10px;color:rgba(255,255,255,0.5);min-width:60px;text-align:center" id="home-cal-label"></span>
-                  <button onclick="calNav(1)" style="width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);cursor:pointer;font-size:11px;color:rgba(255,255,255,0.5)">›</button>
+                  <button onclick="calNav(-1)" style="width:22px;height:22px;border-radius:50%;background:var(--bg3);border:1px solid var(--border2);cursor:pointer;font-size:11px;color:var(--muted)">‹</button>
+                  <span style="font-size:10px;color:var(--text);min-width:60px;text-align:center" id="home-cal-label"></span>
+                  <button onclick="calNav(1)" style="width:22px;height:22px;border-radius:50%;background:var(--bg3);border:1px solid var(--border2);cursor:pointer;font-size:11px;color:var(--muted)">›</button>
                 </div>
               </div>
-              <div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:12px;position:relative;overflow:hidden">
+              <div style="background:var(--bg3);border-radius:12px;padding:12px;overflow:hidden">
                 <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:5px">
-                  <div style="text-align:center;font-size:8px;color:rgba(255,255,255,0.2)">L</div><div style="text-align:center;font-size:8px;color:rgba(255,255,255,0.2)">M</div><div style="text-align:center;font-size:8px;color:rgba(255,255,255,0.2)">X</div><div style="text-align:center;font-size:8px;color:rgba(255,255,255,0.2)">J</div><div style="text-align:center;font-size:8px;color:rgba(255,255,255,0.2)">V</div><div style="text-align:center;font-size:8px;color:rgba(255,255,255,0.2)">S</div><div style="text-align:center;font-size:8px;color:rgba(255,255,255,0.2)">D</div>
+                  <div style="text-align:center;font-size:8px;color:var(--muted2)">L</div><div style="text-align:center;font-size:8px;color:var(--muted2)">M</div><div style="text-align:center;font-size:8px;color:var(--muted2)">X</div><div style="text-align:center;font-size:8px;color:var(--muted2)">J</div><div style="text-align:center;font-size:8px;color:var(--muted2)">V</div><div style="text-align:center;font-size:8px;color:var(--muted2)">S</div><div style="text-align:center;font-size:8px;color:var(--muted2)">D</div>
                 </div>
                 <div id="home-cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px"></div>
               </div>
               <div id="home-cal-detail" style="display:none;margin-top:14px">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-                  <div style="font-family:'Instrument Serif',serif;font-size:15px;color:#fff" id="home-cal-day-title"></div>
-                  <span style="font-size:9px;color:rgba(255,255,255,0.5);font-weight:400;background:rgba(255,255,255,0.08);padding:2px 8px;border-radius:20px" id="home-cal-day-xp"></span>
+                  <div style="font-family:'Instrument Serif',serif;font-size:15px;color:var(--text)" id="home-cal-day-title"></div>
+                  <span style="font-size:9px;color:var(--violet);background:var(--vi-bg);padding:2px 8px;border-radius:20px" id="home-cal-day-xp"></span>
                 </div>
                 <div id="home-cal-day-list" style="max-height:180px;overflow-y:auto"></div>
-                <div id="home-gcal-section" style="display:none;margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:8px">
+                <div id="home-gcal-section" style="display:none;margin-top:8px;border-top:1px solid var(--border);padding-top:8px">
                   <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
                     <div style="width:14px;height:14px;border-radius:3px;background:linear-gradient(135deg,#4285f4,#34a853);flex-shrink:0"></div>
-                    <div style="font-size:8px;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.25);font-weight:500">Google Calendar</div>
+                    <div style="font-size:8px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted2);font-weight:500">Google Calendar</div>
                   </div>
                   <div id="home-gcal-events" style="display:flex;flex-direction:column;gap:4px"></div>
                 </div>
-                <div style="margin-top:10px;border-top:1px solid rgba(255,255,255,0.08);padding-top:10px">
-                  <div style="font-size:8px;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.25);font-weight:500;margin-bottom:6px">Nota del día</div>
-                  <textarea id="home-cal-note" placeholder="Anotá algo..." style="width:100%;min-height:50px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:8px;padding:7px 10px;font-size:12px;font-family:'Geist',sans-serif;font-weight:300;outline:none;resize:none;" onfocus="this.style.borderColor='rgba(255,255,255,0.3)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></textarea>
-                  <button onclick="saveNoteFromHome()" style="margin-top:5px;width:100%;padding:7px;background:#fff;color:#0f0f0f;border:none;border-radius:8px;font-size:11px;font-family:'Geist',sans-serif;cursor:pointer;font-weight:500" id="home-note-save-btn">Guardar nota</button>
+                <div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px">
+                  <div style="font-size:8px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted2);margin-bottom:6px">Nota del día</div>
+                  <textarea id="home-cal-note" placeholder="Anotá algo..." style="width:100%;min-height:50px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:7px 10px;font-size:12px;font-family:'Geist',sans-serif;font-weight:300;outline:none;resize:none;" onfocus="this.style.borderColor='var(--violet)'" onblur="this.style.borderColor='var(--border2)'"></textarea>
+                  <button onclick="saveNoteFromHome()" style="margin-top:5px;width:100%;padding:7px;background:var(--text);color:var(--white);border:none;border-radius:8px;font-size:11px;font-family:'Geist',sans-serif;cursor:pointer;font-weight:500" id="home-note-save-btn">Guardar nota</button>
                 </div>
               </div>
             </div>
-          </div>
+
+            <!-- SVG oculto para compatibilidad con render() -->
+            <svg style="display:none"><circle id="rp-level-arc" stroke-dasharray="125.7" stroke-dashoffset="125.7"/></svg>
+            <span style="display:none" id="rp-level-arc-bar"></span>
+            <span style="display:none" id="rp-streak-n"></span>
+            <span style="display:none" id="rp-streak-sub"></span>
+            <span style="display:none" id="rp-level-name"></span>
+            <span style="display:none" id="rp-level-title"></span>
+            <span style="display:none" id="rp-level-xp"></span>
+            <span style="display:none" id="rp-level-pct"></span>
+            <span style="display:none" id="rp-level-emoji"></span>
+            <span style="display:none" id="rp-fire-row"></span>          </div>
         </div>
       </div><!-- /desktop-inicio -->
 
@@ -3181,6 +3220,7 @@ function render(){
   if(curTab==='progreso')renderProgreso();
   renderCalendario();
   applyProfile();
+  if(window.innerWidth>=768) renderRightHabits();
   // ── Desktop hero ──
   const _h=new Date().getHours(),_fn=(state.profile&&state.profile.name)?state.profile.name.split(' ')[0]:'';
   let _dg;
@@ -3518,6 +3558,31 @@ function setupDesktop(){
 }
 setupDesktop();
 window.addEventListener('resize',setupDesktop);
+
+/* ── Right panel habits ── */
+function renderRightHabits(){
+  const container=ge('rp-habits-today');if(!container)return;
+  const today=new Date();
+  const todayHabits=(state.habits||[]).filter(h=>shouldShowHabitToday(h));
+  if(!todayHabits.length){
+    container.innerHTML=`<div style="font-size:12px;color:var(--muted2);text-align:center;padding:12px 0">Sin hábitos para hoy.<br><span style="font-size:11px">Creá uno en la sección Hábitos.</span></div>`;
+    return;
+  }
+  container.innerHTML=todayHabits.map(h=>{
+    const done=habitDoneToday(h);
+    const cat=CATS[h.cat]||{color:'#7c3aed',emoji:'✦'};
+    return`<div onclick="toggleHabit('${h.id}')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${done?'var(--vi-bg)':'var(--bg3)'};border-radius:12px;cursor:pointer;border:1px solid ${done?'rgba(124,58,237,0.2)':'var(--border)'};transition:all .2s">
+      <div style="width:28px;height:28px;border-radius:8px;background:${cat.color};display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${h.emoji||cat.emoji||'✦'}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;color:var(--text);font-weight:400;${done?'text-decoration:line-through;opacity:.5':''}">${esc(h.name)}</div>
+        <div style="font-size:10px;color:var(--muted2);margin-top:1px">+${h.xp} XP · ${h.cat}</div>
+      </div>
+      <div style="width:22px;height:22px;border-radius:50%;border:1.5px solid ${done?cat.color:'var(--border2)'};background:${done?cat.color:'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s">
+        ${done?'<svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3 5.5L8 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}
+      </div>
+    </div>`;
+  }).join('');
+}
 
 /* ── Dark Mode ── */
 function toggleDarkMode(){
