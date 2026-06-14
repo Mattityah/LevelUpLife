@@ -257,14 +257,17 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 .hero-msg em{font-style:normal;color:#c4b5fd;}
 .hero-ctx{font-size:11px;color:rgba(255,255,255,0.45);margin-bottom:12px;font-weight:300;font-family:'Geist',sans-serif;line-height:1.4;}
 .hero-ctx em{font-style:normal;color:#a78bfa;}
+.hero-char-name{font-family:'Instrument Serif',serif;font-size:13px;font-style:italic;color:rgba(255,255,255,0.45);margin-bottom:8px;letter-spacing:.2px;}
+@media(min-width:768px){.hero-char-name{font-size:17px;}}
 .char-row{display:flex;align-items:center;gap:10px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);position:relative;z-index:1;}
 .avatar{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#7c3aed,#ec4899);display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 3px 12px rgba(124,58,237,0.35);flex-shrink:0;}
 .char-name{font-size:13px;font-weight:400;color:rgba(255,255,255,0.85);letter-spacing:-.1px;font-family:'Instrument Serif',serif;}
 .char-badge{display:inline-flex;align-items:center;background:rgba(255,255,255,0.07);border:0.5px solid rgba(255,255,255,0.12);border-radius:20px;padding:2px 8px;margin-top:1px;}
 .char-badge span{font-size:9px;color:rgba(255,255,255,0.45);}
-.streak-pill{margin-left:auto;display:flex;align-items:center;gap:4px;flex-shrink:0;}
-.streak-n{font-size:14px;font-weight:400;color:#fb923c;font-family:'Instrument Serif',serif;}
-.streak-l{font-size:9px;color:rgba(251,146,60,0.6);}
+.hero-streak-box{margin-left:auto;flex-shrink:0;background:#ffffff;border-radius:12px;padding:10px 12px;text-align:center;position:relative;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.25);}
+.hero-streak-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(251,146,60,0.15),transparent 70%);pointer-events:none;}
+.hero-streak-box-n{font-family:'Instrument Serif',serif;font-size:32px;font-weight:400;color:#1a1814;line-height:1;position:relative;}
+.hero-streak-box-l{font-size:8px;color:#8a8680;margin-top:2px;letter-spacing:.8px;text-transform:uppercase;position:relative;}
 .hero-xp{padding:10px 0 0;}
 .xp-row{display:flex;justify-content:space-between;margin-bottom:4px;}
 .xp-row span{font-size:10px;color:var(--muted2);}
@@ -1158,6 +1161,7 @@ const DEFAULT_CATS=[
             </div>
             <div class="hero-card-bottom">
               <div class="hero-msg" id="hero-msg"></div>
+              <div class="hero-char-name" id="hero-char-name"></div>
               <div class="hero-ctx" id="hero-ctx"></div>
               <div class="char-row">
                 <div class="avatar" id="hero-avatar"></div>
@@ -1165,9 +1169,10 @@ const DEFAULT_CATS=[
                   <div class="char-name" id="hero-name">Mi personaje</div>
                   <div class="char-badge"><span id="hero-badge">Nivel 1 · Aprendiz</span></div>
                 </div>
-                <div class="streak-pill">
-                  <span class="streak-n" id="streak-n">0</span>
-                  <span class="streak-l">🔥</span>
+                <div class="hero-streak-box">
+                  <div style="font-size:14px;margin-bottom:2px;position:relative">🔥</div>
+                  <div class="hero-streak-box-n" id="streak-n">0</div>
+                  <div class="hero-streak-box-l">días</div>
                 </div>
               </div>
             </div>
@@ -5096,6 +5101,8 @@ function applyProfile(){
   styleAv(ge('hero-avatar'));
   styleAv(ge('prof-av'));
   ge('char-name-display')&&(ge('char-name-display').textContent=name);
+  ge('hero-name')&&(ge('hero-name').textContent=name);
+  ge('hero-char-name')&&(ge('hero-char-name').textContent=name);
   ge('prof-name')&&(ge('prof-name').textContent=name);
   const bioEl=ge('prof-bio');
   if(bioEl)bioEl.textContent=p.bio||'';
