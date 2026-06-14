@@ -2020,7 +2020,7 @@ function renderCatCardsHome(){
     '#d97706':'linear-gradient(135deg,#d97706,#fbbf24)',
   };
   function getGrad(color){
-    return gradients[color]||`linear-gradient(135deg,${color},${color}88)`;
+    return gradients[color]||`linear-gradient(135deg,${color},${color}dd)`;
   }
 
   container.innerHTML=activeCats.map(cat=>{
@@ -2066,7 +2066,7 @@ function openCatFromHome(catId){
   if(!cat)return;
   // update CATS for modal
   const gradients={'#7c3aed':'linear-gradient(135deg,#6d28d9,#a855f7)','#0f766e':'linear-gradient(135deg,#0f766e,#10b981)','#b45309':'linear-gradient(135deg,#b45309,#f59e0b)','#be185d':'linear-gradient(135deg,#be185d,#f472b6)','#0369a1':'linear-gradient(135deg,#0369a1,#38bdf8)'};
-  const grad=gradients[cat.color]||`linear-gradient(135deg,${cat.color},${cat.color}88)`;
+  const grad=gradients[cat.color]||`linear-gradient(135deg,${cat.color},${cat.color}dd)`;
   const hdr=ge('cat-modal-header');
   hdr.style.background=grad;
   ge('cat-modal-ico').textContent=cat.emoji;
@@ -4597,7 +4597,7 @@ function openTaskDetail(taskId){
     '#be185d':'linear-gradient(135deg,#be185d,#f472b6)',
     '#0369a1':'linear-gradient(135deg,#0369a1,#38bdf8)',
   };
-  const grad=gradients[m.color]||`linear-gradient(135deg,${m.color},${m.color}88)`;
+  const grad=gradients[m.color]||`linear-gradient(135deg,${m.color},${m.color}dd)`;
   const subtasks=t.subtasks||[];
   const doneSubs=subtasks.filter(s=>s.done).length;
   const totalTime=subtasks.reduce((s,sub)=>s+(sub.duracion||0),0);
@@ -4885,7 +4885,7 @@ function renderProfCats(){
       '#be185d':'linear-gradient(135deg,#be185d,#f472b6)',
       '#0369a1':'linear-gradient(135deg,#0369a1,#38bdf8)',
     };
-    const grad=gradients[cat.color]||`linear-gradient(135deg,${cat.color},${cat.color}88)`;
+    const grad=gradients[cat.color]||`linear-gradient(135deg,${cat.color},${cat.color}dd)`;
 
     return `<div style="background:${grad};border-radius:16px;padding:14px;color:#fff;position:relative;overflow:hidden">
       <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:rgba(255,255,255,0.08);border-radius:50%"></div>
@@ -5032,7 +5032,7 @@ function buildCategoryCard(catId){
     '#be185d':'linear-gradient(150deg,#831843,#be185d,#f472b6)',
     '#0369a1':'linear-gradient(150deg,#1e3a5f,#0369a1,#38bdf8)',
   };
-  const bg=gradients[cat.color]||`linear-gradient(150deg,${cat.color},${cat.color}88)`;
+  const bg=gradients[cat.color]||`linear-gradient(150deg,${cat.color},${cat.color}dd)`;
 
   const taskHTML=pending.slice(0,4).map(t=>`
     <div class="sc-task" onclick="event.stopPropagation();completeTask(${t.id})">
