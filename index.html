@@ -112,20 +112,22 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
   .navbar{
     position:static;flex-direction:column;justify-content:flex-start;
     width:var(--sb-w);min-width:var(--sb-w);height:100%;
-    margin:0;border-radius:0;border:none;border-right:1px solid var(--border);
+    margin:0;border-radius:0;border:none;border-right:1px solid rgba(255,255,255,0.06);
     box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;
-    background:var(--white);padding:0;align-items:stretch;overflow-y:auto;
+    background:#0f0f0f;padding:0;align-items:stretch;overflow-y:auto;
   }
   .nav-btn{
     flex-direction:row;gap:10px;padding:10px 16px;border-radius:8px;
     margin:2px 10px;
   }
-  .nav-btn.active{background:var(--vi-bg);}
-  .nav-btn.active .nav-lbl{color:var(--violet);}
-  .nav-ico{font-size:17px;}
-  .nav-lbl{font-size:13px;color:var(--text);}
-  .nav-btn.active .nav-lbl{color:var(--violet);}
-  /* Desktop: center button behaves like regular nav-btn */
+  .nav-btn.active{background:rgba(255,255,255,0.07);}
+  .nav-btn.active .nav-lbl{color:#fff;}
+  .nav-ico{font-size:17px;opacity:0.6;}
+  .nav-btn.active .nav-ico{opacity:1;}
+  .nav-lbl{font-size:12px;color:rgba(255,255,255,0.45);font-weight:300;letter-spacing:.1px;}
+  .nav-btn.active .nav-lbl{color:#fff;}
+  .nav-btn:hover .nav-lbl{color:rgba(255,255,255,0.75);}
+  /* Desktop: center button */
   .nav-btn-center{
     display:flex;flex-direction:row;align-items:center;gap:10px;
     padding:10px 16px;border-radius:8px;margin:2px 10px;
@@ -134,42 +136,48 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
   }
   .nav-btn-center .nav-center-bubble{
     width:28px;height:28px;border-radius:8px;
-    background:linear-gradient(135deg,#7c3aed,#a855f7);
+    background:rgba(255,255,255,0.12);
     display:flex;align-items:center;justify-content:center;
-    font-size:14px;box-shadow:none;
-    transition:none;
+    font-size:14px;box-shadow:none;transition:none;
   }
   .nav-btn-center:hover .nav-center-bubble,
-  .nav-btn-center.active .nav-center-bubble{transform:none;box-shadow:none;}
-  .nav-btn-center.active{background:var(--vi-bg);}
-  .nav-btn-center .nav-lbl{font-size:13px;color:var(--text);}
-  .nav-btn-center.active .nav-lbl{color:var(--violet);}
-  .scroll{padding-bottom:20px;}
-  .sb-top{display:flex;align-items:center;gap:10px;padding:22px 18px 18px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+  .nav-btn-center.active .nav-center-bubble{background:rgba(255,255,255,0.18);transform:none;box-shadow:none;}
+  .nav-btn-center.active{background:rgba(255,255,255,0.07);}
+  .nav-btn-center .nav-lbl{font-size:12px;color:rgba(255,255,255,0.45);}
+  .nav-btn-center.active .nav-lbl{color:#fff;}
+  .scroll{padding-bottom:20px;height:0;flex:1;overflow-y:auto;}
+  .sb-top{display:flex;align-items:center;gap:10px;padding:24px 18px 20px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:6px;}
   .sb-logo-icon{width:30px;height:30px;border-radius:9px;background:transparent;display:flex;align-items:center;justify-content:center;font-size:14px;overflow:hidden;}
-  .sb-logo-name{font-family:'Instrument Serif',serif;font-size:17px;font-weight:400;color:var(--text);}
-  .sb-section{padding:12px 14px;border-top:1px solid var(--border);margin-top:4px;}
-  .sb-label{font-size:9px;text-transform:uppercase;letter-spacing:1.4px;color:var(--muted2);margin-bottom:10px;font-weight:500;}
-  .sb-stats{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
-  .sb-stat{background:var(--bg3);border-radius:9px;padding:10px 11px;border:1px solid var(--border);}
-  .sb-stat-val{font-family:'Instrument Serif',serif;font-size:22px;font-weight:400;color:var(--text);line-height:1;}
-  .sb-stat-lbl{font-size:9px;color:var(--muted);margin-top:2px;}
-  .sb-streak{background:var(--bg3);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--border);position:relative;overflow:hidden;}
-  .sb-streak::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(251,146,60,0.08),transparent 70%);}
-  .sb-streak-n{font-family:'Instrument Serif',serif;font-size:32px;font-weight:400;color:var(--text);line-height:1;}
-  .sb-streak-l{font-size:10px;color:var(--muted);margin-top:2px;}
-  .sb-bottom{margin-top:auto;padding:14px;border-top:1px solid var(--border);display:flex;gap:6px;}
-  .sb-btn{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:8px;font-size:11px;font-family:'Geist',sans-serif;color:var(--muted);cursor:pointer;transition:all .15s;text-align:center;}
-  .sb-btn:hover{color:var(--text);background:var(--bg4);}
-  .nav-section-label{font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);padding:8px 16px 4px;font-weight:500;}
+  .sb-logo-name{font-family:'Instrument Serif',serif;font-size:17px;font-weight:400;color:#fff;letter-spacing:-.2px;}
+  .sb-section{padding:12px 14px;border-top:1px solid rgba(255,255,255,0.06);margin-top:4px;}
+  .sb-label{font-size:8px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.25);margin-bottom:12px;font-weight:500;}
+  .sb-stats{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+  .sb-stat{background:rgba(255,255,255,0.04);border-radius:10px;padding:12px 11px;border:1px solid rgba(255,255,255,0.06);}
+  .sb-stat-val{font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;color:#fff;line-height:1;}
+  .sb-stat-lbl{font-size:9px;color:rgba(255,255,255,0.3);margin-top:3px;}
+  /* Racha en sidebar — box blanco prominente */
+  .sb-streak{background:#ffffff;border-radius:14px;padding:16px 14px;text-align:center;border:none;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.3);}
+  .sb-streak::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(251,146,60,0.15),transparent 70%);}
+  .sb-streak-n{font-family:'Instrument Serif',serif;font-size:40px;font-weight:400;color:#1a1814;line-height:1;}
+  .sb-streak-l{font-size:10px;color:#8a8680;margin-top:3px;letter-spacing:.5px;}
+  .sb-bottom{margin-top:auto;padding:14px;border-top:1px solid rgba(255,255,255,0.06);display:flex;gap:6px;}
+  .sb-btn{flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px;font-size:11px;font-family:'Geist',sans-serif;color:rgba(255,255,255,0.4);cursor:pointer;transition:all .15s;text-align:center;}
+  .sb-btn:hover{color:#fff;background:rgba(255,255,255,0.1);}
+  .nav-section-label{font-size:8px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.2);padding:10px 16px 4px;font-weight:500;}
+  /* Nivel box en sidebar */
+  #sb-level-name{color:#fff;}
+  #sb-level-title{color:rgba(255,255,255,0.5);}
+  #sb-level-pct{color:rgba(255,255,255,0.7);}
+  #sb-xp-lbl{color:rgba(255,255,255,0.3);}
 }
 
 /* ══ HERO ══ */
 .hero{padding:14px 14px 14px;background:var(--bg);}
 
 /* Card editorial */
-.hero-card{border-radius:20px;overflow:hidden;position:relative;min-height:200px;background:linear-gradient(170deg,#1a1520 0%,#2d1f4e 55%,#1e1a2e 100%);display:flex;flex-direction:column;justify-content:space-between;padding:16px 18px;box-shadow:0 8px 32px rgba(0,0,0,0.18),0 2px 8px rgba(0,0,0,0.1);}
+.hero-card{border-radius:20px;overflow:hidden;position:relative;min-height:200px;background:linear-gradient(170deg,#0a0a0a 0%,#130d25 55%,#0a0a0a 100%);display:flex;flex-direction:column;justify-content:space-between;padding:16px 18px;box-shadow:0 8px 32px rgba(0,0,0,0.18),0 2px 8px rgba(0,0,0,0.1);}
 @media(min-width:768px){.hero-card{min-height:240px;border-radius:24px;}}
+@media(min-width:768px){.page-pad{padding:32px 36px;}.page-title{font-size:32px;letter-spacing:-.5px;}.page-sub{color:rgba(0,0,0,0.3);margin-bottom:24px;}.sec-label{font-size:8px;letter-spacing:2.5px;color:rgba(0,0,0,0.28);}}
 .hero-card::before{content:'';position:absolute;top:-50px;left:-50px;width:260px;height:260px;background:radial-gradient(circle,rgba(124,58,237,0.3),transparent 65%);pointer-events:none;}
 .hero-card::after{content:'';position:absolute;bottom:-30px;right:-30px;width:180px;height:180px;background:radial-gradient(circle,rgba(236,72,153,0.15),transparent 65%);pointer-events:none;}
 .hero-card-top{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1;margin-bottom:12px;}
@@ -178,7 +186,7 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 .hero-card-bottom{position:relative;z-index:1;}
 .hero-msg{font-family:'Instrument Serif',serif;font-size:21px;font-weight:400;font-style:italic;color:#fff;line-height:1.28;letter-spacing:-.2px;margin-bottom:10px;}
 @media(min-width:480px){.hero-msg{font-size:24px;}}
-@media(min-width:768px){.hero-msg{font-size:30px;}}
+@media(min-width:768px){.hero-msg{font-size:40px;letter-spacing:-.5px;line-height:1.2;}}
 .hero-msg em{font-style:normal;color:#c4b5fd;}
 .hero-ctx{font-size:11px;color:rgba(255,255,255,0.45);margin-bottom:12px;font-weight:300;font-family:'Geist',sans-serif;line-height:1.4;}
 .hero-ctx em{font-style:normal;color:#a78bfa;}
@@ -232,10 +240,24 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 /* Inicio layout */
 .inicio-body{padding:16px 16px 30px;}
 .inicio-left{margin-bottom:20px;position:relative;z-index:2;}
-.inicio-right{display:none;}
+.inicio-right{display:none;}@media(min-width:768px){.inicio-right{display:block;}}
 @media(min-width:768px){
-  .inicio-body{display:block;padding:20px 24px 40px;}
+  .inicio-body{display:grid;grid-template-columns:1fr 320px;gap:24px;padding:20px 24px 40px;align-items:start;}
   .inicio-left{margin-bottom:0;}
+  /* Fondo panel principal Co-Star */
+  .desktop-inicio,.pane>.page-pad,.desktop-wrap{background:var(--bg);}
+  /* hero-xp Co-Star: línea 1px */
+  .hero-xp{padding:0;margin:0 0 0;}
+  .xp-row span,.xp-row strong{color:rgba(0,0,0,0.25);font-size:9px;letter-spacing:.3px;}
+  .xp-track{height:1px;background:rgba(0,0,0,0.06);}
+  .xp-fill{background:#0f0f0f;}
+  /* sec-label editorial */
+  .sec-label{font-size:8px;letter-spacing:2.5px;color:rgba(0,0,0,0.28);font-weight:500;}
+  /* page-title editorial */
+  .page-title{font-size:28px;letter-spacing:-.4px;}
+  /* quick-capture desktop */
+  .quick-capture{border-radius:12px;border-color:rgba(0,0,0,0.08);box-shadow:none;}
+  .quick-capture:focus-within{border-color:rgba(0,0,0,0.2);box-shadow:none;}
 }
 
 /* ── Cat Cards estilo App Store ── */
@@ -937,17 +959,17 @@ const DEFAULT_CATS=[
     <div class="sb-section" id="sb-stats-section" style="display:none">
       <div class="sb-label">Tu progreso</div>
       <!-- Nivel + XP bar -->
-      <div style="background:var(--vi-bg);border-radius:12px;padding:12px;margin-bottom:10px;border:1px solid rgba(124,58,237,0.1)">
+      <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:12px;margin-bottom:10px;border:1px solid rgba(255,255,255,0.08)">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
           <div style="font-size:22px" id="sb-level-emoji">⭐</div>
           <div style="flex:1">
-            <div style="font-size:13px;font-weight:500;color:var(--text)" id="sb-level-name">Nivel 1</div>
-            <div style="font-size:11px;color:var(--violet)" id="sb-level-title">Aprendiz</div>
+            <div style="font-size:13px;font-weight:500;color:#fff" id="sb-level-name">Nivel 1</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.4)" id="sb-level-title">Aprendiz</div>
           </div>
-          <div style="font-size:15px;font-weight:500;color:var(--violet);font-family:'Instrument Serif',serif" id="sb-level-pct">0%</div>
+          <div style="font-size:15px;font-weight:400;color:rgba(255,255,255,0.5);font-family:'Instrument Serif',serif" id="sb-level-pct">0%</div>
         </div>
-        <div style="height:4px;background:rgba(124,58,237,0.15);border-radius:4px;overflow:hidden">
-          <div id="sb-xp-bar" style="height:100%;background:var(--violet);border-radius:4px;width:0%;transition:width .4s ease"></div>
+        <div style="height:1px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;margin-top:2px">
+          <div id="sb-xp-bar" style="height:100%;background:rgba(255,255,255,0.6);border-radius:4px;width:0%;transition:width .4s ease"></div>
         </div>
         <div style="font-size:10px;color:var(--muted2);margin-top:4px;text-align:right" id="sb-xp-lbl">0 / 100 XP</div>
       </div>
@@ -996,54 +1018,47 @@ const DEFAULT_CATS=[
     <div class="pane active" id="pane-inicio">
 
       <!-- ══ MOBILE: Card Stack ══ -->
-      <div id="stack-mobile-wrap" style="display:flex;flex-direction:column;height:calc(100vh - var(--nav-h));overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch">
-        <!-- Header estilo editorial -->
-        <div style="position:relative;margin:10px 10px 8px;background:#0f0f0f;border-radius:20px;padding:28px 22px 22px;overflow:hidden;flex-shrink:0;min-height:200px;display:flex;flex-direction:column;justify-content:space-between">
-
-          <!-- Ruido de grano sutil -->
-          <div style="position:absolute;inset:0;border-radius:20px;opacity:0.03;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><filter id=%22n%22><feTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%224%22 stitchTiles=%22stitch%22/></filter><rect width=%22200%22 height=%22200%22 filter=%22url(%23n)%22 opacity=%221%22/></svg>');background-size:200px;pointer-events:none"></div>
-
-          <!-- Top: saludo + avatar racha -->
-          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px">
-            <div style="font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase;font-weight:400" id="stack-greet">BUENAS TARDES</div>
-            <!-- Streak compacto -->
-            <div id="stack-streak-box" style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:4px 10px 4px 8px">
-              <span style="font-size:13px;line-height:1">🔥</span>
-              <span style="font-family:'Instrument Serif',serif;font-size:16px;font-weight:400;color:#fff;line-height:1" id="stack-streak-n">0</span>
-              <span style="font-size:8px;color:rgba(255,255,255,0.35);letter-spacing:.8px;text-transform:uppercase">días</span>
+      <div id="stack-mobile-wrap" style="display:flex;flex-direction:column;min-height:calc(100vh - var(--nav-h));overflow-x:hidden">
+        <!-- Header Co-Star mobile -->
+        <div style="position:relative;background:#0f0f0f;padding:52px 22px 28px;flex-shrink:0;overflow:hidden">
+          <!-- Grano sutil -->
+          <div style="position:absolute;inset:0;opacity:0.04;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><filter id=%22n%22><feTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%224%22 stitchTiles=%22stitch%22/></filter><rect width=%22200%22 height=%22200%22 filter=%22url(%23n)%22/></svg>');background-size:180px;pointer-events:none"></div>
+          <!-- Saludo + racha en la misma línea -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;position:relative;z-index:1">
+            <div style="font-size:8px;color:rgba(255,255,255,0.28);letter-spacing:2.5px;text-transform:uppercase;font-weight:400" id="stack-greet">BUENOS DÍAS</div>
+            <!-- Racha integrada — sin box separado -->
+            <div id="stack-streak-box" style="display:flex;align-items:center;gap:5px">
+              <span style="font-size:12px;line-height:1">🔥</span>
+              <span style="font-family:'Instrument Serif',serif;font-size:18px;font-weight:400;color:#fff;line-height:1" id="stack-streak-n">0</span>
+              <span style="font-size:8px;color:rgba(255,255,255,0.3);letter-spacing:.8px;text-transform:uppercase">días</span>
             </div>
           </div>
-
-          <!-- Frase protagonista — tipografía grande -->
-          <div style="flex:1;display:flex;align-items:center">
-            <div style="font-family:'Instrument Serif',serif;font-size:32px;font-weight:400;color:#ffffff;line-height:1.18;letter-spacing:-.5px;max-width:280px" id="stack-quote">Tu mejor versión, cada día.</div>
-          </div>
-
-          <!-- Bottom: XP bar discreta -->
-          <div style="margin-top:22px">
-            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-              <span style="font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:.5px" id="stack-xp-lbl">0 / 100 XP</span>
-              <span style="font-size:9px;color:rgba(255,255,255,0.25)" id="stack-xp-pct">0%</span>
+          <!-- Frase protagonista -->
+          <div style="font-family:'Instrument Serif',serif;font-size:30px;font-weight:400;color:#ffffff;line-height:1.2;letter-spacing:-.4px;position:relative;z-index:1;margin-bottom:24px" id="stack-quote">Tu mejor versión, cada día.</div>
+          <!-- XP bar 1px -->
+          <div style="position:relative;z-index:1">
+            <div style="height:1px;background:rgba(255,255,255,0.1);border-radius:1px;overflow:hidden;margin-bottom:5px">
+              <div id="stack-xp-fill" style="height:100%;background:rgba(255,255,255,0.45);width:0%;border-radius:1px;transition:width .6s"></div>
             </div>
-            <div style="height:1px;background:rgba(255,255,255,0.1);border-radius:1px;overflow:hidden">
-              <div id="stack-xp-fill" style="height:100%;background:rgba(255,255,255,0.5);width:0%;border-radius:1px;transition:width .6s"></div>
+            <div style="display:flex;justify-content:space-between">
+              <span style="font-size:8px;color:rgba(255,255,255,0.2);letter-spacing:.3px" id="stack-xp-lbl">0 / 100 XP</span>
+              <span style="font-size:8px;color:rgba(255,255,255,0.2)" id="stack-xp-pct">0%</span>
             </div>
           </div>
         </div>
-        <!-- Stack container -->
-        <div id="stack-cards-container" style="position:relative;margin:0 10px;height:min(46vh,340px);flex-shrink:0"></div>
+        <!-- Stack container — flota sobre negro que transiciona a crema -->
+        <div style="position:relative;background:linear-gradient(180deg,#0f0f0f 0%,#0f0f0f 40%,var(--bg) 100%);flex-shrink:0;padding-bottom:20px">
+          <div id="stack-cards-container" style="position:relative;margin:0 16px;height:min(46vh,340px)"></div>
+        </div>
 
-        <!-- Spacer fijo — área de seguridad entre cartas y botón -->
-        <div style="height:150px;flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:0 14px;position:relative">
-          <div id="stack-hint" style="position:absolute;left:14px;display:flex;align-items:center;gap:5px;opacity:0.4">
-            <div style="font-size:14px;animation:hintBounce 1.8s ease-in-out infinite">↑</div>
-            <div style="font-size:10px;color:var(--muted2);letter-spacing:.5px">Swipe para ver más</div>
-          </div>
-          <button onclick="openCatManager()" style="display:flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--border2);border-radius:20px;padding:8px 18px;cursor:pointer;font-family:'Geist',sans-serif;font-size:12px;color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.08);font-weight:400">
-            <span style="font-size:16px;line-height:1;color:var(--violet)">✦</span> Crear categoría
+        <!-- Botones de acción -->
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:16px 14px 8px;position:relative">
+          <div id="stack-hint" style="display:none"></div>
+          <button onclick="openCatManager()" style="display:flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--border2);border-radius:20px;padding:8px 16px;cursor:pointer;font-family:'Geist',sans-serif;font-size:11px;color:var(--text);box-shadow:0 2px 12px rgba(0,0,0,0.08);font-weight:400">
+            <span style="font-size:14px;line-height:1;color:var(--violet)">✦</span> Crear categoría
           </button>
-          <button onclick="openStackAddMenu()" style="display:flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--border2);border-radius:20px;padding:8px 18px;cursor:pointer;font-family:'Geist',sans-serif;font-size:12px;color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.08);font-weight:400">
-            <span style="font-size:16px;line-height:1;color:var(--violet)">+</span> Agregar carta
+          <button onclick="openStackAddMenu()" style="display:flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--border2);border-radius:20px;padding:8px 16px;cursor:pointer;font-family:'Geist',sans-serif;font-size:11px;color:var(--text);box-shadow:0 2px 12px rgba(0,0,0,0.08);font-weight:400">
+            <span style="font-size:14px;line-height:1;color:var(--violet)">+</span> Agregar carta
           </button>
         </div>
 
@@ -1051,7 +1066,7 @@ const DEFAULT_CATS=[
         <div id="stack-dots" style="position:fixed;right:6px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px;z-index:50"></div>
 
         <!-- Calendar banner -->
-        <div onclick="sw('calendario')" id="cal-banner" style="margin:6px 12px 24px;background:var(--white);border:1px solid var(--border);border-radius:18px;padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.08);flex-shrink:0">
+        <div onclick="sw('calendario')" id="cal-banner" style="margin:8px 14px 20px;background:var(--white);border:1px solid var(--border);border-radius:20px;padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.1);flex-shrink:0">
           <div style="width:52px;height:52px;border-radius:15px;background:linear-gradient(135deg,#0369a1,#38bdf8);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(3,105,161,0.28);line-height:1">
             <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.7);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:1px" id="cal-banner-month-short"></div>
             <div style="font-size:22px;font-weight:700;color:#fff;line-height:1" id="cal-banner-daynum"></div>
@@ -1066,7 +1081,7 @@ const DEFAULT_CATS=[
 
             <!-- ══ DESKTOP: Original layout ══ -->
       <div class="desktop-inicio">
-        <div class="hero">
+        <div class="hero" style="padding:20px 20px 0">
           <div class="hero-card">
             <div class="hero-card-top">
               <div class="hero-greet" id="hero-greet">BUENAS TARDES</div>
@@ -1089,8 +1104,8 @@ const DEFAULT_CATS=[
             </div>
           </div>
         </div>
-        <div class="hero-xp">
-          <div class="xp-row"><span id="xp-lbl">0 / 100 XP</span><strong id="xp-pct">0%</strong></div>
+        <div class="hero-xp" style="padding:8px 0 0">
+          <div class="xp-row" style="margin-bottom:5px"><span id="xp-lbl">0 / 100 XP</span><strong id="xp-pct">0%</strong></div>
           <div class="xp-track"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
         </div>
         <div style="padding:8px 16px 0">
@@ -1116,70 +1131,72 @@ const DEFAULT_CATS=[
             </div>
           </div>
           <div class="inicio-right">
-            <div class="rp-card">
-              <div class="rp-label">Racha actual 🔥</div>
-              <div class="rp-streak-n" id="rp-streak-n">0</div>
-              <div class="rp-streak-sub" id="rp-streak-sub">¡Empezá hoy!</div>
-              <div id="rp-fire-row" style="display:flex;gap:3px;flex-wrap:wrap;margin-top:6px"></div>
+            <!-- RACHA — box blanco prominente -->
+            <div style="background:#fff;border-radius:20px;padding:20px 18px;margin-bottom:12px;box-shadow:0 4px 24px rgba(0,0,0,0.08);position:relative;overflow:hidden">
+              <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% -10%,rgba(251,146,60,0.1),transparent 65%);pointer-events:none"></div>
+              <div style="font-size:8px;text-transform:uppercase;letter-spacing:2px;color:#b8b4ae;font-weight:500;margin-bottom:12px">Racha actual</div>
+              <div style="display:flex;align-items:flex-end;gap:8px;margin-bottom:4px">
+                <div style="font-family:'Instrument Serif',serif;font-size:56px;font-weight:400;color:#1a1814;line-height:1" id="rp-streak-n">0</div>
+                <div style="font-size:28px;line-height:1;margin-bottom:6px">🔥</div>
+              </div>
+              <div style="font-size:11px;color:#8a8680;margin-bottom:14px" id="rp-streak-sub">¡Empezá hoy!</div>
+              <div id="rp-fire-row" style="display:flex;gap:3px;flex-wrap:wrap"></div>
             </div>
-            <div class="rp-card">
-              <div class="rp-label">Nivel actual</div>
-              <div class="rp-level-row">
-                <div class="rp-level-ring">
-                  <svg viewBox="0 0 50 50">
-                    <circle cx="25" cy="25" r="20" fill="none" stroke="var(--bg4)" stroke-width="4"/>
-                    <circle cx="25" cy="25" r="20" fill="none" stroke="var(--violet)" stroke-width="4"
-                      stroke-dasharray="125.7" id="rp-level-arc" stroke-dashoffset="125.7" stroke-linecap="round"/>
-                  </svg>
-                  <div class="rp-level-ring-emoji" id="rp-level-emoji">⭐</div>
-                </div>
+            <!-- NIVEL -->
+            <div style="background:#0f0f0f;border-radius:20px;padding:20px 18px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.06)">
+              <div style="font-size:8px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.25);font-weight:500;margin-bottom:14px">Nivel</div>
+              <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+                <div style="width:52px;height:52px;border-radius:16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0" id="rp-level-emoji">⭐</div>
                 <div style="flex:1">
-                  <div class="rp-level-name" id="rp-level-name">Nivel 1</div>
-                  <div style="font-size:12px;color:var(--violet);font-weight:500;margin-top:1px" id="rp-level-title">Aprendiz</div>
-                  <div class="rp-level-sub" id="rp-level-xp">0 / 100 XP</div>
+                  <div style="font-family:'Instrument Serif',serif;font-size:22px;color:#fff;line-height:1" id="rp-level-name">Nivel 1</div>
+                  <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:3px" id="rp-level-title">Aprendiz</div>
                 </div>
-                <div style="font-size:20px;font-weight:500;color:var(--muted);font-family:'Instrument Serif',serif" id="rp-level-pct">0%</div>
+                <div style="font-family:'Instrument Serif',serif;font-size:24px;color:rgba(255,255,255,0.3)" id="rp-level-pct">0%</div>
               </div>
+              <div style="height:1px;background:rgba(255,255,255,0.08);border-radius:1px;overflow:hidden;margin-bottom:6px">
+                <div id="rp-level-arc-bar" style="height:100%;background:rgba(255,255,255,0.6);width:0%;border-radius:1px;transition:width .5s ease"></div>
+              </div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.25)" id="rp-level-xp">0 / 100 XP</div>
+              <!-- SVG arc oculto para compatibilidad con render() -->
+              <svg style="display:none" viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" fill="none" stroke="transparent" stroke-width="0"/><circle cx="25" cy="25" r="20" fill="none" stroke="transparent" stroke-width="0" stroke-dasharray="125.7" id="rp-level-arc" stroke-dashoffset="125.7" stroke-linecap="round"/></svg>
             </div>
-            <div class="rp-card" style="background:var(--vi-bg);border-color:rgba(124,58,237,0.1)">
-              <div style="font-size:22px;color:var(--violet);opacity:0.4;line-height:1;margin-bottom:6px">"</div>
-              <div class="rp-quote" id="rp-quote">Pequeñas acciones diarias, grandes cambios con el tiempo.</div>
+            <!-- FRASE -->
+            <div style="background:#0f0f0f;border-radius:20px;padding:20px 18px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.06)">
+              <div style="font-size:28px;color:rgba(255,255,255,0.12);line-height:1;margin-bottom:10px;font-family:'Instrument Serif',serif">"</div>
+              <div style="font-family:'Instrument Serif',serif;font-size:16px;font-style:italic;color:rgba(255,255,255,0.7);line-height:1.55" id="rp-quote">Pequeñas acciones diarias, grandes cambios con el tiempo.</div>
             </div>
-            <div class="rp-card" style="padding:12px">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-                <div class="rp-label" style="margin-bottom:0">Calendario</div>
-                <div style="display:flex;align-items:center;gap:5px">
-                  <button onclick="calNav(-1)" style="width:22px;height:22px;border-radius:50%;background:var(--bg4);border:none;cursor:pointer;font-size:11px">‹</button>
-                  <span style="font-size:10px;color:var(--text);min-width:60px;text-align:center" id="home-cal-label"></span>
-                  <button onclick="calNav(1)" style="width:22px;height:22px;border-radius:50%;background:var(--bg4);border:none;cursor:pointer;font-size:11px">›</button>
+            <div style="background:#0f0f0f;border-radius:20px;padding:20px 18px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.06)">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+                <div style="font-size:8px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.25);font-weight:500">Calendario</div>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <button onclick="calNav(-1)" style="width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);cursor:pointer;font-size:11px;color:rgba(255,255,255,0.5)">‹</button>
+                  <span style="font-size:10px;color:rgba(255,255,255,0.5);min-width:60px;text-align:center" id="home-cal-label"></span>
+                  <button onclick="calNav(1)" style="width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);cursor:pointer;font-size:11px;color:rgba(255,255,255,0.5)">›</button>
                 </div>
               </div>
-              <div style="background:var(--bg4);border-radius:10px;padding:10px;position:relative;overflow:hidden">
-                <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--violet),#a855f7);border-radius:10px 10px 0 0"></div>
-                <div style="height:2px;margin-bottom:8px"></div>
-                <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:3px">
-                  <div style="text-align:center;font-size:9px;color:var(--muted2)">L</div><div style="text-align:center;font-size:9px;color:var(--muted2)">M</div><div style="text-align:center;font-size:9px;color:var(--muted2)">X</div><div style="text-align:center;font-size:9px;color:var(--muted2)">J</div><div style="text-align:center;font-size:9px;color:var(--muted2)">V</div><div style="text-align:center;font-size:9px;color:var(--muted2)">S</div><div style="text-align:center;font-size:9px;color:var(--muted2)">D</div>
+              <div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:12px;position:relative;overflow:hidden">
+                <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:5px">
+                  <div style="text-align:center;font-size:8px;color:rgba(255,255,255,0.2)">L</div><div style="text-align:center;font-size:8px;color:rgba(255,255,255,0.2)">M</div><div style="text-align:center;font-size:8px;color:rgba(255,255,255,0.2)">X</div><div style="text-align:center;font-size:8px;color:rgba(255,255,255,0.2)">J</div><div style="text-align:center;font-size:8px;color:rgba(255,255,255,0.2)">V</div><div style="text-align:center;font-size:8px;color:rgba(255,255,255,0.2)">S</div><div style="text-align:center;font-size:8px;color:rgba(255,255,255,0.2)">D</div>
                 </div>
                 <div id="home-cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px"></div>
               </div>
-              <div id="home-cal-detail" style="display:none;margin-top:10px">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-                  <div style="font-family:'Instrument Serif',serif;font-size:14px;color:var(--text)" id="home-cal-day-title"></div>
-                  <span style="font-size:10px;color:var(--violet);font-weight:500;background:var(--vi-bg);padding:2px 8px;border-radius:20px" id="home-cal-day-xp"></span>
+              <div id="home-cal-detail" style="display:none;margin-top:14px">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                  <div style="font-family:'Instrument Serif',serif;font-size:15px;color:#fff" id="home-cal-day-title"></div>
+                  <span style="font-size:9px;color:rgba(255,255,255,0.5);font-weight:400;background:rgba(255,255,255,0.08);padding:2px 8px;border-radius:20px" id="home-cal-day-xp"></span>
                 </div>
                 <div id="home-cal-day-list" style="max-height:180px;overflow-y:auto"></div>
-                <!-- Google Calendar events — visually differentiated -->
-                <div id="home-gcal-section" style="display:none;margin-top:8px;border-top:1px solid var(--border);padding-top:8px">
+                <div id="home-gcal-section" style="display:none;margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:8px">
                   <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
                     <div style="width:14px;height:14px;border-radius:3px;background:linear-gradient(135deg,#4285f4,#34a853);flex-shrink:0"></div>
-                    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.1px;color:var(--muted2);font-weight:500">Google Calendar</div>
+                    <div style="font-size:8px;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.25);font-weight:500">Google Calendar</div>
                   </div>
                   <div id="home-gcal-events" style="display:flex;flex-direction:column;gap:4px"></div>
                 </div>
-                <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px">
-                  <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.1px;color:var(--muted2);font-weight:500;margin-bottom:5px">Nota del día</div>
-                  <textarea id="home-cal-note" placeholder="Anotá algo..." style="width:100%;min-height:50px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:7px 10px;font-size:12px;font-family:'Geist',sans-serif;font-weight:300;outline:none;resize:none;" onfocus="this.style.borderColor='var(--violet)'" onblur="this.style.borderColor='var(--border2)'"></textarea>
-                  <button onclick="saveNoteFromHome()" style="margin-top:5px;width:100%;padding:7px;background:var(--text);color:#fff;border:none;border-radius:8px;font-size:11px;font-family:'Geist',sans-serif;cursor:pointer" id="home-note-save-btn">Guardar nota</button>
+                <div style="margin-top:10px;border-top:1px solid rgba(255,255,255,0.08);padding-top:10px">
+                  <div style="font-size:8px;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.25);font-weight:500;margin-bottom:6px">Nota del día</div>
+                  <textarea id="home-cal-note" placeholder="Anotá algo..." style="width:100%;min-height:50px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:8px;padding:7px 10px;font-size:12px;font-family:'Geist',sans-serif;font-weight:300;outline:none;resize:none;" onfocus="this.style.borderColor='rgba(255,255,255,0.3)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></textarea>
+                  <button onclick="saveNoteFromHome()" style="margin-top:5px;width:100%;padding:7px;background:#fff;color:#0f0f0f;border:none;border-radius:8px;font-size:11px;font-family:'Geist',sans-serif;cursor:pointer;font-weight:500" id="home-note-save-btn">Guardar nota</button>
                 </div>
               </div>
             </div>
@@ -5297,11 +5314,11 @@ function renderStack(){
   const streakVal=state.streak||0;
   if(ge('stack-streak-n')){
     ge('stack-streak-n').textContent=streakVal;
-    ge('stack-streak-n').style.color=streakVal>=2?'#ea580c':'#1a1814';
+    ge('stack-streak-n').style.color=streakVal>=2?'#fb923c':'rgba(255,255,255,0.9)';
   }
   // Box stays white always
   const sbox=ge('stack-streak-box');
-  if(sbox){sbox.style.background='#ffffff';}
+  // streak integrado al header negro, no necesita background
 
   // Calendar banner
   const dayNames=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
@@ -5357,9 +5374,9 @@ function renderStack(){
     el.style.position='absolute';
     el.style.width='100%';
     el.style.height='100%';
-    el.style.borderRadius='22px';
+    el.style.borderRadius='26px';
     el.style.overflow='hidden';
-    el.style.boxShadow='0 8px 32px rgba(0,0,0,0.18)';
+    el.style.boxShadow='0 20px 60px rgba(0,0,0,0.32),0 6px 20px rgba(0,0,0,0.2),inset 0 1px 0 rgba(255,255,255,0.12)';
     el.style.transition='transform .35s cubic-bezier(.32,1,.5,1)';
 
     if(offset===0){
@@ -5463,6 +5480,8 @@ function renderRightPanel(){
   // Level ring
   const arc=ge('rp-level-arc');
   if(arc)arc.style.strokeDashoffset=125.7-(125.7*(pct/100));
+  const arcBar=ge('rp-level-arc-bar');
+  if(arcBar)arcBar.style.width=pct+'%';
   const emojis=['⭐','⭐','🌟','💫','✨','🏆','👑','💎','🔥','⚡','🌌'];
   if(ge('rp-level-emoji'))ge('rp-level-emoji').textContent=emojis[Math.min(lvl,emojis.length-1)];
   if(ge('rp-level-name'))ge('rp-level-name').textContent='Nivel '+lvl;
