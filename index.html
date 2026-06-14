@@ -144,7 +144,7 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
   .nav-btn-center.active{background:var(--vi-bg);}
   .nav-btn-center .nav-lbl{font-size:13px;color:var(--text);}
   .nav-btn-center.active .nav-lbl{color:var(--violet);}
-  .scroll{padding-bottom:20px;height:0;flex:1;overflow-y:auto;}
+  .scroll{padding-bottom:20px;}
   .sb-top{display:flex;align-items:center;gap:10px;padding:22px 18px 18px;border-bottom:1px solid var(--border);margin-bottom:8px;}
   .sb-logo-icon{width:30px;height:30px;border-radius:9px;background:transparent;display:flex;align-items:center;justify-content:center;font-size:14px;overflow:hidden;}
   .sb-logo-name{font-family:'Instrument Serif',serif;font-size:17px;font-weight:400;color:var(--text);}
@@ -997,29 +997,36 @@ const DEFAULT_CATS=[
 
       <!-- ══ MOBILE: Card Stack ══ -->
       <div id="stack-mobile-wrap" style="display:flex;flex-direction:column;height:calc(100vh - var(--nav-h));overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch">
-        <!-- Header -->
-        <div style="position:relative;margin:10px 10px 8px;background:linear-gradient(135deg,#1a0d35 0%,#2d1a5e 60%,#1e1040 100%);border-radius:20px;padding:18px 18px 14px;overflow:hidden;flex-shrink:0">
-          <div style="position:absolute;top:-40px;right:-20px;width:160px;height:160px;background:radial-gradient(circle,rgba(139,92,246,0.25),transparent 65%);pointer-events:none"></div>
-          <div style="position:absolute;bottom:-30px;left:20px;width:100px;height:100px;background:radial-gradient(circle,rgba(236,72,153,0.12),transparent 65%);pointer-events:none"></div>
-          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;position:relative;z-index:1;gap:12px">
-            <div style="flex:1">
-              <div style="font-size:9px;color:rgba(255,255,255,0.45);letter-spacing:1.3px;text-transform:uppercase;margin-bottom:6px" id="stack-greet">BUENAS TARDES</div>
-              <div style="font-family:'Instrument Serif',serif;font-size:17px;font-style:italic;color:#fff;line-height:1.35;letter-spacing:-.1px" id="stack-quote">Tu mejor versión, cada día.</div>
-            </div>
-            <!-- Streak box -->
-            <div id="stack-streak-box" style="flex-shrink:0;background:#ffffff;border-radius:16px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:64px;box-shadow:0 2px 12px rgba(0,0,0,0.15)">
-              <span style="font-size:22px;line-height:1">🔥</span>
-              <span style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;color:#1a1814;line-height:1" id="stack-streak-n">0</span>
-              <span style="font-size:8px;color:#8a8680;letter-spacing:.8px;text-transform:uppercase">días</span>
+        <!-- Header estilo editorial -->
+        <div style="position:relative;margin:10px 10px 8px;background:#0f0f0f;border-radius:20px;padding:28px 22px 22px;overflow:hidden;flex-shrink:0;min-height:200px;display:flex;flex-direction:column;justify-content:space-between">
+
+          <!-- Ruido de grano sutil -->
+          <div style="position:absolute;inset:0;border-radius:20px;opacity:0.03;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><filter id=%22n%22><feTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%224%22 stitchTiles=%22stitch%22/></filter><rect width=%22200%22 height=%22200%22 filter=%22url(%23n)%22 opacity=%221%22/></svg>');background-size:200px;pointer-events:none"></div>
+
+          <!-- Top: saludo + avatar racha -->
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px">
+            <div style="font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase;font-weight:400" id="stack-greet">BUENAS TARDES</div>
+            <!-- Streak compacto -->
+            <div id="stack-streak-box" style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:4px 10px 4px 8px">
+              <span style="font-size:13px;line-height:1">🔥</span>
+              <span style="font-family:'Instrument Serif',serif;font-size:16px;font-weight:400;color:#fff;line-height:1" id="stack-streak-n">0</span>
+              <span style="font-size:8px;color:rgba(255,255,255,0.35);letter-spacing:.8px;text-transform:uppercase">días</span>
             </div>
           </div>
-          <div style="position:relative;z-index:1">
-            <div style="height:3px;background:rgba(255,255,255,0.12);border-radius:10px;overflow:hidden;margin-bottom:4px">
-              <div id="stack-xp-fill" style="height:100%;background:linear-gradient(90deg,#a855f7,#ec4899);width:0%;border-radius:10px;transition:width .6s"></div>
+
+          <!-- Frase protagonista — tipografía grande -->
+          <div style="flex:1;display:flex;align-items:center">
+            <div style="font-family:'Instrument Serif',serif;font-size:32px;font-weight:400;color:#ffffff;line-height:1.18;letter-spacing:-.5px;max-width:280px" id="stack-quote">Tu mejor versión, cada día.</div>
+          </div>
+
+          <!-- Bottom: XP bar discreta -->
+          <div style="margin-top:22px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:.5px" id="stack-xp-lbl">0 / 100 XP</span>
+              <span style="font-size:9px;color:rgba(255,255,255,0.25)" id="stack-xp-pct">0%</span>
             </div>
-            <div style="display:flex;justify-content:space-between">
-              <span style="font-size:9px;color:rgba(255,255,255,0.3)" id="stack-xp-lbl">0 / 100 XP</span>
-              <span style="font-size:9px;color:rgba(255,255,255,0.45)" id="stack-xp-pct">0%</span>
+            <div style="height:1px;background:rgba(255,255,255,0.1);border-radius:1px;overflow:hidden">
+              <div id="stack-xp-fill" style="height:100%;background:rgba(255,255,255,0.5);width:0%;border-radius:1px;transition:width .6s"></div>
             </div>
           </div>
         </div>
