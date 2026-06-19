@@ -98,7 +98,7 @@ body.dark-mode .sb-streak{background:#1c1c1c;box-shadow:0 4px 20px rgba(0,0,0,0.
 body.dark-mode .sb-streak-n{color:var(--text);}
 body.dark-mode .sb-streak-l{color:var(--muted);}
 /* Input area tareas */
-body.dark-mode .input-area{background:var(--white);border-color:var(--border);}
+body.dark-mode .input-area{background:var(--white);border-left-color:var(--border);border-right-color:var(--border);border-bottom-color:var(--border);}
 body.dark-mode .inp{background:var(--bg3)!important;color:var(--text)!important;border-color:var(--border2)!important;}
 body.dark-mode .cat-pill{background:var(--bg3)!important;color:var(--muted)!important;border-color:var(--border)!important;}
 body.dark-mode .cat-pill.active{background:var(--vi-bg)!important;color:var(--vi-tc)!important;}
@@ -439,23 +439,36 @@ html,body{height:100%;font-family:'Geist',sans-serif;font-weight:300;background:
 .sc-r{background:linear-gradient(135deg,#fdf2f8,#fff8fc);}
 
 /* Input */
-.input-area{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:16px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+.input-area{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.05);border-top:3px solid var(--cat-accent,var(--violet));transition:border-color .25s;}
+.input-area-hdr{display:flex;align-items:center;gap:7px;margin-bottom:12px;}
+.input-area-hdr .dot{width:6px;height:6px;border-radius:50%;background:var(--cat-accent,var(--violet));transition:background .25s;flex-shrink:0;}
+.input-area-hdr .lbl{font-size:9px;text-transform:uppercase;letter-spacing:1.8px;color:var(--muted2);font-weight:500;}
+.input-area-hdr .sub{font-size:11px;color:var(--muted2);font-style:italic;font-family:'Instrument Serif',serif;margin-left:auto;}
 .input-row{display:flex;gap:7px;flex-wrap:wrap;align-items:center;}
 .inp{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:9px;padding:9px 13px;font-size:13px;font-family:'Geist',sans-serif;font-weight:300;outline:none;transition:all .15s;}
 .inp:focus{background:var(--white);border-color:var(--violet);box-shadow:0 0 0 3px rgba(124,58,237,0.07);}
 .inp::placeholder{color:var(--muted2);}
 .inp-main{flex:1;min-width:140px;font-size:14px;padding:11px 15px;}
 .inp-sel{cursor:pointer;}
-.inp-pts{width:60px;text-align:center;}
-.btn-add{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:none;border-radius:12px;padding:11px 20px;font-size:13px;font-family:'Geist',sans-serif;font-weight:500;cursor:pointer;transition:all .18s;white-space:nowrap;box-shadow:0 3px 10px rgba(124,58,237,0.3);}
-.btn-add:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 5px 16px rgba(124,58,237,0.38);}.btn-add:active{transform:scale(.97);}
+.pts-wrap{position:relative;display:inline-flex;align-items:center;}
+.pts-wrap::after{content:'XP';position:absolute;right:10px;font-size:9px;color:var(--muted2);font-weight:500;letter-spacing:.3px;pointer-events:none;}
+.inp-pts{width:68px;text-align:center;padding-right:28px;-moz-appearance:textfield;}
+.inp-pts::-webkit-outer-spin-button,.inp-pts::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.btn-add{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:none;border-radius:12px;padding:11px 20px;font-size:13px;font-family:'Geist',sans-serif;font-weight:500;cursor:pointer;transition:all .18s;white-space:nowrap;box-shadow:0 3px 10px rgba(124,58,237,0.3);animation:btnAddGlow 2.6s ease-in-out infinite;}
+.btn-add:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 5px 16px rgba(124,58,237,0.38);animation-play-state:paused;}.btn-add:active{transform:scale(.97);}
+@keyframes btnAddGlow{0%,100%{box-shadow:0 3px 10px rgba(124,58,237,0.3);}50%{box-shadow:0 3px 16px rgba(124,58,237,0.5);}}
 .btn-sm{background:transparent;color:var(--muted);border:1px solid var(--border2);border-radius:9px;padding:9px 12px;font-size:13px;font-family:'Geist',sans-serif;cursor:pointer;transition:all .15s;}
 .btn-sm:hover{color:var(--text);background:var(--bg3);}
+.field-group{display:flex;flex-direction:column;gap:3px;}
+.field-group .fg-lbl{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--muted2);font-weight:500;padding-left:1px;}
+.detail-strip{margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);}
+.detail-strip-tools{margin-left:auto;display:flex;gap:5px;align-self:flex-end;opacity:.65;}
+.detail-strip-tools .btn-sm{padding:7px 9px;font-size:11px;}
 
 /* Cat selector pills */
 .cat-pill-row{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 4px;}
 .cat-pill{border:none;border-radius:20px;padding:6px 12px;font-size:11px;font-family:'Geist',sans-serif;font-weight:400;cursor:pointer;transition:all .15s;opacity:.55;}
-.cat-pill.active{opacity:1;box-shadow:0 2px 8px rgba(0,0,0,0.12);}
+.cat-pill.active{opacity:1;box-shadow:0 2px 8px rgba(0,0,0,0.12);transform:translateY(-1px);}
 
 /* Tasks */
 .task-group{margin-bottom:18px;}
@@ -1375,9 +1388,14 @@ const DEFAULT_CATS=[
         <div class="page-title">Tareas</div>
         <div class="page-sub" id="tasks-sub">0 pendientes hoy</div>
         <div class="input-area">
+          <div class="input-area-hdr">
+            <span class="dot"></span>
+            <span class="lbl">Nueva acción</span>
+            <span class="sub" id="task-form-hint">cada anotación suma a tu red</span>
+          </div>
           <div class="input-row">
             <input class="inp inp-main" type="text" id="task-input" placeholder="¿Qué vas a hacer hoy?" onkeydown="if(event.key==='Enter')addTask()">
-            <input class="inp inp-pts" type="number" id="task-pts" value="10" min="1" max="100" title="XP">
+            <span class="pts-wrap"><input class="inp inp-pts" type="number" id="task-pts" value="10" min="1" max="100" title="XP"></span>
             <button class="btn-add" onclick="addTask()">+ Agregar</button>
           </div>
           <!-- Category pills -->
@@ -1388,23 +1406,37 @@ const DEFAULT_CATS=[
             <button class="cat-pill" data-cat="Relaciones" style="background:#fdf2f8;color:#9d174d" onclick="selectCatPill(this,'Relaciones')">🤝 Relaciones</button>
             <button class="cat-pill" data-cat="Trabajo" style="background:#f0f9ff;color:#075985" onclick="selectCatPill(this,'Trabajo')">💼 Trabajo</button>
           </div>
-          <!-- Recurrence + date in collapsed row -->
-          <div class="input-row" style="margin-top:6px;gap:7px">
-            <select class="inp inp-sel" id="task-recur" style="flex:1;font-size:12px">
-              <option value="none">Sin recurrencia</option>
-              <option value="daily">🔁 Todos los días</option>
-              <option value="weekly">📅 Semanal</option>
-              <option value="monthly">🗓 Mensual</option>
-            </select>
-            <select class="inp inp-sel" id="task-priority" style="width:80px;font-size:12px" title="Prioridad">
-              <option value="1">🟢 Baja</option>
-              <option value="2" selected>🟡 Media</option>
-              <option value="3">🔴 Alta</option>
-            </select>
-            <input class="inp" type="date" id="task-due" style="flex:1;font-size:12px" title="Fecha límite">
-            <input class="inp" type="number" id="task-hours" min="0.5" max="100" step="0.5" placeholder="⏱ hs" title="Horas estimadas (opcional)" style="width:70px;font-size:12px;text-align:center">
-            <button class="btn-sm" onclick="exportData()" title="Exportar">↓</button>
-            <label class="btn-sm" style="cursor:pointer" title="Importar">↑<input type="file" accept=".json" onchange="importData(event)" style="display:none"></label>
+          <!-- Detalles — agrupados con micro-labels para separarlos del bloque principal -->
+          <div class="input-row detail-strip" style="gap:7px">
+            <div class="field-group" style="flex:1.3">
+              <span class="fg-lbl">Repetir</span>
+              <select class="inp inp-sel" id="task-recur" style="font-size:12px">
+                <option value="none">Sin recurrencia</option>
+                <option value="daily">🔁 Todos los días</option>
+                <option value="weekly">📅 Semanal</option>
+                <option value="monthly">🗓 Mensual</option>
+              </select>
+            </div>
+            <div class="field-group" style="width:84px">
+              <span class="fg-lbl">Prioridad</span>
+              <select class="inp inp-sel" id="task-priority" style="font-size:12px" title="Prioridad">
+                <option value="1">🟢 Baja</option>
+                <option value="2" selected>🟡 Media</option>
+                <option value="3">🔴 Alta</option>
+              </select>
+            </div>
+            <div class="field-group" style="flex:1">
+              <span class="fg-lbl">Vence</span>
+              <input class="inp" type="date" id="task-due" style="font-size:12px" title="Fecha límite">
+            </div>
+            <div class="field-group" style="width:76px">
+              <span class="fg-lbl">Duración</span>
+              <input class="inp" type="number" id="task-hours" min="0.5" max="100" step="0.5" placeholder="⏱ hs" title="Horas estimadas (opcional)" style="text-align:center">
+            </div>
+            <div class="detail-strip-tools">
+              <button class="btn-sm" onclick="exportData()" title="Exportar datos">↓</button>
+              <label class="btn-sm" style="cursor:pointer" title="Importar datos">↑<input type="file" accept=".json" onchange="importData(event)" style="display:none"></label>
+            </div>
           </div>
           <!-- Botón planificador IA -->
           <button onclick="openPlanner()" style="margin-top:8px;width:100%;padding:9px;background:linear-gradient(135deg,var(--violet),#a855f7);color:#fff;border:none;border-radius:10px;font-size:12px;font-family:'Geist',sans-serif;font-weight:400;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity .15s" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
@@ -2094,10 +2126,15 @@ function renderCatPills(){
   if(cats.length)sel.value=cats[0].id;
 }
 
+const CAT_HINTS={Mente:'cada anotación suma a tu red',Cuerpo:'tu cuerpo también mieliniza',Skills:'la repetición es lo que mieliniza',Relaciones:'los vínculos también se entrenan',Trabajo:'constancia, no perfección'};
 function selectCatPill(btn,cat){
   document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');
   ge('task-cat').value=cat;
+  const area=document.querySelector('.input-area');
+  if(area) area.style.setProperty('--cat-accent',btn.style.color||'#7c3aed');
+  const hint=ge('task-form-hint');
+  if(hint) hint.textContent=CAT_HINTS[cat]||'cada anotación suma a tu red';
 }
 
 /* ── Cards de inicio estilo App Store ── */
